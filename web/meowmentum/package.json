@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier --write .",
-    "format": "npm run lint && npm run prettier",
-    "clear-cache": "node clear-cache.js"
+    "format": "yarn run lint && yarn run prettier",
+    "clear-cache": "node clear-cache.js",
+    "build:prod": "yarn run build && yarn run start"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.3.0",
