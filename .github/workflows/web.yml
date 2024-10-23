@@ -5,10 +5,14 @@ on:
     branches:
       - main
       - web  
+    paths:
+    - 'web/meowmentum/**'
   pull_request:
     branches:
       - main
       - web  
+    paths:
+      - 'web/meowmentum/**'
 
 jobs:
   build:
@@ -26,14 +30,14 @@ jobs:
           node-version: '20.11.0'
 
       - name: Install dependencies
-        run: cd web/meowmentum &&  yarn install
+        run: yarn install
 
       - name: Run lint
-        run: cd web/meowmentum && yarn lint
+        run: yarn lint
 
       - name: Run format check
-        run: cd web/meowmentum && yarn format
+        run: yarn format
 
       - name: Build the application
-        run: cd web/meowmentum && yarn build
+        run: yarn build
         
