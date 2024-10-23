@@ -26,13 +26,18 @@ jobs:
           node-version: '20.11.0'
 
       - name: Install dependencies
+        working-directory: ./web/meowmentum/
         run: yarn install
 
       - name: Run lint
+        working-directory: ./web/meowmentum/
         run: yarn lint
 
       - name: Run format check
+        working-directory: ./web/meowmentum/
         run: yarn format
 
       - name: Build the application
+        working-directory: ./web/meowmentum/
         run: yarn build
+        
