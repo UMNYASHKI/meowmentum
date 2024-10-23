@@ -1,0 +1,57 @@
+# Ignore node_modules directory
+node_modules
+
+# Ignore build output (Next.js)
+.next
+out
+
+# Ignore public static files
+public
+
+# Ignore version control directories
+.git
+.gitignore
+
+# Ignore package lock files
+package-lock.json
+yarn.lock
+
+# Ignore compiled TypeScript files and JS output
+dist
+*.js
+*.d.ts
+
+# Ignore configuration files
+*.config.js
+
+# Ignore coverage reports (common for Jest and other test runners)
+coverage
+
+# Ignore environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Ignore log files
+*.log
+
+# Ignore assets like images, fonts, and other static media files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+
+# Ignore markdown or documentation (if you don't want Prettier to format it)
+*.md
+*.mdx
+
+# Ignore all files under specific folder, e.g., legacy code
+legacy_code/**
+
+*.mjs
+*.css
+*.json
