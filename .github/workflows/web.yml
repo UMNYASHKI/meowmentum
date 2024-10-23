@@ -13,9 +13,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./web/meowmentum/
 
     steps:
       - name: Checkout code
@@ -29,14 +26,14 @@ jobs:
           node-version: '20.11.0'
 
       - name: Install dependencies
-        run: yarn install
+        run: cd web/meowmentum &&  yarn install
 
       - name: Run lint
-        run: yarn lint
+        run: cd web/meowmentum && yarn lint
 
       - name: Run format check
-        run: yarn format
+        run: cd web/meowmentum && yarn format
 
       - name: Build the application
-        run: yarn build
+        run: cd web/meowmentum && yarn build
         
