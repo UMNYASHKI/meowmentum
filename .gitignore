@@ -2,16 +2,4 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/Meowmentum.Server.Dotnet.Api/.vs
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api/bin/Debug/net8.0
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api/obj
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Business/bin/Debug/net8.0
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Business/obj
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Core/bin/Debug/net8.0
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Core/obj
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Infrastructure/bin/Debug/net8.0
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Infrastructure/obj
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Persistence/bin/Debug/net8.0
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Persistence/obj
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Shared/bin/Debug/net8.0
-/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Shared/obj
+/.vs
