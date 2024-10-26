@@ -1,0 +1,6 @@
+@Meowmentum.Server.Dotnet.Api_HostAddress = http://localhost:5264
+
+GET {{Meowmentum.Server.Dotnet.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
