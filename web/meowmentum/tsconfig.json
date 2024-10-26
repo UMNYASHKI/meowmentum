@@ -23,7 +23,8 @@
       "@services/*": ["./src/lib/services/*"],
       "@providers/*": ["./src/lib/providers/*"],
       "@utils/*": ["./src/utils/*"],
-      "@fonts/*": ["./src/styles/fonts/*"]
+      "@fonts/*": ["./src/styles/fonts/*"],
+      "@common/*": ["./src/components/common/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

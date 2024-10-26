@@ -4,6 +4,7 @@ import {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
+  RegisterResponse,
 } from '@/lib/services/auth/authDtos';
 import { useAuth } from '@/lib/providers/authProvider';
 
@@ -11,7 +12,7 @@ export const authApi = createApi({
   reducerPath: 'apiAuth',
   baseQuery: baseAuthQuery,
   endpoints: (builder) => ({
-    register: builder.mutation<void, RegisterRequest>({
+    register: builder.mutation<RegisterResponse, RegisterRequest>({
       query: (credentials) => ({
         url: '/auth/register',
         method: 'POST',
