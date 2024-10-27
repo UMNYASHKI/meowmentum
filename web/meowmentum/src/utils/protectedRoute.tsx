@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { useAuth } from '@providers/authProvider';
+import { Spinner } from '@nextui-org/react';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -16,7 +17,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   }, [isAuthenticated, router]);
 
   if (!isAuthenticated) {
-    return <p>Loading...</p>;
+    return (
+      <Spinner
+        size="lg"
+        className={'flex items-center justify-center h-screen'}
+      />
+    );
   }
 
   return <>{children}</>;
