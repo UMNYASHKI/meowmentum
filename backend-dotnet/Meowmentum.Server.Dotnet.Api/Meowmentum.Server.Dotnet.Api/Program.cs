@@ -1,6 +1,8 @@
 using Meowmentum.Server.Dotnet.Business;
+using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure;
 using Meowmentum.Server.Dotnet.Persistence;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +15,14 @@ builder.Services.AddAutoMapper(config =>
     //config.AddProfile<ProfileType>();
 });
 
+builder.Services.AddIdentity<AppUser, IdentityRole<long>>()
+    .AddDefaultTokenProviders()
+    .AddRoles<IdentityRole<long>>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddBusiness();
-builder.Services.AddInfrastructure();
-builder.Services.AddPersistence();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddPersistence(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {

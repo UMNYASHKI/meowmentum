@@ -15,7 +15,6 @@
     <Folder Include="Enums\" />
     <Folder Include="Constants\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Options\" />
     <Folder Include="Responses\" />
     <Folder Include="Requests\" />
   </ItemGroup>
