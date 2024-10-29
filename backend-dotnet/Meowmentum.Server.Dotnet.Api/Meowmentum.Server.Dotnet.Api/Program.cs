@@ -1,3 +1,4 @@
+using Meowmentum.Server.Dotnet.Api.Extensions;
 using Meowmentum.Server.Dotnet.Business;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure;
@@ -8,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGeneration();
 
 builder.Services.AddAutoMapper(config =>
 {
