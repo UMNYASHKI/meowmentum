@@ -1,0 +1,12 @@
+{
+  "extends": ["next", "next/core-web-vitals", "eslint:recommended"],
+  "plugins": ["prettier"],
+  "globals": {
+    "React": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": "warn",
+    "prettier/prettier": "warn",
+    "no-console": "warn"
+  }
+}
