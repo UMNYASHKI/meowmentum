@@ -14,6 +14,12 @@ public static class RegisterLayerExtension
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.AddJwtAuthentication(configuration);
         services.AddScoped<ITokenService, JwtService>();
+
+        services.AddTransient<IAuthService, AuthService>();
+        services.AddTransient<IEmailService, EmailService>();
+        services.AddTransient<IOtpService, OtpService>();
+
+        services.AddMemoryCache();
     }
 }
 

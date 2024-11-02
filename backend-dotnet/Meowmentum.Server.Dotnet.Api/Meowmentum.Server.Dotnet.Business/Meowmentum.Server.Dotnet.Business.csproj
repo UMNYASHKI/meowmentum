@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Implementations\" />
     <Folder Include="Validators\" />
   </ItemGroup>
 
