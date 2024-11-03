@@ -21,13 +21,13 @@ public class OtpManager(IMemoryCache memoryCache) : IOtpManager
         return (BitConverter.ToUInt32(rng, 0) % 1000000).ToString("D6");
     }
 
-    public async Task SaveOtpForUserAsync(long userId, string otp, CancellationToken token)
+    public async Task SaveOtpForUserAsync(long userId, string otp, CancellationToken token = default)
     {
         memoryCache.Set(userId, otp, _otpExpirationTime);
         await Task.CompletedTask;
     }
 
-    public async Task<Result<bool>> ValidateOtpAsync(long userId, string otp, CancellationToken token)
+    public async Task<Result<bool>> ValidateOtpAsync(long userId, string otp, CancellationToken token = default)
     {
         token.ThrowIfCancellationRequested();
 

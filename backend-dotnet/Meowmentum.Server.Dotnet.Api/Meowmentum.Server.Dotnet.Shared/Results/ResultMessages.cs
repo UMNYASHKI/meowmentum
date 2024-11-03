@@ -17,6 +17,7 @@ public static class ResultMessages
 
     public static class Registration
     {
+        public const string Success = "User registered successfully. Please verify your email!";
         public const string FailedToCreateUser = "Failed to create user:\n";
         public const string OperationError = "An operation error occurred during registration. Please try again.";
         public const string InvalidArgument = "Invalid argument provided. Please check your input and try again.";
@@ -25,6 +26,7 @@ public static class ResultMessages
 
     public static class Otp
     {
+        public const string OtpVerified = "OTP verification succeeded.";
         public const string OtpNotFound = "OTP not found or expired!";
         public const string WrongOtp = "Wrong OTP!";
         public const string OperationError = "An operation error occurred during OTP verification. Please try again.";

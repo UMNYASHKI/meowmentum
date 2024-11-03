@@ -19,7 +19,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await authService.RegisterUserAsync(request, token);
 
         if (result.IsSuccess)
-            return Ok("User registered successfully. Please verify your email!");
+            return Ok(result.Message);
 
         return BadRequest(result.ErrorMessage);
     }
@@ -34,7 +34,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await authService.VerifyOtpAsync(request, token);
 
         if (result.IsSuccess)
-            return Ok("Email verified successfully!");
+            return Ok(result.Message);
 
         return BadRequest(result.ErrorMessage);
     }

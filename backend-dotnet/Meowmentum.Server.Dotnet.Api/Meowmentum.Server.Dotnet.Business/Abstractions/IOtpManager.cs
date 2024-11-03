@@ -10,6 +10,6 @@ namespace Meowmentum.Server.Dotnet.Business.Abstractions;
 public interface IOtpManager
 {
     string GenerateOtp();
-    Task SaveOtpForUserAsync(long userId, string otp, CancellationToken token);
-    Task<Result<bool>> ValidateOtpAsync(long userId, string otp, CancellationToken token);
+    Task SaveOtpForUserAsync(long userId, string otp, CancellationToken token = default);
+    Task<Result<bool>> ValidateOtpAsync(long userId, string otp, CancellationToken token = default);
 }

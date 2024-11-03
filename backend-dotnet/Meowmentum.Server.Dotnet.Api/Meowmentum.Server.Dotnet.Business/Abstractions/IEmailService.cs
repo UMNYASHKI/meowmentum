@@ -9,5 +9,5 @@ namespace Meowmentum.Server.Dotnet.Business.Abstractions;
 
 public interface IEmailService
 {
-    Task<Result<bool>> SendOtpByEmailAsync(string email, string otp, CancellationToken token);
+    Task<Result<bool>> SendOtpByEmailAsync(string email, string otp, CancellationToken token = default);
 }

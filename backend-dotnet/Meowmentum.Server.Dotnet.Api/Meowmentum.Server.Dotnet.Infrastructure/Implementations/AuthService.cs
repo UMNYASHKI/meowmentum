@@ -14,7 +14,7 @@ namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService) 
     : IAuthService
 {
-    public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token)
+    public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default)
     {
         try
         {
@@ -34,7 +34,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
                 var otp = otpService.GenerateOtp();
                 await emailService.SendOtpByEmailAsync(user.Email, otp, token);
                 await otpService.SaveOtpForUserAsync(user.Id, otp, token);
-                return Result.Success(true);
+                return Result.Success(true, ResultMessages.Registration.Success);
             }
 
             return Result.Failure<bool>(ResultMessages.Registration.FailedToCreateUser + string.Join('\n', response.Errors));
@@ -57,7 +57,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         }
     }
 
-    public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken token)
+    public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken token = default)
     {
         try
         {
@@ -74,7 +74,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
             {
                 user.EmailConfirmed = true;
                 await userManager.UpdateAsync(user);
-                return Result.Success(true);
+                return Result.Success(true, ResultMessages.Otp.OtpVerified);
             }
 
             return Result.Failure<bool>(ResultMessages.User.InvalidOtpCode);
