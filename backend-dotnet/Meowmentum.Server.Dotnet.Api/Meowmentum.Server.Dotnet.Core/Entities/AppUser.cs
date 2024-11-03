@@ -4,4 +4,5 @@ namespace Meowmentum.Server.Dotnet.Core.Entities;
 
 public class AppUser : IdentityUser<long>
 {
+
 }
