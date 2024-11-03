@@ -1,6 +1,7 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
+using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -23,15 +24,15 @@ public class AuthService : IAuthService
         _otpService = otpService;
     }
 
-    public async Task<bool> RegisterUserAsync(RegisterUserRequest request)
+    public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request)
     {
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
         if (existingUser != null)
         {
-            return false;
+            return Result.Failure<bool>("User with this email already exists!");
         }
 
-        var user = new AppUser { UserName = request.Email, Email = request.Email };
+        var user = new AppUser { UserName = request.UserName, Email = request.Email };
         var response = await _userManager.CreateAsync(user, request.Password);
 
         if (response.Succeeded)
@@ -39,23 +40,28 @@ public class AuthService : IAuthService
             var otp = _otpService.GenerateOtp();
             await _emailService.SendOtpByEmailAsync(user.Email, otp);
             await _otpService.SaveOtpForUserAsync(user.Id, otp);
-            return true;
+            return Result.Success(true);
         }
 
-        return false;
+        return Result.Failure<bool>("Failed to create user:\n" + string.Join('\n', response.Errors));
     }
 
-    public async Task<bool> VerifyOtpAsync(OtpValidationRequest request)
+    public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
-
-        if (user != null && await _otpService.ValidateOtpAsync(user.Id, request.OtpCode))
+        if (user == null)
         {
-            //user.IsEmailVerified = true;
-            await _userManager.UpdateAsync(user);
-            return true;
+            return Result.Failure<bool>("User not found!");
         }
 
-        return false;
+        var otpValidation = await _otpService.ValidateOtpAsync(user.Id, request.OtpCode);
+        if (otpValidation.IsSuccess)
+        {
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+            return Result.Success(true);
+        }
+
+        return Result.Failure<bool>("Invalid OTP code!");
     }
 }

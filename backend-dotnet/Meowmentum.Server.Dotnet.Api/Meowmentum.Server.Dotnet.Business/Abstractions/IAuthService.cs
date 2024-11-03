@@ -1,5 +1,6 @@
 ﻿using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
+using Meowmentum.Server.Dotnet.Shared.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,6 @@ namespace Meowmentum.Server.Dotnet.Business.Abstractions;
 
 public interface IAuthService
 {
-    Task<bool> RegisterUserAsync(RegisterUserRequest request);
-    Task<bool> VerifyOtpAsync(OtpValidationRequest request);
+    Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request);
+    Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request);
 }

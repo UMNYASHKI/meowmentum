@@ -1,4 +1,5 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -26,20 +27,25 @@ public class OtpService : IOtpService
         return (BitConverter.ToUInt32(rng, 0) % 1000000).ToString("D6");
     }
 
-    public Task SaveOtpForUserAsync(long userId, string otp)
+    public async Task SaveOtpForUserAsync(long userId, string otp)
     {
         _memoryCache.Set(userId, otp, _otpExpirationTime);
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 
-    public Task<bool> ValidateOtpAsync(long userId, string otp)
+    public async Task<Result<bool>> ValidateOtpAsync(long userId, string otp)
     {
-        if (_memoryCache.TryGetValue(userId, out string storedOtp) && storedOtp == otp)
+        if (!_memoryCache.TryGetValue(userId, out string storedOtp))
         {
-            _memoryCache.Remove(userId);
-            return Task.FromResult(true);
+            return Result.Failure<bool>("OTP not found or expired!");
         }
 
-        return Task.FromResult(false);
+        if (storedOtp != otp)
+        {
+            return Result.Failure<bool>("Wrong OTP!");
+        }
+
+        _memoryCache.Remove(userId);
+        return Result.Success(true);
     }
 }

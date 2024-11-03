@@ -17,20 +17,32 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
+    [ProducesResponseType<string>(StatusCodes.Status200OK)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
-        if (await _authService.RegisterUserAsync(request))
+        var result = await _authService.RegisterUserAsync(request);
+
+        if (result.IsSuccess)
             return Ok("User registered successfully. Please verify your email!");
 
-        return BadRequest("Registration failed!");
+        return BadRequest(result.ErrorMessage);
     }
 
     [HttpPost("verify-otp")]
-    public async Task<IActionResult> VerifyOtp(OtpValidationRequest request)
+    [ProducesResponseType<string>(StatusCodes.Status200OK)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> VerifyOtp([FromBody] OtpValidationRequest request)
     {
-        if (await _authService.VerifyOtpAsync(request))
+        var result = await _authService.VerifyOtpAsync(request);
+
+        if (result.IsSuccess)
             return Ok("Email verified successfully!");
 
-        return BadRequest("OTP verification failed!");
+        return BadRequest(result.ErrorMessage);
     }
 }

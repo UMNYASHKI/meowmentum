@@ -9,9 +9,10 @@ namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
 public class EmailService : IEmailService
 {
-    public Task SendOtpByEmailAsync(string email, string otp)
+    public async Task SendOtpByEmailAsync(string email, string otp)
     {
-        Console.WriteLine($"OTP {otp} sent to {email}.");
-        return Task.CompletedTask;
+        await Task.Delay(100);
+
+        Console.WriteLine($"OTP {otp} sent to {email}");
     }
 }
