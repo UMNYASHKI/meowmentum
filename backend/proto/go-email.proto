@@ -1,0 +1,15 @@
+syntax = "proto3";
+option csharp_namespace = "Meowmentum.Server.Dotnet.Proto.Email";
+option go_package = "./email";
+
+service EmailService {
+  rpc RegistrationConfirmation (RegistrationConfirmationRequest) returns (RegistrationConfirmationResponse);
+}
+
+message RegistrationConfirmationRequest {
+  string Email = 1;
+  string Name = 2;
+  string ConfirmationCode = 3;
+}
+
+message RegistrationConfirmationResponse {}
