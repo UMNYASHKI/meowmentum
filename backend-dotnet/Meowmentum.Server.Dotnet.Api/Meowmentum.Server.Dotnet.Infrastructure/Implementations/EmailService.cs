@@ -10,10 +10,12 @@ namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
 public class EmailService : IEmailService
 {
-    public async Task<Result<bool>> SendOtpByEmailAsync(string email, string otp)
+    public async Task<Result<bool>> SendOtpByEmailAsync(string email, string otp, CancellationToken token)
     {
         try
         {
+            token.ThrowIfCancellationRequested();
+
             await Task.Delay(100);
             Console.WriteLine($"OTP {otp} sent to {email}");
 

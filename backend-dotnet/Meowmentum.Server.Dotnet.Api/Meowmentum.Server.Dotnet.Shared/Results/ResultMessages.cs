@@ -38,4 +38,9 @@ public static class ResultMessages
         public const string TimeoutError = "Request to send OTP timed out:\n";
         public const string UnexpectedError = "An unexpected error occurred while sending to email:\n";
     }
+
+    public static class Cancellation
+    {
+        public const string OperationCanceled = "Operation was canceled.";
+    }
 }

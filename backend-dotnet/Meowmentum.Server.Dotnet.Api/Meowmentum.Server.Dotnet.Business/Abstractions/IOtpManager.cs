@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Meowmentum.Server.Dotnet.Business.Abstractions;
 
-public interface IOtpService
+public interface IOtpManager
 {
     string GenerateOtp();
-    Task SaveOtpForUserAsync(long userId, string otp);
-    Task<Result<bool>> ValidateOtpAsync(long userId, string otp);
+    Task SaveOtpForUserAsync(long userId, string otp, CancellationToken token);
+    Task<Result<bool>> ValidateOtpAsync(long userId, string otp, CancellationToken token);
 }

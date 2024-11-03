@@ -7,23 +7,16 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService;
-
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
     [HttpPost("register")]
     [ProducesResponseType<string>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterUserRequest request, CancellationToken token = default)
     {
-        var result = await _authService.RegisterUserAsync(request);
+        var result = await authService.RegisterUserAsync(request, token);
 
         if (result.IsSuccess)
             return Ok("User registered successfully. Please verify your email!");
@@ -36,9 +29,9 @@ public class AuthController : ControllerBase
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> VerifyOtp([FromBody] OtpValidationRequest request)
+    public async Task<IActionResult> VerifyOtp([FromBody] OtpValidationRequest request, CancellationToken token = default)
     {
-        var result = await _authService.VerifyOtpAsync(request);
+        var result = await authService.VerifyOtpAsync(request, token);
 
         if (result.IsSuccess)
             return Ok("Email verified successfully!");

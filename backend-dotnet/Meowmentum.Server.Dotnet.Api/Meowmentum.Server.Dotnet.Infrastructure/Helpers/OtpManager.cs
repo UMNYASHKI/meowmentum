@@ -8,17 +8,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
+namespace Meowmentum.Server.Dotnet.Infrastructure.Helpers;
 
-public class OtpService : IOtpService
+public class OtpManager(IMemoryCache memoryCache) : IOtpManager
 {
-    private readonly IMemoryCache _memoryCache;
     private readonly TimeSpan _otpExpirationTime = TimeSpan.FromMinutes(5);
-
-    public OtpService(IMemoryCache memoryCache)
-    {
-        _memoryCache = memoryCache;
-    }
 
     public string GenerateOtp()
     {
@@ -27,15 +21,17 @@ public class OtpService : IOtpService
         return (BitConverter.ToUInt32(rng, 0) % 1000000).ToString("D6");
     }
 
-    public async Task SaveOtpForUserAsync(long userId, string otp)
+    public async Task SaveOtpForUserAsync(long userId, string otp, CancellationToken token)
     {
-        _memoryCache.Set(userId, otp, _otpExpirationTime);
+        memoryCache.Set(userId, otp, _otpExpirationTime);
         await Task.CompletedTask;
     }
 
-    public async Task<Result<bool>> ValidateOtpAsync(long userId, string otp)
+    public async Task<Result<bool>> ValidateOtpAsync(long userId, string otp, CancellationToken token)
     {
-        if (!_memoryCache.TryGetValue(userId, out string storedOtp))
+        token.ThrowIfCancellationRequested();
+
+        if (!memoryCache.TryGetValue(userId, out string storedOtp))
         {
             return Result.Failure<bool>(ResultMessages.Otp.OperationError);
         }
@@ -45,7 +41,7 @@ public class OtpService : IOtpService
             return Result.Failure<bool>(ResultMessages.User.InvalidOtpCode);
         }
 
-        _memoryCache.Remove(userId);
+        memoryCache.Remove(userId);
         return Result.Success(true);
     }
 }
