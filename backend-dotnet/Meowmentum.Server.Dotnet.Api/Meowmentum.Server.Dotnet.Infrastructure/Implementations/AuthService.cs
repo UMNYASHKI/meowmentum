@@ -26,42 +26,72 @@ public class AuthService : IAuthService
 
     public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request)
     {
-        var existingUser = await _userManager.FindByEmailAsync(request.Email);
-        if (existingUser != null)
+        try
         {
-            return Result.Failure<bool>("User with this email already exists!");
+            var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            if (existingUser != null)
+            {
+                return Result.Failure<bool>(ResultMessages.User.EmailAlreadyExists);
+            }
+
+            var user = new AppUser { UserName = request.UserName, Email = request.Email };
+            var response = await _userManager.CreateAsync(user, request.Password);
+
+            if (response.Succeeded)
+            {
+                var otp = _otpService.GenerateOtp();
+                await _emailService.SendOtpByEmailAsync(user.Email, otp);
+                await _otpService.SaveOtpForUserAsync(user.Id, otp);
+                return Result.Success(true);
+            }
+
+            return Result.Failure<bool>(ResultMessages.Registration.FailedToCreateUser + string.Join('\n', response.Errors));
         }
-
-        var user = new AppUser { UserName = request.UserName, Email = request.Email };
-        var response = await _userManager.CreateAsync(user, request.Password);
-
-        if (response.Succeeded)
+        catch (InvalidOperationException ex)
         {
-            var otp = _otpService.GenerateOtp();
-            await _emailService.SendOtpByEmailAsync(user.Email, otp);
-            await _otpService.SaveOtpForUserAsync(user.Id, otp);
-            return Result.Success(true);
+            return Result.Failure<bool>(ResultMessages.Registration.OperationError);
         }
-
-        return Result.Failure<bool>("Failed to create user:\n" + string.Join('\n', response.Errors));
+        catch (ArgumentException ex)
+        {
+            return Result.Failure<bool>(ResultMessages.Registration.InvalidArgument);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
+        }
     }
 
     public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request)
     {
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null)
+        try
         {
-            return Result.Failure<bool>("User not found!");
-        }
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return Result.Failure<bool>(ResultMessages.User.UserNotFound);
+            }
 
-        var otpValidation = await _otpService.ValidateOtpAsync(user.Id, request.OtpCode);
-        if (otpValidation.IsSuccess)
+            var otpValidation = await _otpService.ValidateOtpAsync(user.Id, request.OtpCode);
+            if (otpValidation.IsSuccess)
+            {
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+                return Result.Success(true);
+            }
+
+            return Result.Failure<bool>(ResultMessages.User.InvalidOtpCode);
+        }
+        catch (InvalidOperationException ex)
         {
-            user.EmailConfirmed = true;
-            await _userManager.UpdateAsync(user);
-            return Result.Success(true);
+            return Result.Failure<bool>(ResultMessages.Otp.OperationError);
         }
-
-        return Result.Failure<bool>("Invalid OTP code!");
+        catch (ArgumentException ex)
+        {
+            return Result.Failure<bool>(ResultMessages.Otp.InvalidArgument);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Otp.UnexpectedError} {ex.Message}");
+        }
     }
 }

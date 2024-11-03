@@ -1,4 +1,5 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Shared.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,26 @@ namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
 public class EmailService : IEmailService
 {
-    public async Task SendOtpByEmailAsync(string email, string otp)
+    public async Task<Result<bool>> SendOtpByEmailAsync(string email, string otp)
     {
-        await Task.Delay(100);
+        try
+        {
+            await Task.Delay(100);
+            Console.WriteLine($"OTP {otp} sent to {email}");
 
-        Console.WriteLine($"OTP {otp} sent to {email}");
+            return Result.Success(true);
+        }
+        catch (HttpRequestException ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Email.NetworkError} {ex.Message}");
+        }
+        catch (TimeoutException ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Email.TimeoutError} {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Email.UnexpectedError} {ex.Message}");
+        }
     }
 }

@@ -37,12 +37,12 @@ public class OtpService : IOtpService
     {
         if (!_memoryCache.TryGetValue(userId, out string storedOtp))
         {
-            return Result.Failure<bool>("OTP not found or expired!");
+            return Result.Failure<bool>(ResultMessages.Otp.OperationError);
         }
 
         if (storedOtp != otp)
         {
-            return Result.Failure<bool>("Wrong OTP!");
+            return Result.Failure<bool>(ResultMessages.User.InvalidOtpCode);
         }
 
         _memoryCache.Remove(userId);
