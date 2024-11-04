@@ -4,7 +4,7 @@ import {
   LoginRequest,
   LoginResponse,
   RegisterRequest,
-  RegisterResponse,
+  VerificationCodeRequest,
 } from '@/lib/services/auth/authDtos';
 import { useAuth } from '@/lib/providers/authProvider';
 
@@ -12,16 +12,23 @@ export const authApi = createApi({
   reducerPath: 'apiAuth',
   baseQuery: baseAuthQuery,
   endpoints: (builder) => ({
-    register: builder.mutation<RegisterResponse, RegisterRequest>({
+    register: builder.mutation<void, RegisterRequest>({
       query: (credentials) => ({
-        url: '/auth/register',
+        url: '/Auth/register',
+        method: 'POST',
+        body: credentials,
+      }),
+    }),
+    verifyOtp: builder.mutation<void, VerificationCodeRequest>({
+      query: (credentials) => ({
+        url: '/Auth/verify-otp',
         method: 'POST',
         body: credentials,
       }),
     }),
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
-        url: '/auth/login',
+        url: '/Auth/login',
         method: 'POST',
         body: credentials,
       }),
@@ -38,4 +45,5 @@ export const authApi = createApi({
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation } = authApi;
+export const { useRegisterMutation, useVerifyOtpMutation, useLoginMutation } =
+  authApi;
