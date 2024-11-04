@@ -35,6 +35,12 @@ public class TokenBlackListManger(
         }
 
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        if (jwt == null)
+        {
+            logger.LogError(ResultMessages.User.InvalidToken.Append($"Token: {token}"));
+            return Result.Failure<bool>(ResultMessages.User.InvalidToken);
+        }
+
         var expiration = jwt.ValidTo - DateTime.UtcNow;
         if (expiration <= TimeSpan.Zero)
         {
