@@ -1,5 +1,7 @@
 package org.meowmentum.project.domain.validation
 
+import org.meowmentum.project.data.models.ValidationResult
+
 object AuthValidation {
     fun validateEmail(email: String): ValidationResult {
         return when {
