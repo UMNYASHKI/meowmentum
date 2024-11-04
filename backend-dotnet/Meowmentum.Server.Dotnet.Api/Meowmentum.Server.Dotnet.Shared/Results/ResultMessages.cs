@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ public static class ResultMessages
         public const string EmailAlreadyExists = "User with this email already exists!";
         public const string UserNotFound = "User not found!";
         public const string InvalidOtpCode = "Invalid OTP code!";
+        public const string InvalidToken = "Invalid token";
+        public const string ExpiredToken = "Expired token";
     }
 
     public static class Registration
@@ -32,6 +35,7 @@ public static class ResultMessages
         public const string OperationError = "An operation error occurred during OTP verification. Please try again.";
         public const string InvalidArgument = "Invalid argument provided for OTP verification. Please check and try again.";
         public const string UnexpectedError = "An unexpected error occurred while sending OTP:\n";
+        public const string FailedToSaveOtp = "Failed to save OTP for user:\n";
     }
 
     public static class Email
@@ -44,5 +48,21 @@ public static class ResultMessages
     public static class Cancellation
     {
         public const string OperationCanceled = "Operation was canceled.";
+    }
+
+    public static class Json
+    {
+        public const string SerializationError = "Failed to serialize object";
+    }
+
+    public static class RedisCache
+    {
+        public const string FailToSet = "Failed to set value in Redis cache";
+        public const string FailToCheck = "Failed to check value in Redis cache";
+        public const string FailToRemove = "Failed to remove value from Redis cache";
+        public const string FailToGet = "Failed to get value from Redis cache";
+
+        public const string KeyNotFound = "Key not found in Redis cache";
+        public const string NullOrEmptyValue = "Value is null or empty";
     }
 }
