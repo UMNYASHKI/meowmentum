@@ -43,6 +43,29 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            // Compose
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.components.resources)
+
+            // Voyager for navigation
+            val voyagerVersion = "1.0.0"
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.transitions)
+
+            // Kotlin Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+
+            // Koin for DI
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+
+            // Google Sign In
+            implementation(libs.play.services.auth)
+
+            // DateTime
+            implementation(libs.kotlinx.datetime)
         }
     }
 }
