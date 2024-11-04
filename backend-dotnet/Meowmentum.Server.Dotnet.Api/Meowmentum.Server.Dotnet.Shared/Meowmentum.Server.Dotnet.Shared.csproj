@@ -13,7 +13,6 @@
   <ItemGroup>
     <Folder Include="Exceptions\" />
     <Folder Include="Enums\" />
-    <Folder Include="Responses\" />
   </ItemGroup>
 
   <ItemGroup>
