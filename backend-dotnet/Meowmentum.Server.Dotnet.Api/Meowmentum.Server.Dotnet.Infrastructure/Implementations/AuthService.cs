@@ -1,14 +1,10 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
+using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
@@ -33,8 +29,14 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
             if (response.Succeeded)
             {
                 var otp = otpService.GenerateOtp();
+                var saveOtpResult = await otpService.SaveOtpForUserAsync(user.Id, otp, token);
+                if (!saveOtpResult.IsSuccess)
+                {
+                    return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
+                }
+
                 await emailService.SendOtpByEmailAsync(user.Email, otp, token);
-                await otpService.SaveOtpForUserAsync(user.Id, otp, token);
+                
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
 

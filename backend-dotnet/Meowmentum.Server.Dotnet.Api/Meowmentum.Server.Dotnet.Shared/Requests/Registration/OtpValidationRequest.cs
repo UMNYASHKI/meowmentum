@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,7 +12,9 @@ public class OtpValidationRequest
 {
     [Required]
     [EmailAddress]
+    [JsonProperty("email")]
     public string Email { get; set; }
     [Required]
+    [JsonProperty("otpCode")]
     public string OtpCode { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Meowmentum.Server.Dotnet.Persistence.Extensions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,8 @@ public static class RegisterLayerExtension
                 .UseNpgsql(
                     configuration.GetConnectionString("MasterDatabase"));
         });
+
+        services.AddRedisConfiguration(configuration);
     }
 }
 
