@@ -14,6 +14,8 @@ type RegistrationConfirmationProps struct {
 }
 
 func (s *emailServiceServer) RegistrationConfirmation(_ context.Context, req *pbEmail.RegistrationConfirmationRequest) (*pbEmail.RegistrationConfirmationResponse, error) {
+	slog.Debug("email grpc: registration confirmation", slog.Any("request", req))
+
 	buffer := &bytes.Buffer{}
 
 	err := templates.RegistrationConfirmationTemplate.Execute(buffer, RegistrationConfirmationProps{
@@ -21,7 +23,8 @@ func (s *emailServiceServer) RegistrationConfirmation(_ context.Context, req *pb
 		Code: req.ConfirmationCode,
 	})
 	if err != nil {
-		return nil, err
+		slog.Error("failed to execute registration confirmation template", slog.Any("error", err))
+		return &pbEmail.RegistrationConfirmationResponse{}, nil
 	}
 
 	err = s.sender.SendEmail(req.Email, "Registration Confirmation", buffer.String())
