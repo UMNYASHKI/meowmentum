@@ -14,6 +14,8 @@ public static class ResultMessages
         public const string UserNotFound = "User not found!";
         public const string InvalidOtpCode = "Invalid OTP code!";
         public const string WrongPassword = "Wrong password";
+        public const string InvalidToken = "Invalid token";    
+        public const string ExpiredToken = "Expired token";
 
     }
 

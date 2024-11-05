@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
-public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService, ITokenService jwtService) 
+public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService, ITokenService tokenService) 
     : IAuthService
 {
     public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default)
@@ -115,7 +115,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
                 return Result.Failure<string>(ResultMessages.User.WrongPassword);
             }
 
-            var tokenString = jwtService.GetToken(user);
+            var tokenString = tokenService.GetToken(user);
             return Result.Success(tokenString);
         }
         catch (OperationCanceledException)
