@@ -13,6 +13,8 @@ public static class ResultMessages
         public const string EmailAlreadyExists = "User with this email already exists!";
         public const string UserNotFound = "User not found!";
         public const string InvalidOtpCode = "Invalid OTP code!";
+        public const string WrongPassword = "Wrong password";
+
     }
 
     public static class Registration

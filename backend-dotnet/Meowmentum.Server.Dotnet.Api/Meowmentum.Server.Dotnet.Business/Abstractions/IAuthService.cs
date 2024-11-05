@@ -1,4 +1,5 @@
 ﻿using Meowmentum.Server.Dotnet.Core.Entities;
+using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using System;
@@ -13,4 +14,5 @@ public interface IAuthService
 {
     Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default);
     Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken token = default);
+    Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken token = default);
 }

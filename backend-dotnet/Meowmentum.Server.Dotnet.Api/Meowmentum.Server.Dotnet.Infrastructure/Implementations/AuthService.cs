@@ -1,6 +1,7 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
+using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
-public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService) 
+public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService, ITokenService jwtService) 
     : IAuthService
 {
     public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default)
@@ -96,4 +97,35 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
             return Result.Failure<bool>($"{ResultMessages.Otp.UnexpectedError} {ex.Message}");
         }
     }
+
+    public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken token = default)
+    {
+        try
+        {
+            token.ThrowIfCancellationRequested();
+
+            var user = await userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return Result.Failure<string>(ResultMessages.User.UserNotFound);
+            }
+
+            if (!await userManager.CheckPasswordAsync(user, request.Password))
+            {
+                return Result.Failure<string>(ResultMessages.User.WrongPassword);
+            }
+
+            var tokenString = jwtService.GetToken(user);
+            return Result.Success(tokenString);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure<string>(ResultMessages.Cancellation.OperationCanceled);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<string>($"Unexpected error: {ex.Message}");
+        }
+    }
+
 }
