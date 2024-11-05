@@ -3,11 +3,15 @@
 import { Button, Input } from '@nextui-org/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useRegisterMutation } from '@services/auth/authApi';
+import {
+  useRegisterMutation,
+  useVerifyOtpMutation,
+} from '@services/auth/authApi';
 import Container from '@common/container';
 
 export default function Register() {
   const [registerPost] = useRegisterMutation();
+  const [verifyOtp] = useVerifyOtpMutation();
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
@@ -17,7 +21,6 @@ export default function Register() {
   });
   const [isVerificationRequired, setIsVerificationRequired] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -36,25 +39,28 @@ export default function Register() {
     }
 
     try {
-      const result = await registerPost({
+      await registerPost({
         email: formData.email,
-        name: formData.name,
+        username: formData.name,
         password: formData.password,
       }).unwrap();
 
-      // TODO logic with error message
-
-      setVerificationCode(result.verificationCode);
       setIsVerificationRequired(true);
     } catch (err) {
+      // TODO Check the error password failure
       setErrorMessage('An error occurred during registration');
     }
   };
 
   const verifyCode = async () => {
-    if (formData.verificationCode == verificationCode) {
+    try {
+      await verifyOtp({
+        email: formData.email,
+        otpCode: formData.verificationCode,
+      }).unwrap();
+
       router.push('/login');
-    } else {
+    } catch (err) {
       setErrorMessage('Invalid code');
     }
   };
@@ -71,6 +77,7 @@ export default function Register() {
           name="email"
           value={formData.email}
           onChange={handleChange}
+          disabled={isVerificationRequired}
           required
           fullWidth
           className="w-full"
@@ -82,6 +89,7 @@ export default function Register() {
           name="name"
           value={formData.name}
           onChange={handleChange}
+          disabled={isVerificationRequired}
           required
           fullWidth
           className="w-full"
@@ -93,6 +101,7 @@ export default function Register() {
           name="password"
           value={formData.password}
           onChange={handleChange}
+          disabled={isVerificationRequired}
           required
           fullWidth
           className="w-full"

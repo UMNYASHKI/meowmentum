@@ -1,4 +1,5 @@
 using Meowmentum.Server.Dotnet.Api.Extensions;
+using Meowmentum.Server.Dotnet.Api.Middleware;
 using Meowmentum.Server.Dotnet.Business;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure;
@@ -39,6 +40,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,11 +1,7 @@
 export interface RegisterRequest {
-  name: string;
+  username: string;
   email: string;
   password: string;
-}
-
-export interface RegisterResponse {
-  verificationCode: string;
 }
 
 export interface LoginRequest {
@@ -15,4 +11,9 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
+}
+
+export interface VerificationCodeRequest {
+  email: string;
+  otpCode: string;
 }
