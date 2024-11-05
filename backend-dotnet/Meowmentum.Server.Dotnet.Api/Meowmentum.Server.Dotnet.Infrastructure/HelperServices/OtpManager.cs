@@ -39,8 +39,6 @@ public class OtpManager(
 
     public async Task<Result<bool>> ValidateOtpAsync(long userId, string otp, CancellationToken token = default)
     {
-        token.ThrowIfCancellationRequested();
-
         if (string.IsNullOrWhiteSpace(otp))
         {
             return Result.Failure<bool>(ResultMessages.User.InvalidOtpCode);
