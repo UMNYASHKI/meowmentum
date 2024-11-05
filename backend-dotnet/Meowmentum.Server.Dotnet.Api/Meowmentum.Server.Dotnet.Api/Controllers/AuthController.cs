@@ -1,5 +1,6 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
+using Meowmentum.Server.Dotnet.Shared.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,5 +38,19 @@ public class AuthController(IAuthService authService) : ControllerBase
             return Ok(result.Message);
 
         return BadRequest(result.ErrorMessage);
+    }
+
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Login([FromBody] Shared.Requests.LoginRequest loginRequest, CancellationToken token = default)
+    {
+        var loginResult = await authService.LoginAsync(loginRequest, token);
+        if (!loginResult.IsSuccess)
+        {
+            return BadRequest(new { Message = loginResult.ErrorMessage });
+        }
+
+        return Ok(new LoginResponse { Token = loginResult.Data });
     }
 }
