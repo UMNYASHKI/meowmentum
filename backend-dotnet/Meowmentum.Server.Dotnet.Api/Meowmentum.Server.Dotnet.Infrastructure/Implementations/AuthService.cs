@@ -5,17 +5,22 @@ using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
+using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
-public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService, ITokenService tokenService) 
-    : IAuthService
+public class AuthService(
+    UserManager<AppUser> userManager, 
+    IEmailService emailService, 
+    IOtpManager otpService, 
+    ITokenService tokenService,
+    ITokenBlackListManager tokenBlackListManager) : IAuthService
 {
-    public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default)
+    public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken ct = default)
     {
         try
         {
-            token.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             var existingUser = await userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
@@ -29,13 +34,13 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
             if (response.Succeeded)
             {
                 var otp = otpService.GenerateOtp();
-                var saveOtpResult = await otpService.SaveOtpForUserAsync(user.Id, otp, token);
+                var saveOtpResult = await otpService.SaveOtpForUserAsync(user.Id, otp, ct);
                 if (!saveOtpResult.IsSuccess)
                 {
                     return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
                 }
 
-                await emailService.SendOtpByEmailAsync(user.Email, otp, token);
+                await emailService.SendOtpByEmailAsync(user.Email, otp, ct);
                 
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
@@ -60,11 +65,11 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         }
     }
 
-    public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken token = default)
+    public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken ct = default)
     {
         try
         {
-            token.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             var user = await userManager.FindByEmailAsync(request.Email);
             if (user == null)
@@ -72,7 +77,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
 
-            var otpValidation = await otpService.ValidateOtpAsync(user.Id, request.OtpCode, token);
+            var otpValidation = await otpService.ValidateOtpAsync(user.Id, request.OtpCode, ct);
             if (otpValidation.IsSuccess)
             {
                 user.EmailConfirmed = true;
@@ -100,11 +105,11 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         }
     }
 
-    public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken token = default)
+    public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         try
         {
-            token.ThrowIfCancellationRequested();
+            ct.ThrowIfCancellationRequested();
 
             var user = await userManager.FindByEmailAsync(request.Email);
             if (user == null)
@@ -130,4 +135,32 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         }
     }
 
+    public async Task<Result<bool>> LogoutAsync(string token, CancellationToken ct = default)
+    {
+        try
+        {
+            ct.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return Result.Failure<bool>(ResultMessages.User.InvalidToken);
+            }
+
+            var blacklistResult = await tokenBlackListManager.AddTokenToBlackList(token, ct);
+            if (!blacklistResult.IsSuccess)
+            {
+                return Result.Failure<bool>(blacklistResult.ErrorMessage);
+            }
+
+            return Result.Success(true);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.User.LogoutFailed} {ex.Message}");
+        }
+    }
 }

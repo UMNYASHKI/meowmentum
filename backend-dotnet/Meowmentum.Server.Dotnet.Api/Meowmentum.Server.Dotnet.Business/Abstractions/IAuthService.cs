@@ -12,7 +12,8 @@ namespace Meowmentum.Server.Dotnet.Business.Abstractions;
 
 public interface IAuthService
 {
-    Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default);
-    Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken token = default);
-    Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken token = default);
+    Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken ct = default);
+    Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken ct = default);
+    Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken ct = default);
+    Task<Result<bool>> LogoutAsync(string token, CancellationToken ct = default);
 }

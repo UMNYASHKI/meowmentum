@@ -1,6 +1,7 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,5 +53,22 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
 
         return Ok(new LoginResponse { Token = loginResult.Data });
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Logout(CancellationToken token = default)
+    {
+        var jwtToken = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+
+        var result = await authService.LogoutAsync(jwtToken, token);
+
+        if (result.IsSuccess)
+            return Ok(result.Message);
+
+        return BadRequest(result.ErrorMessage);
     }
 }
