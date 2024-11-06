@@ -11,6 +11,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.koin.compose.koinInject
+import org.meowmentum.project.navigation.AuthScreen
 import org.meowmentum.project.ui.components.*
 
 class ResetPasswordScreen(private val token: String) : Screen {
@@ -28,7 +29,7 @@ class ResetPasswordScreen(private val token: String) : Screen {
         LaunchedEffect(state.isPasswordReset) {
             if (state.isPasswordReset) {
                 // Navigate to login screen
-                navigator.replaceAll(AuthScreen.Login())
+                navigator.replaceAll(AuthScreen.Login)
             }
         }
 
@@ -56,9 +57,7 @@ class ResetPasswordScreen(private val token: String) : Screen {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                if (errorMessage != null) {
-                    ErrorCard(message = errorMessage)
-                }
+                errorMessage?.let { ErrorCard(message = it) }
 
                 CommonTextField(
                     value = state.newPassword,
