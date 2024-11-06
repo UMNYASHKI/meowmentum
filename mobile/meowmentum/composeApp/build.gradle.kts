@@ -33,6 +33,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.datastore.preferences)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -103,6 +104,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.databinding.compiler)
+    implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.datastore.core.jvm)
     debugImplementation(compose.uiTooling)
 }
 
