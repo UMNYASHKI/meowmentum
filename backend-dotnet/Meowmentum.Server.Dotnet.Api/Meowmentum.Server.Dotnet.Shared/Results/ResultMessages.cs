@@ -18,6 +18,8 @@ public static class ResultMessages
         public const string InvalidToken = "Invalid token";    
         public const string ExpiredToken = "Expired token";
         public const string LogoutFailed = "Logout failed. Please try again.";
+        public const string LogoutSuccess = "Logout successful.";
+
     }
 
     public static class Registration

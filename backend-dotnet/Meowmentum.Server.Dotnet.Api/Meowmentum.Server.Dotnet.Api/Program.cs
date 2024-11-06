@@ -42,6 +42,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
+app.UseMiddleware<TokenExtractionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

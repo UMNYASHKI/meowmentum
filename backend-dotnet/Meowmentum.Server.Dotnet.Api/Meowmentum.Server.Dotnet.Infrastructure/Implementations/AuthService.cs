@@ -141,7 +141,7 @@ public class AuthService(
         {
             ct.ThrowIfCancellationRequested();
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrEmpty(token))
             {
                 return Result.Failure<bool>(ResultMessages.User.InvalidToken);
             }
@@ -152,7 +152,7 @@ public class AuthService(
                 return Result.Failure<bool>(blacklistResult.ErrorMessage);
             }
 
-            return Result.Success(true);
+            return Result.Success(true, ResultMessages.User.LogoutSuccess);
         }
         catch (OperationCanceledException)
         {
