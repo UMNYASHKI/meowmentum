@@ -1,3 +1,4 @@
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -45,36 +46,29 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
-            // Compose
-            implementation(compose.runtime)
-            implementation(compose.foundation)
             implementation(compose.material3)
-            implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
+            implementation(compose.components.resources)
 
-            // Voyager for navigation
+            // Voyager
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
 
-            // Kotlin Coroutines
-            implementation(libs.kotlinx.coroutines.core)
+            // Koin
+            implementation(libs.koin.core.v353)
+            implementation(libs.koin.compose.v112)
 
-            // Koin for DI
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose)
+            // Ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.serialization.kotlinx.json)
 
-            // Google Sign In
-            implementation(libs.play.services.auth)
-            implementation(libs.kmpauth.google)
-            implementation(libs.kmpauth.uihelper)
+            // Settings
+            implementation(libs.multiplatform.settings)
 
             // DateTime
-            implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.datetime.v050)
         }
     }
 }
@@ -96,7 +90,7 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/*"
         }
     }
     buildTypes {
@@ -108,11 +102,19 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    buildFeatures {
+        compose = true
+    }
+    dependencies {
+        debugImplementation(compose.uiTooling)
+    }
+    configurations { implementation.get().exclude(mapOf("group" to "org.jetbrains", "module" to "annotations")) }
 }
 
 dependencies {
     implementation(libs.androidx.databinding.compiler)
     implementation(libs.androidx.datastore.core.android)
+    implementation(libs.androidx.lifecycle.viewmodel.android)
     debugImplementation(compose.uiTooling)
 }
 
