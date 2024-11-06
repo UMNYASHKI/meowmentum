@@ -9,6 +9,13 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+repositories {
+    google()
+    mavenCentral()
+    // Add the required repository
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven") }
+}
+
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -51,7 +58,6 @@ kotlin {
             implementation(compose.materialIconsExtended)
 
             // Voyager for navigation
-            val voyagerVersion = "1.0.0"
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.transitions)
 
@@ -107,7 +113,6 @@ android {
 dependencies {
     implementation(libs.androidx.databinding.compiler)
     implementation(libs.androidx.datastore.core.android)
-    implementation(libs.androidx.datastore.core.jvm)
     debugImplementation(compose.uiTooling)
 }
 
