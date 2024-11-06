@@ -10,5 +10,7 @@ interface AuthRepository {
     suspend fun register(credentials: RegisterCredentials): Result<User>
     suspend fun loginWithGoogle(token: String): Result<User>
     suspend fun logout()
+    suspend fun sendPasswordResetEmail(email: String): Result<Unit>
+    suspend fun resetPassword(token: String, newPassword: String): Result<Unit>
     fun isUserLoggedIn(): Flow<Boolean>
 }
