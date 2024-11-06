@@ -37,12 +37,36 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            // Compose
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.components.resources)
+
+            // Voyager for navigation
+            val voyagerVersion = "1.0.0"
+            implementation(libs.voyager.navigator)
+            implementation(libs.voyager.transitions)
+
+            // Kotlin Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+
+            // Koin for DI
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+
+            // Google Sign In
+            implementation(libs.play.services.auth)
+            implementation(libs.kmpauth.google)
+            implementation(libs.kmpauth.uihelper)
+
+            // DateTime
+            implementation(libs.kotlinx.datetime)
         }
     }
 }
@@ -50,6 +74,10 @@ kotlin {
 android {
     namespace = "org.meowmentum.project"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
         applicationId = "org.meowmentum.project"
