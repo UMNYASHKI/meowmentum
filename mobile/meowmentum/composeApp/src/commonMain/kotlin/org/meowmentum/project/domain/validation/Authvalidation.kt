@@ -1,12 +1,15 @@
 package org.meowmentum.project.domain.validation
 
-import org.meowmentum.project.data.models.ValidationResult
+sealed class ValidationResult {
+    object Valid : ValidationResult()
+    data class Invalid(val message: String) : ValidationResult()
+}
 
 object AuthValidation {
     fun validateEmail(email: String): ValidationResult {
         return when {
             email.isBlank() -> ValidationResult.Invalid("Email cannot be empty")
-            !email.matches(Regex("^[A-Za-z0-9+_.-]+@(.+)\$")) ->
+            !email.matches(Regex("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}\$")) ->
                 ValidationResult.Invalid("Invalid email format")
             else -> ValidationResult.Valid
         }
@@ -20,6 +23,10 @@ object AuthValidation {
                 ValidationResult.Invalid("Password must contain at least one number")
             !password.any { it.isUpperCase() } ->
                 ValidationResult.Invalid("Password must contain at least one uppercase letter")
+            !password.any { it.isLowerCase() } ->
+                ValidationResult.Invalid("Password must contain at least one lowercase letter")
+            !password.any { !it.isLetterOrDigit() } ->
+                ValidationResult.Invalid("Password must contain at least one special character")
             else -> ValidationResult.Valid
         }
     }
@@ -28,6 +35,8 @@ object AuthValidation {
         return when {
             name.isBlank() -> ValidationResult.Invalid("Name cannot be empty")
             name.length < 2 -> ValidationResult.Invalid("Name is too short")
+            name.any { !it.isLetterOrDigit() && it != ' ' } ->
+                ValidationResult.Invalid("Name can only contain letters, numbers, and spaces")
             else -> ValidationResult.Valid
         }
     }
