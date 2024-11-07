@@ -20,8 +20,6 @@ public class AuthService(
     {
         try
         {
-            ct.ThrowIfCancellationRequested();
-
             var existingUser = await userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
             {
@@ -47,18 +45,6 @@ public class AuthService(
 
             return Result.Failure<bool>(ResultMessages.Registration.FailedToCreateUser + string.Join('\n', response.Errors));
         }
-        catch (OperationCanceledException)
-        {
-            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Registration.OperationError);
-        }
-        catch (ArgumentException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Registration.InvalidArgument);
-        }
         catch (Exception ex)
         {
             return Result.Failure<bool>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
@@ -69,8 +55,6 @@ public class AuthService(
     {
         try
         {
-            ct.ThrowIfCancellationRequested();
-
             var user = await userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
@@ -87,18 +71,6 @@ public class AuthService(
 
             return Result.Failure<bool>(ResultMessages.User.InvalidOtpCode);
         }
-        catch (OperationCanceledException)
-        {
-            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Otp.OperationError);
-        }
-        catch (ArgumentException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Otp.InvalidArgument);
-        }
         catch (Exception ex)
         {
             return Result.Failure<bool>($"{ResultMessages.Otp.UnexpectedError} {ex.Message}");
@@ -109,8 +81,6 @@ public class AuthService(
     {
         try
         {
-            ct.ThrowIfCancellationRequested();
-
             var user = await userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
@@ -125,10 +95,6 @@ public class AuthService(
             var tokenString = tokenService.GetToken(user);
             return Result.Success(tokenString);
         }
-        catch (OperationCanceledException)
-        {
-            return Result.Failure<string>(ResultMessages.Cancellation.OperationCanceled);
-        }
         catch (Exception ex)
         {
             return Result.Failure<string>($"Unexpected error: {ex.Message}");
@@ -137,30 +103,17 @@ public class AuthService(
 
     public async Task<Result<bool>> LogoutAsync(string token, CancellationToken ct = default)
     {
-        try
+        if (string.IsNullOrEmpty(token))
         {
-            ct.ThrowIfCancellationRequested();
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return Result.Failure<bool>(ResultMessages.User.InvalidToken);
-            }
-
-            var blacklistResult = await tokenBlackListManager.AddTokenToBlackList(token, ct);
-            if (!blacklistResult.IsSuccess)
-            {
-                return Result.Failure<bool>(blacklistResult.ErrorMessage);
-            }
-
-            return Result.Success(true, ResultMessages.User.LogoutSuccess);
+            return Result.Failure<bool>(ResultMessages.User.InvalidToken);
         }
-        catch (OperationCanceledException)
+
+        var blacklistResult = await tokenBlackListManager.AddTokenToBlackList(token, ct);
+        if (!blacklistResult.IsSuccess)
         {
-            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
+            return Result.Failure<bool>(blacklistResult.ErrorMessage);
         }
-        catch (Exception ex)
-        {
-            return Result.Failure<bool>($"{ResultMessages.User.LogoutFailed} {ex.Message}");
-        }
+
+        return Result.Success(true, ResultMessages.User.LogoutSuccess);
     }
 }

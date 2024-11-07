@@ -19,7 +19,7 @@ public static class ResultMessages
         public const string ExpiredToken = "Expired token";
         public const string LogoutFailed = "Logout failed. Please try again.";
         public const string LogoutSuccess = "Logout successful.";
-
+        public const string TokenBlacklisted = "Token is blacklisted";
     }
 
     public static class Registration
