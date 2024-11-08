@@ -1,4 +1,5 @@
-﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+﻿using Meowmentum.Server.Dotnet.Api.Helpers;
+using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Responses;
@@ -10,6 +11,7 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[ValidateModel]
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
@@ -48,6 +50,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest, CancellationToken token = default)
     {
         var loginResult = await authService.LoginAsync(loginRequest, token);
+
         if (!loginResult.IsSuccess)
         {
             return BadRequest(loginResult.ErrorMessage);

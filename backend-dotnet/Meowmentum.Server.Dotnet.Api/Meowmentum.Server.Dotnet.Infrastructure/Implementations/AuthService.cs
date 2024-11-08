@@ -43,7 +43,8 @@ public class AuthService(
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
 
-            return Result.Failure<bool>(ResultMessages.Registration.FailedToCreateUser + string.Join('\n', response.Errors));
+            var errorMessages = response.Errors.Select(e => e.Description).ToList();
+            return Result.Failure<bool>(string.Join("\n", errorMessages));
         }
         catch (Exception ex)
         {
