@@ -1,4 +1,5 @@
 ﻿using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
+using Meowmentum.Server.Dotnet.Infrastructure.Helpers;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
@@ -37,14 +38,7 @@ public static class JwtExtension
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? ""))
                 };
 
-                options.Events = new JwtBearerEvents
-                {
-                    OnTokenValidated = async context =>
-                    {
-                        var handler = context.HttpContext.RequestServices.GetRequiredService<JwtTokenValidationHandler>();
-                        await handler.OnTokenValidated(context);
-                    }
-                };
+                options.EventsType = typeof(JwtTokenValidationHandler);
             });
 
         return services;

@@ -2,6 +2,7 @@
 using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Meowmentum.Server.Dotnet.Infrastructure.Extensions;
+namespace Meowmentum.Server.Dotnet.Infrastructure.Helpers;
 
-public class JwtTokenValidationHandler(ITokenBlackListManager tokenBlackListManager) : JwtBearerEvents
+public class JwtTokenValidationHandler : JwtBearerEvents
 {
-    public async Task OnTokenValidated(TokenValidatedContext context)
+    public override async Task TokenValidated(TokenValidatedContext context)
     {
         var tokenString = context.SecurityToken switch
         {
@@ -29,11 +30,13 @@ public class JwtTokenValidationHandler(ITokenBlackListManager tokenBlackListMana
             return;
         }
 
+        var tokenBlackListManager = context.HttpContext.RequestServices.GetRequiredService<ITokenBlackListManager>();
         var isBlacklisted = await tokenBlackListManager.IsTokenBlacklisted(tokenString, context.HttpContext.RequestAborted);
 
         if (isBlacklisted.IsSuccess && isBlacklisted.Data)
         {
             context.Fail(ResultMessages.User.TokenBlacklisted);
+            return;
         }
     }
 }

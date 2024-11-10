@@ -10,7 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
 
-public class TokenBlackListManger(
+public class TokenBlackListManager(
     IRedisCacheService redisCacheService, 
     IOptions<TokenBlacklistDbConfig> blackListOptions,
     ILogger<ITokenBlackListManager> logger) : ITokenBlackListManager
