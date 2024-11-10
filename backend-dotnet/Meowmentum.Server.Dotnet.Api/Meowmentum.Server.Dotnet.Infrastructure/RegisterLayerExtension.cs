@@ -16,6 +16,7 @@ public static class RegisterLayerExtension
         services.AddScoped<ITokenService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<JwtTokenValidationHandler>();
 
         services.AddHelperServices(configuration);
     }

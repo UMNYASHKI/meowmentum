@@ -41,27 +41,8 @@ public static class JwtExtension
                 {
                     OnTokenValidated = async context =>
                     {
-                        var tokenString = context.SecurityToken switch
-                        {
-                            JwtSecurityToken jwtToken => jwtToken.RawData,
-                            JsonWebToken jsonWebToken => jsonWebToken.EncodedToken,
-                            _ => null
-                        };
-
-                        if (string.IsNullOrEmpty(tokenString))
-                        {
-                            context.Fail(ResultMessages.User.InvalidToken);
-                            return;
-                        }
-
-                        var tokenBlackListManager = context.HttpContext.RequestServices.GetRequiredService<ITokenBlackListManager>();
-                        var isBlacklisted = await tokenBlackListManager.IsTokenBlacklisted(tokenString, context.HttpContext.RequestAborted);
-
-                        if (isBlacklisted.IsSuccess && isBlacklisted.Data)
-                        {
-                            context.Fail(ResultMessages.User.TokenBlacklisted);
-                            return;
-                        }
+                        var handler = context.HttpContext.RequestServices.GetRequiredService<JwtTokenValidationHandler>();
+                        await handler.OnTokenValidated(context);
                     }
                 };
             });
