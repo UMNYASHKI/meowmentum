@@ -19,7 +19,7 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore dependencies
       run: dotnet restore
-      working-directory: backend-dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api
+      working-directory: backend/dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api
     - name: Build
       run: dotnet build --no-restore
-      working-directory: backend-dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api
+      working-directory: backend/dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api
