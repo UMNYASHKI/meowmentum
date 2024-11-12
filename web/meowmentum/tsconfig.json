@@ -24,7 +24,8 @@
       "@providers/*": ["./src/lib/providers/*"],
       "@utils/*": ["./src/utils/*"],
       "@fonts/*": ["./src/styles/fonts/*"],
-      "@common/*": ["./src/components/common/*"]
+      "@common/*": ["./src/components/common/*"],
+      "@public/*": ["./public/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
