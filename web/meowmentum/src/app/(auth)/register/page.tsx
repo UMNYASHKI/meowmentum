@@ -1,15 +1,19 @@
 'use client';
 
-import { Button, Input } from '@nextui-org/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   useRegisterMutation,
   useVerifyOtpMutation,
 } from '@services/auth/authApi';
-import Container from '@common/container';
+import TextInput from '@common/textinput';
+import Button from '@common/button';
+import GoogleIcon from '@public/google.svg';
+import { useAppDispatch } from '@/lib/hooks';
+import { setPopupMessage } from '@/lib/slices/app/appSlice';
 
 export default function Register() {
+  const dispatch = useAppDispatch();
   const [registerPost] = useRegisterMutation();
   const [verifyOtp] = useVerifyOtpMutation();
   const router = useRouter();
@@ -38,6 +42,17 @@ export default function Register() {
       return;
     }
 
+    if (formData.password.trim().length < 8) {
+      dispatch(
+        setPopupMessage({
+          message: 'Password is too small',
+          type: 'error',
+          isVisible: true,
+        })
+      );
+      return;
+    }
+
     try {
       await registerPost({
         email: formData.email,
@@ -48,7 +63,14 @@ export default function Register() {
       setIsVerificationRequired(true);
     } catch (err) {
       // TODO Check the error password failure
-      setErrorMessage('An error occurred during registration');
+      dispatch(
+        setPopupMessage({
+          message: 'An error occurred during registration',
+          type: 'error',
+          isVisible: true,
+        })
+      );
+      return;
     }
   };
 
@@ -61,75 +83,113 @@ export default function Register() {
 
       router.push('/login');
     } catch (err) {
-      setErrorMessage('Invalid code');
+      dispatch(
+        setPopupMessage({
+          message: 'Invalid code',
+          type: 'error',
+          isVisible: true,
+        })
+      );
+      return;
     }
   };
 
   return (
-    <Container>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <h2 className="text-center text-2xl font-bold mb-6 text-slate-950">
-          Register
-        </h2>
-        <Input
-          label="Email"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          disabled={isVerificationRequired}
-          required
-          fullWidth
-          className="w-full"
-        />
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-sm mx-auto">
+      <h2 className="text-3xl font-bold text-primary">Create an account</h2>
 
-        <Input
+      <div className="space-y-4">
+        <TextInput
           label="Name"
           type="text"
           name="name"
+          placeholder="Name"
           value={formData.name}
           onChange={handleChange}
           disabled={isVerificationRequired}
-          required
-          fullWidth
-          className="w-full"
+          className={'border-primary'}
         />
 
-        <Input
+        <TextInput
+          label="Email"
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          disabled={isVerificationRequired}
+          className={'border-primary'}
+        />
+
+        <TextInput
           label="Password"
           type="password"
           name="password"
+          placeholder="Password"
           value={formData.password}
           onChange={handleChange}
           disabled={isVerificationRequired}
-          required
-          fullWidth
-          className="w-full"
+          className={'border-primary'}
         />
+        {!isVerificationRequired ? (
+          <p className="text-sm text-gray-500">
+            Must be at least 8 characters.
+          </p>
+        ) : (
+          ''
+        )}
 
         {isVerificationRequired && (
-          <Input
+          <TextInput
             label="Verification Code"
             type="text"
             name="verificationCode"
+            placeholder="Verification Code"
             value={formData.verificationCode}
             onChange={handleChange}
-            required
-            fullWidth
-            className="w-full"
+            className={'border-primary'}
           />
         )}
+      </div>
 
-        <div className="flex justify-end">
-          <Button type="submit" color="primary">
-            {isVerificationRequired ? 'Verify Code' : 'Register'}
+      <div className="space-y-4">
+        <Button
+          type="submit"
+          className="w-full py-3 rounded-full bg-primary hover:bg-button-hover"
+        >
+          {isVerificationRequired ? 'Verify' : 'Sign Up'}
+        </Button>
+
+        {!isVerificationRequired ? (
+          <Button
+            bordered
+            borderColor="border-gray-900"
+            className="w-full py-3 rounded-full hover:bg-gray-100"
+            icon={
+              <GoogleIcon alt="Google Icon" className="w-5 h-5 text-primary" />
+            }
+          >
+            Continue with Google
           </Button>
-        </div>
-
-        {errorMessage && (
-          <h3 className="text-red-500 text-center mt-4">{errorMessage}</h3>
+        ) : (
+          ''
         )}
-      </form>
-    </Container>
+      </div>
+
+      {/* Error Message */}
+      {errorMessage && (
+        <h3 className="text-red-500 text-center mt-4">{errorMessage}</h3>
+      )}
+      {!isVerificationRequired ? (
+        <p className="text-center text-gray-500 mt-4">
+          Already have an account?{' '}
+          <a href="/login" className="text-gray-900 hover:underline">
+            Log in
+          </a>
+        </p>
+      ) : (
+        ''
+      )}
+    </form>
   );
 }
