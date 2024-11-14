@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace Meowmentum.Server.Dotnet.Shared.Responses
 {
-    public record LoginResponse(string Token);
-}
+    public record ResetPasswordResponse(string ResetToken);
 
+}

@@ -17,6 +17,8 @@ public static class ResultMessages
         public const string WrongPassword = "Wrong password";
         public const string InvalidToken = "Invalid token";    
         public const string ExpiredToken = "Expired token";
+        public const string InvalidResetToken = "Invalid Reset Password Token";
+        public const string PasswordUpdated = "Password succesfully updated";
     }
 
     public static class Registration
