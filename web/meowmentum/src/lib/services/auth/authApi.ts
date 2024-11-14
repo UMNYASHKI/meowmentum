@@ -32,15 +32,6 @@ export const authApi = createApi({
         method: 'POST',
         body: credentials,
       }),
-      onQueryStarted: (arg, { queryFulfilled }) => {
-        queryFulfilled.then((res) => {
-          const token = res.data.token;
-          if (token) {
-            const { login } = useAuth();
-            login(token);
-          }
-        });
-      },
     }),
   }),
 });
