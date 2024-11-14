@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
-public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService, ITokenService tokenService) 
+public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService, ITokenService tokenService)
     : IAuthService
 {
     public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default)
@@ -36,7 +36,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
                 }
 
                 await emailService.SendOtpByEmailAsync(user.Email, otp, token);
-                
+
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
 
@@ -126,8 +126,49 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         }
         catch (Exception ex)
         {
-            return Result.Failure<string>($"Unexpected error: {ex.Message}");
+            return Result.Failure<string>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
         }
     }
 
+    public async Task<Result<bool>> SendOtpAsync(OtpSendRequest request, CancellationToken token = default)
+    {
+        try
+        {
+            token.ThrowIfCancellationRequested();
+
+            var user = await userManager.FindByEmailAsync(request.Email);
+
+            if (user is null)
+            {
+                return Result.Failure<bool>(ResultMessages.User.UserNotFound);
+            }
+
+            var otp = otpService.GenerateOtp();
+            var saveOtpResult = await otpService.SaveOtpForUserAsync(user!.Id, otp, token);
+            if (!saveOtpResult.IsSuccess)
+            {
+                return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
+            }
+
+            await emailService.SendOtpByEmailAsync(user.Email!, otp, token);
+
+            return Result.Success(true, ResultMessages.Registration.Success);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
+        }
+        catch (InvalidOperationException)
+        {
+            return Result.Failure<bool>(ResultMessages.Registration.OperationError);
+        }
+        catch (ArgumentException)
+        {
+            return Result.Failure<bool>(ResultMessages.Registration.InvalidArgument);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
+        }
+    }
 }

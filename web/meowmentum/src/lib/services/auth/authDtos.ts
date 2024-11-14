@@ -17,3 +17,7 @@ export interface VerificationCodeRequest {
   email: string;
   otpCode: string;
 }
+
+export interface SendOtpRequest {
+  email: string;
+}

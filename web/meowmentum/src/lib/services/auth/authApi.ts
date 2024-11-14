@@ -3,10 +3,9 @@ import baseAuthQuery from '@/lib/services/helpers/baseAuthQuery';
 import {
   LoginRequest,
   LoginResponse,
-  RegisterRequest,
+  RegisterRequest, SendOtpRequest,
   VerificationCodeRequest,
 } from '@/lib/services/auth/authDtos';
-import { useAuth } from '@/lib/providers/authProvider';
 
 export const authApi = createApi({
   reducerPath: 'apiAuth',
@@ -33,8 +32,19 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
+    sendOtp: builder.mutation<void, SendOtpRequest>({
+      query: (credentials) => ({
+        url: '/Auth/send-otp',
+        method: 'POST',
+        body: credentials,
+      }),
+    }),
   }),
 });
 
-export const { useRegisterMutation, useVerifyOtpMutation, useLoginMutation } =
-  authApi;
+export const {
+  useRegisterMutation,
+  useVerifyOtpMutation,
+  useLoginMutation,
+  useSendOtpMutation,
+} = authApi;
