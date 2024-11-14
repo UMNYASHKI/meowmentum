@@ -8,8 +8,10 @@ const initialState: User = {
   email: '',
 };
 
+const name = 'user';
+
 export const userSlice = createSlice({
-  name: 'user',
+  name: name,
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<User>) {
@@ -20,4 +22,4 @@ export const userSlice = createSlice({
 
 export const { setUser } = userSlice.actions;
 
-export const selectUser = (state: RootState) => state;
+export const selectUser = (state: RootState) => state[name];

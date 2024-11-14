@@ -12,7 +12,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        silver: '#ecebff',
+        background: {
+          light: '#ffffff',
+          dark: '#282828',
+        },
+        button: {
+          hover: '#3e3a3a',
+        },
+        primary: {
+          DEFAULT: '#282828',
+        },
       },
     },
   },
