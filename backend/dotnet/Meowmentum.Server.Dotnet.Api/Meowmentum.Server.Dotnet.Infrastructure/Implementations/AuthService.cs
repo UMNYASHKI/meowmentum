@@ -6,6 +6,7 @@ using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
 using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
+using Microsoft.AspNetCore.Http;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
@@ -14,7 +15,8 @@ public class AuthService(
     IEmailService emailService, 
     IOtpManager otpService, 
     ITokenService tokenService,
-    ITokenBlackListManager tokenBlackListManager) : IAuthService
+    ITokenBlackListManager tokenBlackListManager,
+    IHttpContextAccessor httpContextAccessor) : IAuthService
 {
     public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken ct = default)
     {
@@ -102,14 +104,16 @@ public class AuthService(
         }
     }
 
-    public async Task<Result<bool>> LogoutAsync(string token, CancellationToken ct = default)
+    public async Task<Result<bool>> LogoutAsync(CancellationToken ct = default)
     {
-        if (string.IsNullOrEmpty(token))
+        var jwtToken = httpContextAccessor.HttpContext?.Items["JwtToken"] as string;
+
+        if (string.IsNullOrEmpty(jwtToken))
         {
             return Result.Failure<bool>(ResultMessages.User.InvalidToken);
         }
 
-        var blacklistResult = await tokenBlackListManager.AddTokenToBlackList(token, ct);
+        var blacklistResult = await tokenBlackListManager.AddTokenToBlackList(jwtToken, ct);
         if (!blacklistResult.IsSuccess)
         {
             return Result.Failure<bool>(blacklistResult.ErrorMessage);

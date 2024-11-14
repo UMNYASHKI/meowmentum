@@ -66,9 +66,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Logout(CancellationToken token = default)
     {
-        var jwtToken = HttpContext.Items["JwtToken"] as string;
-
-        var result = await authService.LogoutAsync(jwtToken, token);
+        var result = await authService.LogoutAsync(token);
 
         if (result.IsSuccess)
             return Ok(result.Message);
