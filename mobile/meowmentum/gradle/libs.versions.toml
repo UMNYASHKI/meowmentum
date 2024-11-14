@@ -18,16 +18,16 @@ junit = "4.13.2"
 kmpauthGoogle = "2.0.0"
 koinCompose = "1.1.5"
 koinComposeVersion = "1.1.5"
-koinCore = "3.5.3"
-koinVersion = "3.5.0"
+koinCore = "3.5.6"
+koinVersion = "3.5.6"
 kotlin = "2.0.21"
 kotlinxCoroutinesCore = "1.8.1"
 kotlinxDatetime = "0.6.0"
-kotlinxDatetimeVersion = "0.5.0"
-ktorVersion = "2.3.7"
+kotlinxDatetimeVersion = "0.6.0"
+ktorVersion = "3.0.0"
 multiplatformSettings = "1.1.1"
 playServicesAuth = "21.2.0"
-playServicesAuthVersion = "20.7.0"
+playServicesAuthVersion = "21.2.0"
 voyagerVersion = "1.0.0"
 databindingCompiler = "8.7.2"
 datastoreCoreAndroid = "1.1.1"
@@ -40,7 +40,6 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 kmpauth-google = { module = "io.github.mirzemehdi:kmpauth-google", version.ref = "kmpauthGoogle" }
 kmpauth-uihelper = { module = "io.github.mirzemehdi:kmpauth-uihelper", version.ref = "kmpauthGoogle" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
-koin-compose-v112 = { module = "io.insert-koin:koin-compose", version.ref = "koinComposeVersion" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinVersion" }
 koin-core-v353 = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

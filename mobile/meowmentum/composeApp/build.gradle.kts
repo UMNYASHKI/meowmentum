@@ -13,8 +13,6 @@ plugins {
 repositories {
     google()
     mavenCentral()
-    // Add the required repository
-    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/kotlinx-coroutines/maven") }
 }
 
 kotlin {
@@ -37,11 +35,14 @@ kotlin {
     }
     
     sourceSets {
-        
+        iosMain.dependencies {
+            //implementation(libs.ktor.client.darwin)
+        }
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.datastore.preferences)
+            //implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -55,8 +56,8 @@ kotlin {
             implementation(libs.voyager.transitions)
 
             // Koin
-            implementation(libs.koin.core.v353)
-            implementation(libs.koin.compose.v112)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
 
             // Ktor
             implementation(libs.ktor.client.core)
@@ -68,7 +69,11 @@ kotlin {
             implementation(libs.multiplatform.settings)
 
             // DateTime
-            implementation(libs.kotlinx.datetime.v050)
+            implementation(libs.kotlinx.datetime)
+
+            // Precompose
+            //implementation(libs.precompose)
+            //api(libs.precompose.viewmodel)
         }
     }
 }
@@ -107,6 +112,7 @@ android {
     }
     dependencies {
         debugImplementation(compose.uiTooling)
+        //implementation(libs.kotlinx.coroutines.android)
     }
     configurations { implementation.get().exclude(mapOf("group" to "org.jetbrains", "module" to "annotations")) }
 }

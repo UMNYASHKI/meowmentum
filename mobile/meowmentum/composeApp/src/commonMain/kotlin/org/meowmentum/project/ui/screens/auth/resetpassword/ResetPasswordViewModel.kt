@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.meowmentum.project.data.models.ValidationResult
+
 import org.meowmentum.project.domain.repository.AuthRepository
 import org.meowmentum.project.domain.validation.AuthValidation
+import org.meowmentum.project.domain.validation.ValidationResult
 
 class ResetPasswordViewModel(
     private val authRepository: AuthRepository

@@ -6,9 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.meowmentum.project.data.models.LoginCredentials
-import org.meowmentum.project.data.models.ValidationResult
+
 import org.meowmentum.project.domain.repository.AuthRepository
 import org.meowmentum.project.domain.validation.AuthValidation
+import org.meowmentum.project.domain.validation.ValidationResult
 
 class LoginViewModel(
     private val authRepository: AuthRepository

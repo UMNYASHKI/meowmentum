@@ -1,3 +1,4 @@
+/*
 package org.meowmentum.project.di
 
 import org.koin.core.module.Module
@@ -11,12 +12,21 @@ import org.meowmentum.project.ui.screens.auth.register.RegisterViewModel
 import org.meowmentum.project.ui.screens.auth.resetpassword.ResetPasswordViewModel
 
 fun appModule() = module {
-//    single<AuthApi> { AuthApiImpl(get()) }
-//    single<AuthTokenStorage> { AuthTokenStorageImpl(get()) }
-//    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    // Network
+    single { provideHttpClient() }
 
+    // API
+    single<AuthApi> { AuthApiImpl(get()) }
+
+    // Storage
+    single<AuthTokenStorage> { createAuthTokenStorage() }
+
+    // Repository
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+
+    // ViewModels
     factory { LoginViewModel(get()) }
     factory { RegisterViewModel(get()) }
     factory { ForgotPasswordViewModel(get()) }
     factory { ResetPasswordViewModel(get()) }
-}
+}*/
