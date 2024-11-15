@@ -195,14 +195,6 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
 
-            var passwordValidationResult = await userManager.PasswordValidators.First().ValidateAsync(userManager, user, request.NewPassword);
-            if (!passwordValidationResult.Succeeded)
-            {
-                var errorMessages = string.Join(", ", passwordValidationResult.Errors.Select(e => e.Description));
-                return Result.Failure<bool>($"Password does not meet the requirements: {errorMessages}");
-            }
-
-
             var resetTokenResult = await userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", request.ResetToken);
             if (!resetTokenResult)
             {
