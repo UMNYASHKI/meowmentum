@@ -1,0 +1,13 @@
+platform.nginx:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "."
+    additional_contexts:
+      gen: "gen:nginx ./template.conf"
+    args:
+      NGINX_VERSION: "${NGINX_VERSION}"
+  expose:
+    http:
+      type: static
+      port: 8080
+      pin: 8080

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+if [ "$(pwd)" != "$(realpath "$(dirname "$0")")" ]; then
+    echo "Please run this script from project root directory"
+    exit 1
+fi
+
+# Load build configuration
+set -a
+source .env.build
+set +a
+
+# Set up variables
+BUILDTOOL_NAME="buildtool"
+BUILDTOOL_HASH=$(md5sum ./.env.build ./meowmentum buildtool/{,**/}* 2> /dev/null | md5sum)
+case "$OSTYPE" in
+    darwin*) GOOS="darwin" ;;
+    linux*) GOOS="linux" ;;
+    msys*) BUILDTOOL_NAME="buildtool.exe"; GOOS="windows" ;;
+    *) GOOS="linux" ;;
+esac
+
+# Function for compiling build tool
+FUNC_COMPILE_BUILD_TOOL() {
+    USER_ID=$(id -u)
+    docker run --rm -v "/$(pwd)"://app -w "//app/buildtool" "golang:$GO_VERSION" sh -c \
+        "GOOS=$GOOS go build -buildvcs=false -o '//app/build/$BUILDTOOL_NAME' ./cmd || exit 1; chown $USER_ID:$USER_ID '//app/build/$BUILDTOOL_NAME'" \
+        || { echo "Failed to compile build tool"; exit 1; }
+}
+
+# Check if build tool needs to be compiled
+mkdir -p build
+if [ -f "build/$BUILDTOOL_NAME" ]; then
+    if [ -f "build/hash" ]; then
+        if [ "$(cat build/hash)" != "$BUILDTOOL_HASH" ]; then
+            FUNC_COMPILE_BUILD_TOOL
+            echo "$BUILDTOOL_HASH" > build/hash
+        fi
+    else
+        FUNC_COMPILE_BUILD_TOOL
+        echo "$BUILDTOOL_HASH" > build/hash
+    fi
+else
+    FUNC_COMPILE_BUILD_TOOL
+    echo "$BUILDTOOL_HASH" > build/hash
+fi
+
+# Run build tool
+export GIT_COMMIT
+GIT_COMMIT=$(git rev-parse --short HEAD)
+chmod +x "build/$BUILDTOOL_NAME"
+"./build/$BUILDTOOL_NAME" "$@"

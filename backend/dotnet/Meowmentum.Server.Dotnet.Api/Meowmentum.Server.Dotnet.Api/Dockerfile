@@ -4,7 +4,9 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
+# TODO: Remove EXPOSE from dockerfile, use buildtool to run local environment with nginx
 EXPOSE 8080
+# TODO: There is no need for HTTPS webserver, TLS will be handled externally by reverse proxy in production
 EXPOSE 8081
 
 
