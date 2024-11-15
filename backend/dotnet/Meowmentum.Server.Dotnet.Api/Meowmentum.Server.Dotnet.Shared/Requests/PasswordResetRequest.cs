@@ -12,7 +12,6 @@ namespace Meowmentum.Server.Dotnet.Shared.Requests
     {
         [Required]
         [EmailAddress]
-        [JsonProperty("email")]
         public string Email { get; set; }
     }
 

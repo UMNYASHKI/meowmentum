@@ -17,7 +17,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         try
         {
             var existingUser = await userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
+            if (existingUser is not null)
             {
                 return Result.Failure<bool>(ResultMessages.User.EmailAlreadyExists);
             }
@@ -64,7 +64,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         try
         {
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
@@ -102,7 +102,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         try
         {
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<string>(ResultMessages.User.UserNotFound);
             }
@@ -130,7 +130,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         try
         {
             var user = await userManager.FindByEmailAsync(email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
@@ -160,7 +160,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         try
         {
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<string>(ResultMessages.User.UserNotFound);
             }
@@ -190,10 +190,18 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         try
         {
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
+
+            var passwordValidationResult = await userManager.PasswordValidators.First().ValidateAsync(userManager, user, request.NewPassword);
+            if (!passwordValidationResult.Succeeded)
+            {
+                var errorMessages = string.Join(", ", passwordValidationResult.Errors.Select(e => e.Description));
+                return Result.Failure<bool>($"Password does not meet the requirements: {errorMessages}");
+            }
+
 
             var resetTokenResult = await userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", request.ResetToken);
             if (!resetTokenResult)
