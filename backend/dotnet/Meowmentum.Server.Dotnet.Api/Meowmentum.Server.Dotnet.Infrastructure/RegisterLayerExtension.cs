@@ -1,6 +1,7 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure.Extensions;
+using Meowmentum.Server.Dotnet.Infrastructure.Helpers;
 using Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 using Meowmentum.Server.Dotnet.Persistence;
 using Meowmentum.Server.Dotnet.Shared.Options;
@@ -19,6 +20,7 @@ public static class RegisterLayerExtension
         services.AddScoped<ITokenService, JwtService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<JwtTokenValidationHandler>();
 
         services.Configure<IdentityOptions>(options =>
         {
