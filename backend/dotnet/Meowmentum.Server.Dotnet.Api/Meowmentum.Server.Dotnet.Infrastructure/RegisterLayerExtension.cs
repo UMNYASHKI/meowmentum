@@ -20,19 +20,6 @@ public static class RegisterLayerExtension
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
 
-        services.AddIdentity<AppUser, IdentityRole<long>>(options =>
-        {
-            options.Password.RequireDigit = false;
-            options.Password.RequireLowercase = false;
-            options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequiredLength = 6;
-            options.Password.RequiredUniqueChars = 1;
-        })
-        .AddDefaultTokenProviders()
-        .AddRoles<IdentityRole<long>>()
-        .AddEntityFrameworkStores<ApplicationDbContext>();
-
         services.AddHelperServices(configuration);
     }
 }
