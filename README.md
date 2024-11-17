@@ -5,6 +5,7 @@ You need docker and docker-compose installed on your machine. On Windows, git ba
 
 ## Default exposed ports
 - **8080**: Nginx instance, composes exposed http endpoints from all services including frontend.
+- **8090**: Grafana dashboard.
 - **5432**: Postgres database.
 - **6379**: Redis cache.
 

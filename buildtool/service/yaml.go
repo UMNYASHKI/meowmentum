@@ -26,7 +26,9 @@ type YamlEntry struct { // NOTE: paths are relative to the current services.yml 
 		Name   *string   `yaml:"name,omitempty"`
 		Config yaml.Node `yaml:"config,omitempty"`
 	} `yaml:"volumes,omitempty"`
-	Expose map[string]struct {
+	Labels           map[string]string    `yaml:"labels,omitempty"`            // Optional, map of labels to set on the container
+	ComposeOverrides map[string]yaml.Node `yaml:"compose_overrides,omitempty"` // Optional, map of compose overrides
+	Expose           map[string]struct {
 		Type   string            `yaml:"type"`             // Can be "static", "grpc", "http"
 		Port   *int              `yaml:"port,omitempty"`   // Required for "static", optional for others. Port inside container
 		Routes map[string]string `yaml:"routes,omitempty"` // Used only for "http"
@@ -161,7 +163,7 @@ func recursivelyParseServiceFilesInProject(dir string, services map[string]map[s
 			data := make(map[string]YamlEntry)
 			err = yaml.Unmarshal(content, &data)
 			if err != nil {
-				return fmt.Errorf("failed to unmarshal yaml file %s: %v", file.Name(), err)
+				return fmt.Errorf("failed to unmarshal yaml file %s: %v", filePath, err)
 			}
 			services[filePath] = data
 		}

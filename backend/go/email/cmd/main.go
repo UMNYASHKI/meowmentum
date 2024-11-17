@@ -19,14 +19,14 @@ func main() {
 
 	lc := lifecycle.NewLifecycle(cfg)
 
-	logger.SetupLogger(cfg)
+	logger.SetupLogger(cfg, "service.go.email")
 
 	if err := setupService(lc, cfg); err != nil {
 		slog.Error("failed to setup service", slog.Any("config", cfg), slog.Any("error", err))
 		os.Exit(1)
 	}
 
-	slog.Debug("email service started")
+	slog.Info("service started")
 
 	lc.Wait()
 }

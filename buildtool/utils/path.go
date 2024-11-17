@@ -7,6 +7,10 @@ import (
 )
 
 func ResolveRelativePath(dirPath, path string) string {
+	if strings.HasPrefix(path, "//") {
+		return path
+	}
+
 	if strings.HasPrefix(path, "/") {
 		wd, err := os.Getwd()
 		if err != nil {

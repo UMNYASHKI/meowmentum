@@ -1,0 +1,13 @@
+platform.grafana:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "."
+    args:
+     GRAFANA_VERSION: "${GRAFANA_VERSION}"
+  expose:
+    grafana:
+      type: static
+      port: 3000
+      pin: 8090
+  attach:
+    - platform.grafana.loki:loki-http

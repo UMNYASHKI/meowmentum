@@ -14,8 +14,6 @@ type PasswordResetProps struct {
 }
 
 func (s *emailServiceServer) PasswordReset(_ context.Context, req *pbEmail.PasswordResetRequest) (*pbEmail.PasswordResetResponse, error) {
-	slog.Debug("email grpc: password reset", slog.Any("request", req))
-
 	buffer := &bytes.Buffer{}
 
 	err := templates.PasswordResetTemplate.Execute(buffer, PasswordResetProps{
