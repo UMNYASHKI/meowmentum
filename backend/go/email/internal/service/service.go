@@ -27,7 +27,7 @@ func NewEmailServiceServer(
 		return nil, fmt.Errorf("failed to listen: %w", err)
 	}
 
-	lc.AddService("grpc-server-email")
+	lc.AddModule("grpc-server-email")
 
 	grpcServer := grpc.NewServer()
 	pbEmail.RegisterEmailServiceServer(grpcServer, server)
@@ -38,7 +38,7 @@ func NewEmailServiceServer(
 			panic(err)
 		}
 
-		lc.DoneService("grpc-server-email")
+		lc.DoneModule("grpc-server-email")
 	}()
 
 	go func() {

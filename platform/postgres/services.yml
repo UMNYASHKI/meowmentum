@@ -1,0 +1,16 @@
+platform.postgres:
+  image: "postgres:${POSTGRES_VERSION}"
+  volumes:
+    "/var/lib/postgresql/data":
+      name: "${ENVIRONMENT}-${SERVICE}-data"
+      config:
+        driver: local
+  expose:
+    postgres:
+      type: static
+      port: 5432
+      pin: 5432
+  envmap:
+    POSTGRES_USER: "${SECRET_POSTGRES_USERNAME}"
+    POSTGRES_PASSWORD: "${SECRET_POSTGRES_PASSWORD}"
+    POSTGRES_DB: "${SECRET_POSTGRES_DATABASE}"

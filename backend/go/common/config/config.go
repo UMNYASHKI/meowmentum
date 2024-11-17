@@ -18,7 +18,7 @@ type Config interface {
 
 type CommonConfig struct {
 	Environment             Environment   `env:"ENVIRONMENT" default:"local"`
-	GracefulShutdownTimeout time.Duration `env:"GRACEFUL_SHUTDOWN_TIMEOUT" default:"5s"`
+	GracefulShutdownTimeout time.Duration `env:"CONFIG_GRACEFUL_SHUTDOWN_TIMEOUT" default:"5s"`
 }
 
 func (c CommonConfig) GetCommonConfig() CommonConfig {
