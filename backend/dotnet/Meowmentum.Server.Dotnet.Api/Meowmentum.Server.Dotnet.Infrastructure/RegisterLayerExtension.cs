@@ -18,6 +18,7 @@ public static class RegisterLayerExtension
         services.AddScoped<IEmailService, EmailService>();
 
         services.AddHelperServices(configuration);
+        services.AddGrpcClients(configuration);
     }
 }
 

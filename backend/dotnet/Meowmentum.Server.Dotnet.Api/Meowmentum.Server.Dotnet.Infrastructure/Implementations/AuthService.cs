@@ -5,6 +5,7 @@ using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
+using Meowmentum.Server.Dotnet.Shared.Requests.Email;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
@@ -35,7 +36,7 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
                     return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
                 }
 
-                await emailService.SendOtpByEmailAsync(user.Email, otp, token);
+                await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp}, token);
                 
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
