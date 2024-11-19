@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Proto.Email;
+using Meowmentum.Server.Dotnet.Shared.Extensions;
 using Meowmentum.Server.Dotnet.Shared.Requests.Email;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.Extensions.Logging;
@@ -32,7 +33,7 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
         }
         catch (Exception ex)
         {
-            return Result.Failure<bool>($"{ResultMessages.Email.UnexpectedError} {ex.Message}");
+            return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
         }
     }
 
@@ -58,7 +59,7 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
         }
         catch (Exception ex)
         {
-            return Result.Failure<bool>($"{ResultMessages.Email.UnexpectedError} {ex.Message}");
+            return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
         }
     }
 }
