@@ -1,0 +1,21 @@
+service.dotnet:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: ".."
+    dockerfile: "./Dockerfile"
+    target: final
+  expose:
+    http:
+      type: http
+      port: 8080 # TODO: Rewrite service to get bind address and port from EXPOSE_HTTP, remove this property
+      routes:
+        "/api/core/": "/"
+  attach:
+    - platform.postgres:postgres
+    - platform.redis:redis
+    - service.go.email:email
+  envpass:
+    - SECRET_POSTGRES_USERNAME
+    - SECRET_POSTGRES_PASSWORD
+    - SECRET_POSTGRES_DATABASE
+    - SECRET_REDIS_PASSWORD

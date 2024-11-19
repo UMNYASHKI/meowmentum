@@ -15,8 +15,8 @@ import (
 type Lifecycle struct {
 	ctx             context.Context
 	wg              sync.WaitGroup
-	serviceMapMu    sync.Mutex
-	serviceMap      map[string]struct{}
+	moduleMapMu     sync.Mutex
+	moduleMap       map[string]struct{}
 	shutdownTimeout time.Duration
 }
 
@@ -24,27 +24,27 @@ func (l *Lifecycle) Context() context.Context {
 	return l.ctx
 }
 
-func (l *Lifecycle) AddService(name string) {
-	l.serviceMapMu.Lock()
-	defer l.serviceMapMu.Unlock()
+func (l *Lifecycle) AddModule(name string) {
+	l.moduleMapMu.Lock()
+	defer l.moduleMapMu.Unlock()
 
-	if _, ok := l.serviceMap[name]; ok {
-		panic("service already exists")
+	if _, ok := l.moduleMap[name]; ok {
+		panic("module already exists")
 	}
 
-	l.serviceMap[name] = struct{}{}
+	l.moduleMap[name] = struct{}{}
 	l.wg.Add(1)
 }
 
-func (l *Lifecycle) DoneService(name string) {
-	l.serviceMapMu.Lock()
-	defer l.serviceMapMu.Unlock()
+func (l *Lifecycle) DoneModule(name string) {
+	l.moduleMapMu.Lock()
+	defer l.moduleMapMu.Unlock()
 
-	if _, ok := l.serviceMap[name]; !ok {
-		panic("service does not exist")
+	if _, ok := l.moduleMap[name]; !ok {
+		panic("module does not exist")
 	}
 
-	delete(l.serviceMap, name)
+	delete(l.moduleMap, name)
 	l.wg.Done()
 }
 
@@ -61,14 +61,14 @@ func (l *Lifecycle) Wait() {
 	case <-waitCh:
 		return
 	case <-time.After(l.shutdownTimeout):
-		l.serviceMapMu.Lock()
-		defer l.serviceMapMu.Unlock()
-		if len(l.serviceMap) > 0 {
-			serviceList := make([]string, 0, len(l.serviceMap))
-			for name := range l.serviceMap {
-				serviceList = append(serviceList, name)
+		l.moduleMapMu.Lock()
+		defer l.moduleMapMu.Unlock()
+		if len(l.moduleMap) > 0 {
+			moduleList := make([]string, 0, len(l.moduleMap))
+			for name := range l.moduleMap {
+				moduleList = append(moduleList, name)
 			}
-			slog.Error(fmt.Sprintf("%d services did not shutdown in time", len(l.serviceMap)), slog.Any("services", serviceList))
+			slog.Error(fmt.Sprintf("%d service modules did not shutdown in time", len(l.moduleMap)), slog.Any("modules", moduleList))
 		}
 		return
 	}
@@ -79,7 +79,7 @@ func NewLifecycle(cfg config.Config) *Lifecycle {
 
 	return &Lifecycle{
 		ctx:             ctx,
-		serviceMap:      make(map[string]struct{}),
+		moduleMap:       make(map[string]struct{}),
 		shutdownTimeout: cfg.GetCommonConfig().GracefulShutdownTimeout,
 	}
 }

@@ -1,1 +1,3 @@
-/proto
+/proto/*
+!/proto/go.mod
+!/proto/go.sum

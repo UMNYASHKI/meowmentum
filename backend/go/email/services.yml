@@ -1,0 +1,18 @@
+service.go.email:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "/backend/go"
+    additional_contexts:
+      proto: "/backend/proto"
+    args:
+      GO_VERSION: "${GO_VERSION}"
+      SERVICE: email
+  expose:
+    email:
+      type: grpc
+  envpass:
+    - SECRET_EMAIL_SMTP_HOST
+    - SECRET_EMAIL_SMTP_PORT
+    - SECRET_EMAIL_SMTP_USERNAME
+    - SECRET_EMAIL_SMTP_PASSWORD
+    - SECRET_EMAIL_SMTP_FROM

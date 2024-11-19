@@ -26,7 +26,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	slog.Debug("email service server started")
+	slog.Debug("email service started")
 
 	lc.Wait()
 }

@@ -1,7 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
+using Meowmentum.Server.Dotnet.Infrastructure.Helpers;
+using Meowmentum.Server.Dotnet.Shared.Results;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Extensions;
@@ -31,6 +37,8 @@ public static class JwtExtension
                     ValidAudience = jwtAudience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey ?? ""))
                 };
+
+                options.EventsType = typeof(JwtTokenValidationHandler);
             });
 
         return services;

@@ -1,0 +1,13 @@
+service.web:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "."
+    target: runner
+  expose:
+    http:
+      type: http
+      port: 3000 # TODO: Rewrite service to get bind address and port from EXPOSE_HTTP, remove this property
+      routes:
+        "/": "/"
+  envmap:
+    ATTACH_CORE_API_ENDPOINT: "/api/core"
