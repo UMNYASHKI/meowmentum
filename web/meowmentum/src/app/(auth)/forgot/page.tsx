@@ -3,7 +3,7 @@
 import TextInput from '@common/textinput';
 import Button from '@common/button';
 import GoogleIcon from '@public/google.svg';
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, SyntheticEvent, useState } from 'react';
 import {
   useLoginMutation,
   useSendOtpMutation,
@@ -17,14 +17,17 @@ import { useAuth } from '@providers/authProvider';
 export default function Forgot() {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState<boolean>(false);
+  const [isOtpConfirmed, setIsOtpConfirmed] = useState<boolean>(false);
 
   const [sendOtp] = useSendOtpMutation();
   const [verifyOtp] = useVerifyOtpMutation();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [isOtpSent, setIsOtpSent] = useState<boolean>(false);
 
-  const handleSendOtp = async (e: FormEvent) => {
+  const handleSendOtp = async (e: SyntheticEvent) => {
     e.preventDefault();
 
     try {
@@ -32,27 +35,29 @@ export default function Forgot() {
         email: email,
       }).unwrap();
 
-      router.push('/tasks');
+      setIsOtpSent(true);
     } catch (error) {
-      // dispatch(
-      //   setPopupMessage({
-      //     message: 'Invalid email or password',
-      //     type: 'error',
-      //     isVisible: true,
-      //   })
-      // );
+      dispatch(
+        setPopupMessage({
+          message: 'Invalid email or password',
+          type: 'error',
+          isVisible: true,
+        })
+      );
     }
   };
 
   return (
     <>
-      {isOtpSent ? (
+      {!isOtpSent ? (
         <div>
           <h2 className="text-3xl font-bold text-primary">Forgot password?</h2>
-          <p className="text-gray-900">
+          <br />
+          <p className="text-gray-500 text-16">
             Enter the email associated with your account and we’ll send you an
             email with instructions to reset your password.
           </p>
+          <br />
 
           <div className="space-y-4">
             <TextInput
@@ -65,20 +70,59 @@ export default function Forgot() {
               className={'border-primary'}
             />
           </div>
+          <br />
 
           <div className="space-y-4">
-            <Button
-              type="submit"
+            <button
+              onClick={handleSendOtp}
               className="w-full py-3 rounded-full bg-primary hover:bg-button-hover"
             >
-              Log In
-            </Button>
+              Send Instructions
+            </button>
           </div>
-
-          <p className="text-center text-gray-500 mt-4">Send Instructions</p>
         </div>
       ) : (
-        ''
+        <div>
+          <h2 className="text-3xl font-bold text-primary">
+            Create new password
+          </h2>
+          <br />
+          <p className="text-gray-500 text-16">
+            This password should be different from the previous password.
+          </p>
+          <br />
+
+          <div className="space-y-4">
+            <TextInput
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="New Password"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={'border-primary'}
+            />
+            <TextInput
+              label="Email"
+              type="text"
+              name="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={'border-primary'}
+            />
+          </div>
+          <br />
+
+          <div className="space-y-4">
+            <button
+              onClick={handleSendOtp}
+              className="w-full py-3 rounded-full bg-primary hover:bg-button-hover"
+            >
+              Send Instructions
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
