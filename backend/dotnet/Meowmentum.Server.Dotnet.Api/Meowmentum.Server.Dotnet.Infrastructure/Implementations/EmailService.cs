@@ -14,8 +14,6 @@ public class EmailService : IEmailService
     {
         try
         {
-            token.ThrowIfCancellationRequested();
-
             await Task.Delay(100);
             Console.WriteLine($"OTP {otp} sent to {email}");
 

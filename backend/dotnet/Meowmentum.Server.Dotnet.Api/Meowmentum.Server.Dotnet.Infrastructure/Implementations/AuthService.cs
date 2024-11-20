@@ -5,20 +5,26 @@ using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
+using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
+
+using Microsoft.AspNetCore.Http;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
-public class AuthService(UserManager<AppUser> userManager, IEmailService emailService, IOtpManager otpService, ITokenService tokenService)
-    : IAuthService
+public class AuthService(
+    UserManager<AppUser> userManager, 
+    IEmailService emailService, 
+    IOtpManager otpService, 
+    ITokenService tokenService,
+    ITokenBlackListManager tokenBlackListManager,
+    IHttpContextAccessor httpContextAccessor) : IAuthService
 {
-    public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken token = default)
+    public async Task<Result<bool>> RegisterUserAsync(RegisterUserRequest request, CancellationToken ct = default)
     {
         try
         {
-            token.ThrowIfCancellationRequested();
-
             var existingUser = await userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
+            if (existingUser is not null)
             {
                 return Result.Failure<bool>(ResultMessages.User.EmailAlreadyExists);
             }
@@ -29,30 +35,19 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
             if (response.Succeeded)
             {
                 var otp = otpService.GenerateOtp();
-                var saveOtpResult = await otpService.SaveOtpForUserAsync(user.Id, otp, token);
+                var saveOtpResult = await otpService.SaveOtpForUserAsync(user.Id, otp, ct);
                 if (!saveOtpResult.IsSuccess)
                 {
                     return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
                 }
 
-                await emailService.SendOtpByEmailAsync(user.Email, otp, token);
-
+                await emailService.SendOtpByEmailAsync(user.Email, otp, ct);
+                
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
 
-            return Result.Failure<bool>(ResultMessages.Registration.FailedToCreateUser + string.Join('\n', response.Errors));
-        }
-        catch (OperationCanceledException)
-        {
-            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Registration.OperationError);
-        }
-        catch (ArgumentException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Registration.InvalidArgument);
+            var errorMessages = response.Errors.Select(e => e.Description).ToList();
+            return Result.Failure<bool>(string.Join("\n", errorMessages));
         }
         catch (Exception ex)
         {
@@ -60,19 +55,17 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         }
     }
 
-    public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken token = default)
+    public async Task<Result<bool>> VerifyOtpAsync(OtpValidationRequest request, CancellationToken ct = default)
     {
         try
         {
-            token.ThrowIfCancellationRequested();
-
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
 
-            var otpValidation = await otpService.ValidateOtpAsync(user.Id, request.OtpCode, token);
+            var otpValidation = await otpService.ValidateOtpAsync(user.Id, request.OtpCode, ct);
             if (otpValidation.IsSuccess)
             {
                 user.EmailConfirmed = true;
@@ -82,32 +75,18 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
 
             return Result.Failure<bool>(ResultMessages.User.InvalidOtpCode);
         }
-        catch (OperationCanceledException)
-        {
-            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Otp.OperationError);
-        }
-        catch (ArgumentException ex)
-        {
-            return Result.Failure<bool>(ResultMessages.Otp.InvalidArgument);
-        }
         catch (Exception ex)
         {
             return Result.Failure<bool>($"{ResultMessages.Otp.UnexpectedError} {ex.Message}");
         }
     }
 
-    public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken token = default)
+    public async Task<Result<string>> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         try
         {
-            token.ThrowIfCancellationRequested();
-
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<string>(ResultMessages.User.UserNotFound);
             }
@@ -120,6 +99,62 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
             var tokenString = tokenService.GetToken(user);
             return Result.Success(tokenString);
         }
+        catch (Exception ex)
+        {
+            return Result.Failure<string>($"Unexpected error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> SendResetOtpAsync(string email, CancellationToken ct = default)
+    {
+        try
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user is null)
+            {
+                return Result.Failure<bool>(ResultMessages.User.UserNotFound);
+            }
+
+            var otp = otpService.GenerateOtp();
+            var saveOtpResult = await otpService.SaveOtpForUserAsync(user.Id, otp, ct);
+            if (!saveOtpResult.IsSuccess)
+            {
+                return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
+            }
+
+            await emailService.SendOtpByEmailAsync(user.Email, otp, ct);
+            return Result.Success(true);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
+        }
+    }
+
+    public async Task<Result<string>> VerifyResetOtpAsync(OtpValidationRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var user = await userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+            {
+                return Result.Failure<string>(ResultMessages.User.UserNotFound);
+            }
+
+            var otpValidation = await otpService.ValidateOtpAsync(user.Id, request.OtpCode, ct);
+            if (!otpValidation.IsSuccess)
+            {
+                return Result.Failure<string>(ResultMessages.User.InvalidOtpCode);
+            }
+
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            return Result.Success(resetToken, ResultMessages.Otp.OtpVerified);
+        }
         catch (OperationCanceledException)
         {
             return Result.Failure<string>(ResultMessages.Cancellation.OperationCanceled);
@@ -130,45 +165,55 @@ public class AuthService(UserManager<AppUser> userManager, IEmailService emailSe
         }
     }
 
-    public async Task<Result<bool>> SendOtpAsync(OtpSendRequest request, CancellationToken token = default)
+    public async Task<Result<bool>> UpdatePasswordAsync(PasswordUpdateRequest request, CancellationToken ct = default)
     {
         try
         {
-            token.ThrowIfCancellationRequested();
-
             var user = await userManager.FindByEmailAsync(request.Email);
-
             if (user is null)
             {
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
 
-            var otp = otpService.GenerateOtp();
-            var saveOtpResult = await otpService.SaveOtpForUserAsync(user!.Id, otp, token);
-            if (!saveOtpResult.IsSuccess)
+            var resetTokenResult = await userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", request.ResetToken);
+            if (!resetTokenResult)
             {
-                return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
+                return Result.Failure<bool>(ResultMessages.User.InvalidResetToken);
             }
 
-            await emailService.SendOtpByEmailAsync(user.Email!, otp, token);
+            var passwordUpdateResult = await userManager.ResetPasswordAsync(user, request.ResetToken, request.NewPassword);
+            if (!passwordUpdateResult.Succeeded)
+            {
+                return Result.Failure<bool>(string.Join('\n', passwordUpdateResult.Errors.Select(e => e.Description)));
+            }
 
-            return Result.Success(true, ResultMessages.Registration.Success);
+            return Result.Success(true, ResultMessages.User.PasswordUpdated);
         }
         catch (OperationCanceledException)
         {
             return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
         }
-        catch (InvalidOperationException)
-        {
-            return Result.Failure<bool>(ResultMessages.Registration.OperationError);
-        }
-        catch (ArgumentException)
-        {
-            return Result.Failure<bool>(ResultMessages.Registration.InvalidArgument);
-        }
         catch (Exception ex)
         {
             return Result.Failure<bool>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
         }
+    }
+
+    public async Task<Result<bool>> LogoutAsync(CancellationToken ct = default)
+    {
+        var jwtToken = httpContextAccessor.HttpContext?.Items["JwtToken"] as string;
+
+        if (string.IsNullOrEmpty(jwtToken))
+        {
+            return Result.Failure<bool>(ResultMessages.User.InvalidToken);
+        }
+
+        var blacklistResult = await tokenBlackListManager.AddTokenToBlackList(jwtToken, ct);
+        if (!blacklistResult.IsSuccess)
+        {
+            return Result.Failure<bool>(blacklistResult.ErrorMessage);
+        }
+
+        return Result.Success(true, ResultMessages.User.LogoutSuccess);
     }
 }

@@ -19,7 +19,7 @@ public static class HelperServicesConfiguration
         services.AddScoped<IOtpManager, OtpManager>();
 
         services.Configure<TokenBlacklistDbConfig>(configuration.GetSection(TokenBlacklistDbConfig.SectionName));
-        services.AddScoped<ITokenBlackListManager, TokenBlackListManger>();
+        services.AddScoped<ITokenBlackListManager, TokenBlackListManager>();
 
         return services;
     }
