@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.serialization)
 }
 
 repositories {
@@ -64,8 +65,10 @@ kotlin {
 
             // Koin
             implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.core)
             implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
 
             // Ktor
             implementation(libs.ktor.client.core)
