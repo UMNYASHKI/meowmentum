@@ -23,26 +23,33 @@ kotlin {
         }
     }
     
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
-    
+//    listOf(
+//        iosX64(),
+//        iosArm64(),
+//        iosSimulatorArm64()
+//    ).forEach { iosTarget ->
+//        iosTarget.binaries.framework {
+//            baseName = "ComposeApp"
+//            isStatic = true
+//        }
+//    }
+
     sourceSets {
-        iosMain.dependencies {
-            //implementation(libs.ktor.client.darwin)
-        }
+//        iosMain.dependencies {
+//        }
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            // DataStore
             implementation(libs.androidx.datastore.preferences)
-            //implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.datastore.core)
+
+            // Koin Android
+            implementation(libs.koin.android)
+
+            // Android-specific Ktor engine
+            implementation(libs.ktor.client.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -56,8 +63,9 @@ kotlin {
             implementation(libs.voyager.transitions)
 
             // Koin
-            implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.core)
+            implementation(libs.koin.android)
 
             // Ktor
             implementation(libs.ktor.client.core)
@@ -71,9 +79,15 @@ kotlin {
             // DateTime
             implementation(libs.kotlinx.datetime)
 
+            api(compose.foundation)
+            api(compose.animation)
+
             // Precompose
-            //implementation(libs.precompose)
-            //api(libs.precompose.viewmodel)
+            implementation(libs.precompose)
+            api(libs.precompose.viewmodel)
+
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.core)
         }
     }
 }
@@ -112,15 +126,12 @@ android {
     }
     dependencies {
         debugImplementation(compose.uiTooling)
-        //implementation(libs.kotlinx.coroutines.android)
     }
     configurations { implementation.get().exclude(mapOf("group" to "org.jetbrains", "module" to "annotations")) }
 }
 
 dependencies {
     implementation(libs.androidx.databinding.compiler)
-    implementation(libs.androidx.datastore.core.android)
-    implementation(libs.androidx.lifecycle.viewmodel.android)
     debugImplementation(compose.uiTooling)
 }
 

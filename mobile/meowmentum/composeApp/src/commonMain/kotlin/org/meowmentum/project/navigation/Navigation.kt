@@ -13,8 +13,13 @@ import org.meowmentum.project.ui.screens.home.HomeScreen
 
 @Composable
 fun AppNavigation() {
+
+    println("isLoggedIn:")
+
+
     val authRepository: AuthRepository = koinInject()
     val isLoggedIn by authRepository.isUserLoggedIn().collectAsState(initial = false)
+
 
     Navigator(
         screen = if (isLoggedIn) HomeScreen() else LoginScreen()
