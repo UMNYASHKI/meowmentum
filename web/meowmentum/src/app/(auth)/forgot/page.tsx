@@ -46,7 +46,7 @@ export default function Forgot() {
     } catch (error) {
       dispatch(
         setPopupMessage({
-          message: 'Invalid email or password',
+          message: 'Failed to send instructions',
           type: 'error',
           isVisible: true,
         })
@@ -69,7 +69,7 @@ export default function Forgot() {
     } catch (error) {
       dispatch(
         setPopupMessage({
-          message: 'Invalid email or password',
+          message: 'Verification code is invalid',
           type: 'error',
           isVisible: true,
         })
@@ -88,6 +88,8 @@ export default function Forgot() {
           isVisible: true,
         })
       );
+
+      return;
     }
 
     try {
@@ -98,15 +100,17 @@ export default function Forgot() {
       })
         .unwrap()
         .then(async () => {
-          auth.logout();
-          await logout({}).unwrap();
+          if (auth.isAuthenticated) {
+            await logout({}).unwrap();
+            auth.logout();
+          }
         });
 
       router.push('/login');
     } catch (error) {
       dispatch(
         setPopupMessage({
-          message: 'Invalid email or password',
+          message: 'Failed to change password',
           type: 'error',
           isVisible: true,
         })
@@ -137,15 +141,16 @@ export default function Forgot() {
               className={'border-primary'}
             />
           </div>
+          <br />
 
           {isOtpSent ? (
             <>
               <div className="space-y-4">
                 <TextInput
-                  label="otp"
+                  label="Verification code"
                   type="text"
                   name="otp"
-                  placeholder="one-time password"
+                  placeholder="Verification code"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   className={'border-primary'}
