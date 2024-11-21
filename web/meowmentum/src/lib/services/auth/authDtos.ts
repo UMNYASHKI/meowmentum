@@ -21,3 +21,22 @@ export interface VerificationCodeRequest {
 export interface SendOtpRequest {
   email: string;
 }
+
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface OtpValidationRequest {
+  email: string;
+  otpCode: string;
+}
+
+export interface PasswordUpdateRequest {
+  resetToken: string;
+  email: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  resetToken: string;
+}

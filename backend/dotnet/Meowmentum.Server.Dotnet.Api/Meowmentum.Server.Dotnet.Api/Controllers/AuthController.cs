@@ -29,21 +29,6 @@ public class AuthController(IAuthService authService) : ControllerBase
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpPost("send-otp")]
-    [ProducesResponseType<string>(StatusCodes.Status200OK)]
-    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> SendOtp([FromBody] OtpSendRequest request, CancellationToken token = default)
-    {
-        var result = await authService.SendOtpAsync(request, token);
-
-        if (result.IsSuccess)
-            return Ok(result.Message);
-
-        return BadRequest(result.ErrorMessage);
-    }
-
     [HttpPost("verify-otp")]
     [ProducesResponseType<string>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
