@@ -71,4 +71,10 @@ public static class ResultMessages
         public const string KeyNotFound = "Key not found in Redis cache";
         public const string NullOrEmptyValue = "Value is null or empty";
     }
+
+    public static class Tag
+    {
+        public const string TagNotFound = "Tag not found!";
+        public const string UnexpectedError = "An unexpected error:\n";
+    }
 }
