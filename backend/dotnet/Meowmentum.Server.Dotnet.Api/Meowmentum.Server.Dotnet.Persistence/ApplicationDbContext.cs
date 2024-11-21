@@ -8,6 +8,8 @@ namespace Meowmentum.Server.Dotnet.Persistence;
 public class ApplicationDbContext(DbContextOptions options)
         : IdentityDbContext<AppUser, IdentityRole<long>, long>(options)
 {
+    public DbSet<Tag> Tags { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
