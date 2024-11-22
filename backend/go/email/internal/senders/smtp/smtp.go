@@ -2,6 +2,7 @@ package smtp
 
 import (
 	"gopkg.in/gomail.v2"
+	"log/slog"
 	"meowmentum/backend/email/internal/config"
 )
 
@@ -24,6 +25,8 @@ func NewSender(config *config.ServiceConfig) *Sender {
 }
 
 func (s *Sender) SendEmail(to, subject, body string) error {
+	slog.Debug("sending email", slog.String("to", to), slog.String("subject", subject))
+
 	message := gomail.NewMessage()
 
 	message.SetHeader("From", s.from)

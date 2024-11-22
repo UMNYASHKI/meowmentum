@@ -25,10 +25,7 @@ func (s *emailServiceServer) RegistrationConfirmation(_ context.Context, req *pb
 		return &pbEmail.RegistrationConfirmationResponse{}, nil
 	}
 
-	err = s.sender.SendEmail(req.Email, "Registration Confirmation", buffer.String())
-	if err != nil {
-		slog.Error("failed to send registration confirmation email", slog.Any("error", err))
-	}
+	s.SendEmailBackground(req.Email, "Registration Confirmation", buffer.String())
 
 	return &pbEmail.RegistrationConfirmationResponse{}, nil
 }
