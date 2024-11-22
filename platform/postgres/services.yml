@@ -2,7 +2,7 @@ platform.postgres:
   image: "postgres:${POSTGRES_VERSION}"
   volumes:
     "/var/lib/postgresql/data":
-      name: "${ENVIRONMENT}-${SERVICE}-data"
+      name: "${SERVICE}-data"
       config:
         driver: local
   expose:
@@ -10,6 +10,9 @@ platform.postgres:
       type: static
       port: 5432
       pin: 5432
+  labels:
+    logging: "promtail-${ENVIRONMENT}"
+    logging_jobname: "platform.postgres"
   envmap:
     POSTGRES_USER: "${SECRET_POSTGRES_USERNAME}"
     POSTGRES_PASSWORD: "${SECRET_POSTGRES_PASSWORD}"

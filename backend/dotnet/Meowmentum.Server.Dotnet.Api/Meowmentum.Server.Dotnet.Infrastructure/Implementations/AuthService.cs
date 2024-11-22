@@ -111,7 +111,7 @@ public class AuthService(
         try
         {
             var user = await userManager.FindByEmailAsync(email);
-            if (user is null)
+            if (user is null) 
             {
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }

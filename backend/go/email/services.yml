@@ -10,6 +10,8 @@ service.go.email:
   expose:
     email:
       type: grpc
+  attach:
+    - platform.grafana.loki:loki-http
   envpass:
     - SECRET_EMAIL_SMTP_HOST
     - SECRET_EMAIL_SMTP_PORT

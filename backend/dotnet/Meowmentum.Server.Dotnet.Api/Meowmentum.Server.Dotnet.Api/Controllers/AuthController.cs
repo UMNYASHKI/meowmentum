@@ -79,11 +79,11 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> VerifyResetOtp([FromBody] OtpValidationRequest request, CancellationToken ct = default)
     {
-        var result = await authService.VerifyOtpAsync(request, ct);
+        var result = await authService.VerifyResetOtpAsync(request, ct);
 
         if (result.IsSuccess)
         {
-            return Ok(new ResetPasswordResponse(result.Message));
+            return Ok(new ResetPasswordResponse(result.Data));
         }
 
         return BadRequest(result.ErrorMessage);

@@ -10,12 +10,14 @@ export default function RootLayout({
   //  className="dark"
   return (
     <html lang="en" className="dark">
-      <ProvidersComponent>
-        <body>{children}</body>
-        <footer>
-          <PopupMessage></PopupMessage>
-        </footer>
-      </ProvidersComponent>
+      <body>
+        <ProvidersComponent>
+          {children}
+          <footer>
+            <PopupMessage></PopupMessage>
+          </footer>
+        </ProvidersComponent>
+      </body>
     </html>
   );
 }

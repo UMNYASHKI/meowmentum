@@ -1,0 +1,25 @@
+# https://grafana.com/docs/loki/latest/clients/promtail/configuration/
+# https://docs.docker.com/engine/api/v1.41/#operation/ContainerList
+server:
+  log_level: warn
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: "http://${ATTACH_STATIC_LOKI_HTTP}/loki/api/v1/push"
+
+scrape_configs:
+  - job_name: flog_scrape
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["logging=promtail-${ENVIRONMENT}"]
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_label_logging_jobname']
+        target_label: 'service'
+    pipeline_stages:
+      - static_labels:
+          source: "promtail"

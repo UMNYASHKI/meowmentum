@@ -20,6 +20,7 @@ type Service struct {
 	Image   string
 	Build   *BuildConfig
 	Volumes map[string]Volume
+	Labels  map[string]string
 	Expose  map[string]*Expose
 	Attach  []*Attach
 	EnvMap  map[string]string
@@ -42,6 +43,7 @@ func FromYamlEntry(filePath, name string, yaml YamlEntry, isExcluded bool) (*Ser
 		Excluded:  isExcluded,
 		Image:     os.ExpandEnv(yaml.Image),
 		Volumes:   make(map[string]Volume),
+		Labels:    make(map[string]string),
 		Expose:    make(map[string]*Expose),
 		Attach:    make([]*Attach, 0),
 		EnvMap:    make(map[string]string),
@@ -114,6 +116,12 @@ func FromYamlEntry(filePath, name string, yaml YamlEntry, isExcluded bool) (*Ser
 
 				service.Volumes[k] = vol
 			}
+		}
+	}
+
+	if yaml.Labels != nil {
+		for k, v := range yaml.Labels {
+			service.Labels[k] = os.ExpandEnv(v)
 		}
 	}
 

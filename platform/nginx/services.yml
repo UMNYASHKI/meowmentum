@@ -6,6 +6,9 @@ platform.nginx:
       gen: "gen:nginx ./template.conf"
     args:
       NGINX_VERSION: "${NGINX_VERSION}"
+  labels:
+    logging: "promtail-${ENVIRONMENT}"
+    logging_jobname: "platform.nginx"
   expose:
     http:
       type: static

@@ -2,7 +2,7 @@ platform.redis:
   image: "redis:${REDIS_VERSION}"
   volumes:
     "/root/redis":
-      name: "${ENVIRONMENT}-${SERVICE}-data"
+      name: "${SERVICE}-data"
       config:
         driver: local
   expose:
@@ -10,6 +10,8 @@ platform.redis:
       type: static
       port: 6379
       pin: 6379
+  labels:
+    logging: "promtail-${ENVIRONMENT}"
+    logging_jobname: "platform.redis"
   envmap:
-    REDIS_PORT: "${EXPOSE_STATIC_REDIS}"
     REDIS_PASSWORD: "${SECRET_REDIS_PASSWORD}"

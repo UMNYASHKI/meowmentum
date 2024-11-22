@@ -1,0 +1,15 @@
+platform.grafana.promtail:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "."
+    args:
+      GRAFANA_PROMTAIL_VERSION: "${GRAFANA_PROMTAIL_VERSION}"
+  volumes:
+    "/var/lib/docker/containers":
+      path: "//var/lib/docker/containers"
+    "/var/run/docker.sock":
+      path: "//var/run/docker.sock"
+  compose_overrides:
+    stop_grace_period: 5s
+  attach:
+    - platform.grafana.loki:loki-http
