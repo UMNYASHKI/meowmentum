@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
+	"log/slog"
 	"meowmentum/backend/common/lifecycle"
 	"meowmentum/backend/common/logger"
 	"meowmentum/backend/email/internal/config"
@@ -24,6 +25,7 @@ func NewEmailServiceServer(
 ) (pbEmail.EmailServiceServer, error) {
 	server := &emailServiceServer{sender: sender}
 
+	slog.Debug("starting grpc listener", slog.String("address", config.Expose.Grpc.Email))
 	lis, err := net.Listen("tcp", config.Expose.Grpc.Email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to listen: %w", err)
