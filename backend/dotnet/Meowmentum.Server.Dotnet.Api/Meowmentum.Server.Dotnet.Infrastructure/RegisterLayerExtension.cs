@@ -1,5 +1,6 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
+using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Infrastructure.Extensions;
 using Meowmentum.Server.Dotnet.Infrastructure.Helpers;
 using Meowmentum.Server.Dotnet.Infrastructure.Implementations;
@@ -21,6 +22,7 @@ public static class RegisterLayerExtension
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<JwtTokenValidationHandler>();
+        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
         services.Configure<IdentityOptions>(options =>
         {

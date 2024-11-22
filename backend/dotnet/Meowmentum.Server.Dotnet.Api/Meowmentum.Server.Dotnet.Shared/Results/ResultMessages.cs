@@ -75,6 +75,7 @@ public static class ResultMessages
     public static class Tag
     {
         public const string TagNotFound = "Tag not found!";
+        public const string FetchTagsError = "Error fetching tags";
         public const string UnexpectedError = "An unexpected error:\n";
     }
 }
