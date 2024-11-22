@@ -4,7 +4,6 @@ using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Shared.Requests.Tag;
 using Meowmentum.Server.Dotnet.Shared.Responses;
 using Meowmentum.Server.Dotnet.Shared.Results;
-using Microsoft.EntityFrameworkCore;
 
 namespace Meowmentum.Server.Dotnet.Business.Implementations;
 
