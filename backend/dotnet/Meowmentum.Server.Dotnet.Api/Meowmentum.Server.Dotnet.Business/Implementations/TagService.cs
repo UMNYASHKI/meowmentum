@@ -1,80 +1,86 @@
-﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+﻿using AutoMapper;
+using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
-using Meowmentum.Server.Dotnet.Shared.Requests.Tag;
+using Meowmentum.Server.Dotnet.Shared.Requests.Tags;
 using Meowmentum.Server.Dotnet.Shared.Responses;
 using Meowmentum.Server.Dotnet.Shared.Results;
 
 namespace Meowmentum.Server.Dotnet.Business.Implementations;
 
-public class TagService(IRepository<Tag> repository) : ITagService
+public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagService
 {
-    public async Task<Result<bool>> CreateAsync(CreateTagRequest request)
+    public async Task<Result<bool>> CreateAsync(long userId, CreateTagRequest request, CancellationToken ct = default)
     {
-        var tag = new Tag
-        {
-            Name = request.Name,
-            CreatedDate = DateTime.UtcNow
-        };
-
-        return await repository.AddAsync(tag);
+        var tag = mapper.Map<Tag>(request);
+        tag.UserId = userId;
+        return await repository.AddAsync(tag, ct);
     }
 
-    public async Task<Result<bool>> DeleteAsync(long id)
+    public async Task<Result<bool>> DeleteAsync(long userId, long tagId, CancellationToken ct = default)
     {
-        return await repository.DeleteAsync(id);
-    }
+        var result = await repository.GetFirstOrDefaultAsync(
+            tag => tag.Id == tagId && tag.UserId == userId,
+            ct
+        );
 
-    public async Task<Result<IEnumerable<TagResponse>>> GetAllAsync()
-    {
-        var result = await repository.GetAllAsync();
-        if (!result.IsSuccess)
-        {
-            return Result.Failure<IEnumerable<TagResponse>>(ResultMessages.Tag.FetchTagsError);
-        }
-
-        var tagResponses = result.Data.Select(t => new TagResponse
-        {
-            Id = t.Id,
-            Name = t.Name,
-            CreatedDate = t.CreatedDate,
-            UpdatedDate = t.UpdatedDate
-        }).ToList();
-
-        return Result.Success<IEnumerable<TagResponse>>(tagResponses);
-    }
-
-    public async Task<Result<TagResponse>> GetByIdAsync(long id)
-    {
-        var result = await repository.GetByIdAsync(id);
-        if (!result.IsSuccess)
-        {
-            return Result.Failure<TagResponse>(ResultMessages.Tag.TagNotFound);
-        }
-
-        var tagResponse = new TagResponse
-        {
-            Id = result.Data.Id,
-            Name = result.Data.Name,
-            CreatedDate = result.Data.CreatedDate,
-            UpdatedDate = result.Data.UpdatedDate
-        };
-
-        return Result.Success(tagResponse);
-    }
-
-    public async Task<Result<bool>> UpdateAsync(long id, UpdateTagRequest request)
-    {
-        var result = await repository.GetByIdAsync(id);
         if (!result.IsSuccess)
         {
             return Result.Failure<bool>(ResultMessages.Tag.TagNotFound);
         }
 
-        var tag = result.Data;
-        tag.Name = request.Name;
-        tag.UpdatedDate = DateTime.UtcNow;
+        return await repository.DeleteAsync(tagId, ct);
+    }
 
-        return await repository.UpdateAsync(tag);
+    public async Task<Result<IEnumerable<TagResponse>>> GetAllAsync(long userId, CancellationToken ct = default)
+    {
+        var result = await repository.GetAllAsync(
+            filter: tag => tag.UserId == userId,
+            ct: ct
+        );
+
+        if (!result.IsSuccess)
+        {
+            return Result.Failure<IEnumerable<TagResponse>>(ResultMessages.Tag.FetchTagsError);
+        }
+
+        var tagResponses = mapper.Map<IEnumerable<TagResponse>>(result.Data);
+
+        return Result.Success(tagResponses);
+    }
+
+    public async Task<Result<TagResponse>> GetByIdAsync(long userId, long tagId, CancellationToken ct = default)
+    {
+        var result = await repository.GetFirstOrDefaultAsync(
+            tag => tag.Id == tagId && tag.UserId == userId,
+            ct
+        );
+
+        if (!result.IsSuccess)
+        {
+            return Result.Failure<TagResponse>(ResultMessages.Tag.TagNotFound);
+        }
+
+        var tagResponse = mapper.Map<TagResponse>(result.Data);
+
+        return Result.Success(tagResponse);
+    }
+
+    public async Task<Result<bool>> UpdateAsync(long userId, long tagId, UpdateTagRequest request, CancellationToken ct = default)
+    {
+        var result = await repository.GetFirstOrDefaultAsync(
+            tag => tag.Id == tagId && tag.UserId == userId,
+            ct
+        );
+
+        if (!result.IsSuccess)
+        {
+            return Result.Failure<bool>(ResultMessages.Tag.TagNotFound);
+        }
+
+        mapper.Map(request, result.Data);
+        result.Data.UpdatedDate = DateTime.UtcNow;
+
+        return await repository.UpdateAsync(result.Data, ct);
     }
 }

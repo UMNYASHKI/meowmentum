@@ -1,4 +1,5 @@
 using Meowmentum.Server.Dotnet.Api.Extensions;
+using Meowmentum.Server.Dotnet.Api.Helpers;
 using Meowmentum.Server.Dotnet.Api.Middleware;
 using Meowmentum.Server.Dotnet.Business;
 using Meowmentum.Server.Dotnet.Core.Entities;
@@ -18,10 +19,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGeneration();
 
-builder.Services.AddAutoMapper(config =>
-{
-    //config.AddProfile<ProfileType>();
-});
+//builder.Services.AddAutoMapper(config =>
+//{
+//    //config.AddProfile<ProfileType>();
+//});
 
 builder.Services.AddIdentity<AppUser, IdentityRole<long>>()
     .AddDefaultTokenProviders()
@@ -31,6 +32,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole<long>>()
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddScoped<UserAuthorizationFilter>();
 
 builder.Services.AddCors(options =>
 {

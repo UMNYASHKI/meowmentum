@@ -36,6 +36,8 @@ public static class RegisterLayerExtension
 
 
         services.AddHelperServices(configuration);
+        services.AddAutoMapperWithMappings("Meowmentum.Server.Dotnet");
+
     }
 }
 

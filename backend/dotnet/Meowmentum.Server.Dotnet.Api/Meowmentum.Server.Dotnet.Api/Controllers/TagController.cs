@@ -1,21 +1,22 @@
 ﻿using Meowmentum.Server.Dotnet.Api.Helpers;
 using Meowmentum.Server.Dotnet.Business.Abstractions;
-using Meowmentum.Server.Dotnet.Business.Implementations;
-using Meowmentum.Server.Dotnet.Shared.Requests.Tag;
-using Microsoft.AspNetCore.Http;
+using Meowmentum.Server.Dotnet.Shared.Requests.Tags;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Meowmentum.Server.Dotnet.Api.Controllers;
 
-[Route("api/[controller]")]
+[ServiceFilter(typeof(UserAuthorizationFilter))]
+[Route("api/users/{userId}/[controller]")]
 [ApiController]
+[Authorize]
 [ValidateModel]
 public class TagController(ITagService tagService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromRoute] long userId, CancellationToken ct = default)
     {
-        var result = await tagService.GetAllAsync();
+        var result = await tagService.GetAllAsync(userId, ct);
 
         if (result.IsSuccess)
             return Ok(result.Data);
@@ -23,10 +24,10 @@ public class TagController(ITagService tagService) : ControllerBase
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(long id)
+    [HttpGet("{tagId}")]
+    public async Task<IActionResult> GetById([FromRoute] long userId, long tagId, CancellationToken ct = default)
     {
-        var result = await tagService.GetByIdAsync(id);
+        var result = await tagService.GetByIdAsync(userId, tagId, ct);
 
         if (result.IsSuccess)
             return Ok(result.Data);
@@ -35,9 +36,9 @@ public class TagController(ITagService tagService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateTagRequest request)
+    public async Task<IActionResult> Create([FromRoute] long userId, [FromBody] CreateTagRequest request, CancellationToken ct = default)
     {
-        var result = await tagService.CreateAsync(request);
+        var result = await tagService.CreateAsync(userId, request, ct);
 
         if (result.IsSuccess)
             return Ok();
@@ -45,10 +46,10 @@ public class TagController(ITagService tagService) : ControllerBase
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdateTagRequest request)
+    [HttpPut("{tagId}")]
+    public async Task<IActionResult> Update([FromRoute] long userId, long tagId, [FromBody] UpdateTagRequest request, CancellationToken ct = default)
     {
-        var result = await tagService.UpdateAsync(id, request);
+        var result = await tagService.UpdateAsync(userId, tagId, request, ct);
 
         if (result.IsSuccess)
             return Ok();
@@ -56,10 +57,10 @@ public class TagController(ITagService tagService) : ControllerBase
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(long id)
+    [HttpDelete("{tagId}")]
+    public async Task<IActionResult> Delete([FromRoute] long userId, long tagId, CancellationToken ct = default)
     {
-        var result = await tagService.DeleteAsync(id);
+        var result = await tagService.DeleteAsync(userId, tagId, ct);
 
         if (result.IsSuccess)
             return Ok();

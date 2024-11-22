@@ -14,7 +14,7 @@ namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 public class Repository<TEntity>(ApplicationDbContext _context) 
     : IRepository<TEntity> where TEntity : class
 {
-    public async Task<Result<bool>> AddAsync(TEntity entity)
+    public async Task<Result<bool>> AddAsync(TEntity entity, CancellationToken ct = default)
     {
         try
         {
@@ -28,7 +28,7 @@ public class Repository<TEntity>(ApplicationDbContext _context)
         }
     }
 
-    public async Task<Result<bool>> DeleteAsync(long id)
+    public async Task<Result<bool>> DeleteAsync(long id, CancellationToken ct = default)
     {
         try
         {
@@ -52,7 +52,8 @@ public class Repository<TEntity>(ApplicationDbContext _context)
     public async Task<Result<IEnumerable<TEntity>>> GetAllAsync(
         Expression<Func<TEntity, bool>>? filter = null, 
         Expression<Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>> orderBy = null, 
-        int? pageNum = null, int? count = null)
+        int? pageNum = null, int? count = null,
+        CancellationToken ct = default)
     {
         try
         {
@@ -87,7 +88,7 @@ public class Repository<TEntity>(ApplicationDbContext _context)
         }
     }
 
-    public async Task<Result<TEntity>> GetByIdAsync(long id)
+    public async Task<Result<TEntity>> GetByIdAsync(long id, CancellationToken ct = default)
     {
         try
         {
@@ -106,7 +107,26 @@ public class Repository<TEntity>(ApplicationDbContext _context)
         }
     }
 
-    public async Task<Result<bool>> UpdateAsync(TEntity entity)
+    public async Task<Result<TEntity>> GetFirstOrDefaultAsync(Expression<Func<TEntity, bool>> filter, CancellationToken ct = default)
+    {
+        try
+        {
+            var entity = await _context.Set<TEntity>().FirstOrDefaultAsync(filter, ct);
+
+            if (entity == null)
+            {
+                return Result.Failure<TEntity>($"{typeof(TEntity).Name} not found");
+            }
+
+            return Result.Success(entity);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<TEntity>($"Error fetching {typeof(TEntity).Name}: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> UpdateAsync(TEntity entity, CancellationToken ct = default)
     {
         try
         {
