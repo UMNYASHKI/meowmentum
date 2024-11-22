@@ -34,12 +34,15 @@ func NewEmailServiceServer(
 	lc.AddModule("grpc-server-email")
 
 	grpcLogger := logger.GetGrpcLogger("email")
+	opts := []logging.Option{
+		logging.WithLogOnEvents(logging.StartCall, logging.FinishCall, logging.PayloadSent, logging.PayloadReceived),
+	}
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			logging.UnaryServerInterceptor(grpcLogger),
+			logging.UnaryServerInterceptor(grpcLogger, opts...),
 		),
 		grpc.ChainStreamInterceptor(
-			logging.StreamServerInterceptor(grpcLogger),
+			logging.StreamServerInterceptor(grpcLogger, opts...),
 		),
 	)
 	pbEmail.RegisterEmailServiceServer(grpcServer, server)
@@ -59,4 +62,17 @@ func NewEmailServiceServer(
 	}()
 
 	return server, nil
+}
+
+func (s *emailServiceServer) SendEmailBackground(to, subject, body string) {
+	go func() {
+		err := s.sender.SendEmail(to, subject, body)
+		if err != nil {
+			slog.Error("failed to send email",
+				slog.Any("error", err),
+				slog.String("to", to),
+				slog.String("subject", subject),
+			)
+		}
+	}()
 }

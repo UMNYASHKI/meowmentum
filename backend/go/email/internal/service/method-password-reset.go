@@ -25,10 +25,7 @@ func (s *emailServiceServer) PasswordReset(_ context.Context, req *pbEmail.Passw
 		return &pbEmail.PasswordResetResponse{}, nil
 	}
 
-	err = s.sender.SendEmail(req.Email, "Registration Confirmation", buffer.String())
-	if err != nil {
-		slog.Error("failed to send password reset email", slog.Any("error", err))
-	}
+	s.SendEmailBackground(req.Email, "Registration Confirmation", buffer.String())
 
 	return &pbEmail.PasswordResetResponse{}, nil
 }
