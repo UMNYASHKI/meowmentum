@@ -247,7 +247,7 @@ func (r *Registry) WriteDockerCompose() error {
 				ports = append(ports, fmt.Sprintf("${ENVIRONMENT_BIND_ADDR}:%d:%d", exp.OuterPort, exp.InnerPort))
 			}
 
-			environment[exp.Type.GetExposureVar(name)] = fmt.Sprintf("127.0.0.1:%d", exp.InnerPort)
+			environment[exp.Type.GetExposureVar(name)] = fmt.Sprintf("0.0.0.0:%d", exp.InnerPort)
 		}
 
 		if len(ports) > 0 {
@@ -370,8 +370,8 @@ func (r *Registry) RunApp() {
 				environment["ENVIRONMENT"] = os.Getenv("ENVIRONMENT")
 
 				for _, exp := range service.Expose {
-					envLines = append(envLines, fmt.Sprintf("%s=127.0.0.1:%d", exp.Type.GetExposureVar(exp.Name), exp.OuterPort))
-					environment[exp.Type.GetExposureVar(exp.Name)] = fmt.Sprintf("127.0.0.1:%d", exp.OuterPort)
+					envLines = append(envLines, fmt.Sprintf("%s=0.0.0.0:%d", exp.Type.GetExposureVar(exp.Name), exp.OuterPort))
+					environment[exp.Type.GetExposureVar(exp.Name)] = fmt.Sprintf("0.0.0.0:%d", exp.OuterPort)
 				}
 
 				for _, att := range service.Attach {
