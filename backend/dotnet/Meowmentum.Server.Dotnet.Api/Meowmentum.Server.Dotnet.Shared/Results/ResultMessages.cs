@@ -71,4 +71,16 @@ public static class ResultMessages
         public const string KeyNotFound = "Key not found in Redis cache";
         public const string NullOrEmptyValue = "Value is null or empty";
     }
+
+    public static class Task
+    {
+        public const string TaskNotFound = "Task not found.";
+        public const string UnauthorizedAccess = "You are not authorized to access this task.";
+        public const string UnauthorizedUpdate = "You are not authorized to update this task.";
+        public const string UnauthorizedDelete = "You are not authorized to delete this task.";
+        public const string InvalidTagId = "Invalid tag ID.";
+        public const string UnexpectedError = "An unexpected error occurred.";
+        public const string UserNotFound = "User not found or not authorized.";
+        public const string InvalidFilterRequest = "Filter request contains invalid data.";
+    }
 }

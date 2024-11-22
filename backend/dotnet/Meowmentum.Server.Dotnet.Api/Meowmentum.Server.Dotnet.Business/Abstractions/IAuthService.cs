@@ -19,4 +19,5 @@ public interface IAuthService
     Task<Result<string>> VerifyResetOtpAsync(OtpValidationRequest request, CancellationToken ct = default);
     Task<Result<bool>> UpdatePasswordAsync(PasswordUpdateRequest request, CancellationToken ct = default);
     Task<Result<bool>> LogoutAsync(CancellationToken ct = default);
+    long GetCurrentUserId();
 }

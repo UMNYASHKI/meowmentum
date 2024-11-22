@@ -1,0 +1,80 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Shared.Requests.Task;
+using Microsoft.AspNetCore.Authorization;
+
+namespace Meowmentum.Server.Dotnet.Api.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class TasksController(ITaskService taskService) : ControllerBase
+    {
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest createTaskRequest, CancellationToken ct = default)
+        {
+            var result = await taskService.CreateTaskAsync(createTaskRequest);
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return BadRequest(result.ErrorMessage);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTaskById(long id, CancellationToken ct = default)
+        {
+            var result = await taskService.GetTaskByIdAsync(id);
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return NotFound(result.ErrorMessage);
+        }
+
+        [HttpGet("user")]
+        public async Task<IActionResult> GetTasksForCurrentUser(CancellationToken ct = default)
+        {
+            var result = await taskService.GetAllUserTasks();
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return BadRequest(result.ErrorMessage);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTask(long id, [FromBody] CreateTaskRequest updateRequest, CancellationToken ct = default)
+        {
+            var result = await taskService.UpdateTaskAsync(id, updateRequest);
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return BadRequest(result.ErrorMessage);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTask(long id)
+        {
+            var result = await taskService.DeleteTaskAsync(id);
+
+            if (result.IsSuccess)
+                return NoContent();
+
+            return BadRequest(result.ErrorMessage);
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetTasksByFilter([FromQuery] TaskFilterRequest filterRequest, CancellationToken ct = default)
+        {
+            var result = await taskService.GetTasksByFilterAsync(filterRequest);
+
+            if (result.IsSuccess)
+                return Ok(result.Data);
+
+            return BadRequest(result.ErrorMessage);
+        }
+    }
+}

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
 
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
@@ -215,5 +216,16 @@ public class AuthService(
         }
 
         return Result.Success(true, ResultMessages.User.LogoutSuccess);
+    }
+    public long GetCurrentUserId()
+    {
+        var userIdClaim = httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (long.TryParse(userIdClaim, out long userId))
+        {
+            return userId;
+        }
+
+        return 0;
     }
 }
