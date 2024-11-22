@@ -1,0 +1,17 @@
+platform.grafana.loki:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "."
+    args:
+      GRAFANA_LOKI_VERSION: "${GRAFANA_LOKI_VERSION}"
+  volumes:
+    "/loki":
+      name: "${SERVICE}-data"
+      config:
+        driver: local
+  compose_overrides:
+    stop_grace_period: 5s
+  expose:
+    loki-http:
+      type: static
+      port: 3100

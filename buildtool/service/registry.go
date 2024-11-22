@@ -155,7 +155,9 @@ func calcOpenPort(serverIdent string) int {
 }
 
 func (r *Registry) WriteDockerCompose() error {
-	root := map[string]interface{}{}
+	root := map[string]interface{}{
+		"name": fmt.Sprintf("meowmentum-%s", os.Getenv("ENVIRONMENT")),
+	}
 
 	services := make(map[string]interface{})
 	root["services"] = services
@@ -223,6 +225,16 @@ func (r *Registry) WriteDockerCompose() error {
 
 		if len(vlms) > 0 {
 			srv["volumes"] = vlms
+		}
+
+		if len(service.Labels) > 0 {
+			srv["labels"] = service.Labels
+		}
+
+		if service.Yaml.ComposeOverrides != nil {
+			for k, v := range service.Yaml.ComposeOverrides {
+				srv[k] = &v
+			}
 		}
 
 		environment := make(map[string]string)
@@ -405,7 +417,8 @@ func (r *Registry) RunApp() {
 	_, _ = fmt.Scanln()
 
 	args := []string{
-		"compose", "-f", fmt.Sprintf("./build/%s.docker-compose.yml", os.Getenv("ENVIRONMENT")), "up", "--build",
+		"compose", "-f", fmt.Sprintf("./build/%s.docker-compose.yml", os.Getenv("ENVIRONMENT")), "up",
+		"--build", "--renew-anon-volumes",
 	}
 
 	if len(r.Excludes) == 0 {

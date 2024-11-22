@@ -8,8 +8,8 @@ import (
 type Environment string
 
 const (
-	Local      Environment = "local"
-	Production Environment = "production"
+	EnvironmentLocal      Environment = "local"
+	EnvironmentProduction Environment = "production"
 )
 
 type Config interface {
@@ -19,6 +19,9 @@ type Config interface {
 type CommonConfig struct {
 	Environment             Environment   `env:"ENVIRONMENT" default:"local"`
 	GracefulShutdownTimeout time.Duration `env:"CONFIG_GRACEFUL_SHUTDOWN_TIMEOUT" default:"5s"`
+	Logging                 struct {
+		AttachLoki string `env:"ATTACH_STATIC_LOKI_HTTP"`
+	}
 }
 
 func (c CommonConfig) GetCommonConfig() CommonConfig {

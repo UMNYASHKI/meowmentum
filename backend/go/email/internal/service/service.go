@@ -2,8 +2,10 @@ package service
 
 import (
 	"fmt"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"google.golang.org/grpc"
 	"meowmentum/backend/common/lifecycle"
+	"meowmentum/backend/common/logger"
 	"meowmentum/backend/email/internal/config"
 	"meowmentum/backend/email/internal/senders"
 	pbEmail "meowmentum/backend/proto/email"
@@ -29,7 +31,15 @@ func NewEmailServiceServer(
 
 	lc.AddModule("grpc-server-email")
 
-	grpcServer := grpc.NewServer()
+	grpcLogger := logger.GetGrpcLogger("email")
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			logging.UnaryServerInterceptor(grpcLogger),
+		),
+		grpc.ChainStreamInterceptor(
+			logging.StreamServerInterceptor(grpcLogger),
+		),
+	)
 	pbEmail.RegisterEmailServiceServer(grpcServer, server)
 
 	go func() {

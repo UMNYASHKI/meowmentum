@@ -34,6 +34,8 @@ func (l *Lifecycle) AddModule(name string) {
 
 	l.moduleMap[name] = struct{}{}
 	l.wg.Add(1)
+
+	slog.Debug("lifecycle module added", slog.String("name", name))
 }
 
 func (l *Lifecycle) DoneModule(name string) {
@@ -46,10 +48,14 @@ func (l *Lifecycle) DoneModule(name string) {
 
 	delete(l.moduleMap, name)
 	l.wg.Done()
+
+	slog.Debug("lifecycle module done", slog.String("name", name))
 }
 
 func (l *Lifecycle) Wait() {
+	slog.Debug("lifecycle background wait started")
 	<-l.ctx.Done()
+	slog.Debug("lifecycle shutdown detected")
 
 	waitCh := make(chan struct{})
 	go func() {
