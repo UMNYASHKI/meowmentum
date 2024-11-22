@@ -1,5 +1,6 @@
 package org.meowmentum.project.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
@@ -13,4 +14,5 @@ fun MainTheme(content: @Composable () -> Unit) {
         onError = AccentColor,
         onErrorContainer = AccentSurfaceColor
     )
+    MaterialTheme(colors, content = content)
 }

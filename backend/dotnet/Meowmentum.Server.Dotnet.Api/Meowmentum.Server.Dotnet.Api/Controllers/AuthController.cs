@@ -56,7 +56,51 @@ public class AuthController(IAuthService authService) : ControllerBase
             return BadRequest(loginResult.ErrorMessage);
         }
 
-        return Ok(new LoginResponse { Token = loginResult.Data });
+        return Ok(new LoginResponse(loginResult.Data));
+    }
+
+    [HttpPost("send-reset-otp")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SendOtp([FromBody] PasswordResetRequest request, CancellationToken ct = default)
+    {
+        var result = await authService.SendResetOtpAsync(request.Email, ct);
+
+        if (result.IsSuccess)
+            return Ok(result.Message);
+
+        return BadRequest(result.ErrorMessage);
+    }
+
+    [HttpPost("verify-reset-otp")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> VerifyResetOtp([FromBody] OtpValidationRequest request, CancellationToken ct = default)
+    {
+        var result = await authService.VerifyOtpAsync(request, ct);
+
+        if (result.IsSuccess)
+        {
+            return Ok(new ResetPasswordResponse(result.Message));
+        }
+
+        return BadRequest(result.ErrorMessage);
+    }
+
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ResetPassword([FromBody] PasswordUpdateRequest request, CancellationToken ct = default)
+    {
+        var result = await authService.UpdatePasswordAsync(request, ct);
+
+        if (result.IsSuccess)
+            return Ok(result.Message);
+
+        return BadRequest(result.ErrorMessage);
     }
 
     [HttpPost("logout")]

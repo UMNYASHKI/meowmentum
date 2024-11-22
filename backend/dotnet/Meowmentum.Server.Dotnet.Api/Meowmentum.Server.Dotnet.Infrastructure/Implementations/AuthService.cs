@@ -7,6 +7,7 @@ using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
 using Meowmentum.Server.Dotnet.Shared.Requests.Email;
 using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
+
 using Microsoft.AspNetCore.Http;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
@@ -24,7 +25,7 @@ public class AuthService(
         try
         {
             var existingUser = await userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
+            if (existingUser is not null)
             {
                 return Result.Failure<bool>(ResultMessages.User.EmailAlreadyExists);
             }
@@ -60,7 +61,7 @@ public class AuthService(
         try
         {
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<bool>(ResultMessages.User.UserNotFound);
             }
@@ -86,7 +87,7 @@ public class AuthService(
         try
         {
             var user = await userManager.FindByEmailAsync(request.Email);
-            if (user == null)
+            if (user is null)
             {
                 return Result.Failure<string>(ResultMessages.User.UserNotFound);
             }
@@ -102,6 +103,100 @@ public class AuthService(
         catch (Exception ex)
         {
             return Result.Failure<string>($"Unexpected error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> SendResetOtpAsync(string email, CancellationToken ct = default)
+    {
+        try
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user is null)
+            {
+                return Result.Failure<bool>(ResultMessages.User.UserNotFound);
+            }
+
+            var otp = otpService.GenerateOtp();
+            var saveOtpResult = await otpService.SaveOtpForUserAsync(user.Id, otp, ct);
+            if (!saveOtpResult.IsSuccess)
+            {
+                return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
+            }
+
+            await emailService.SendOtpByEmailAsync(user.Email, otp, ct);
+            return Result.Success(true);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
+        }
+    }
+
+    public async Task<Result<string>> VerifyResetOtpAsync(OtpValidationRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var user = await userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+            {
+                return Result.Failure<string>(ResultMessages.User.UserNotFound);
+            }
+
+            var otpValidation = await otpService.ValidateOtpAsync(user.Id, request.OtpCode, ct);
+            if (!otpValidation.IsSuccess)
+            {
+                return Result.Failure<string>(ResultMessages.User.InvalidOtpCode);
+            }
+
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+
+            return Result.Success(resetToken, ResultMessages.Otp.OtpVerified);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure<string>(ResultMessages.Cancellation.OperationCanceled);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<string>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> UpdatePasswordAsync(PasswordUpdateRequest request, CancellationToken ct = default)
+    {
+        try
+        {
+            var user = await userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+            {
+                return Result.Failure<bool>(ResultMessages.User.UserNotFound);
+            }
+
+            var resetTokenResult = await userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", request.ResetToken);
+            if (!resetTokenResult)
+            {
+                return Result.Failure<bool>(ResultMessages.User.InvalidResetToken);
+            }
+
+            var passwordUpdateResult = await userManager.ResetPasswordAsync(user, request.ResetToken, request.NewPassword);
+            if (!passwordUpdateResult.Succeeded)
+            {
+                return Result.Failure<bool>(string.Join('\n', passwordUpdateResult.Errors.Select(e => e.Description)));
+            }
+
+            return Result.Success(true, ResultMessages.User.PasswordUpdated);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result.Failure<bool>(ResultMessages.Cancellation.OperationCanceled);
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure<bool>($"{ResultMessages.Registration.UnexpectedError} {ex.Message}");
         }
     }
 
