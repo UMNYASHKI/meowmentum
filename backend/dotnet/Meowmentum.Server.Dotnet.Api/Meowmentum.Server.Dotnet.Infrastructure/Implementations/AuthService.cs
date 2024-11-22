@@ -31,6 +31,8 @@ public class AuthService(
             }
 
             var user = new AppUser { UserName = request.UserName, Email = request.Email };
+            //var otp = otpService.GenerateOtp();
+            //await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp });
             var response = await userManager.CreateAsync(user, request.Password);
 
             if (response.Succeeded)
@@ -42,8 +44,12 @@ public class AuthService(
                     return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
                 }
 
-                await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp}, token);
-                
+                var sendingResult = await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp });
+                if (!sendingResult.IsSuccess)
+                {
+                    return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+                }
+
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
 
@@ -123,7 +129,12 @@ public class AuthService(
                 return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
             }
 
-            await emailService.SendOtpByEmailAsync(user.Email, otp, ct);
+            var sendingResult = await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp }, ct);
+            if (!sendingResult.IsSuccess)
+            {
+                return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+            }
+
             return Result.Success(true);
         }
         catch (OperationCanceledException)

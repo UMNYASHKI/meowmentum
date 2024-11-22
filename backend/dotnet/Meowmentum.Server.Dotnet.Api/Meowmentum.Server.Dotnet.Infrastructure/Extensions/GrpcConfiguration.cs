@@ -1,4 +1,5 @@
-﻿using Grpc.Net.ClientFactory;
+﻿using Grpc.Core;
+using Grpc.Net.ClientFactory;
 using Meowmentum.Server.Dotnet.Proto.Email;
 using Meowmentum.Server.Dotnet.Shared.Options.Grpc;
 using Microsoft.Extensions.Configuration;
@@ -15,13 +16,13 @@ public static class GrpcConfiguration
         {
             o.Address = new Uri(emailOptions.Address);
         })
-        .ConfigureChannel(o =>
+        .ConfigurePrimaryHttpMessageHandler(() =>
         {
-            o.ThrowOperationCanceledOnCancellation = true;
-            o.HttpHandler = new SocketsHttpHandler
-            {
-                EnableMultipleHttp2Connections = true,
-            };
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+            return handler;
         });
 
         return services;
