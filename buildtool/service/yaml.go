@@ -34,9 +34,10 @@ type YamlEntry struct { // NOTE: paths are relative to the current services.yml 
 		Routes map[string]string `yaml:"routes,omitempty"` // Used only for "http"
 		Pin    *int              `yaml:"pin,omitempty"`    // Optional, sets fixed outside port and force exposes service
 	} `yaml:"expose,omitempty"`
-	Attach  []string          `yaml:"attach,omitempty"`  // List of service exposures to attach to, in format "service:exposure"
-	EnvMap  map[string]string `yaml:"envmap,omitempty"`  // Map of env variables to set. Evaluated only at runtime (unlike other fields here)
-	EnvPass []string          `yaml:"envpass,omitempty"` // Environment variable names to pass from host, used for secrets and cfg
+	Attach            []string          `yaml:"attach,omitempty"`              // List of service exposures to attach to, in format "service:exposure"
+	EnvMap            map[string]string `yaml:"envmap,omitempty"`              // Map of env variables to set. Evaluated only at runtime (unlike other fields here)
+	EnvPass           []string          `yaml:"envpass,omitempty"`             // Environment variable names to pass from host, used for secrets and cfg
+	SplitAddressParts bool              `yaml:"split_address_parts,omitempty"` // Add host and port parts separately to env for attach and expose
 }
 
 func (y *YamlEntry) Validate() error {
