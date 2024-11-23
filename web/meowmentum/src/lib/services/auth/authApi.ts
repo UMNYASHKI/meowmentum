@@ -11,7 +11,7 @@ import {
   VerificationCodeRequest,
 } from '@/lib/services/auth/authDtos';
 
-const controllerRoute: string = 'auth';
+const controllerRoute: string = 'core/api/auth';
 
 export const authApi = createApi({
   reducerPath: 'apiAuth',

@@ -33,6 +33,7 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Failed to send OTP to email: {To}", sendingRequest.Email);
             return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
         }
     }
@@ -59,6 +60,7 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Failed to send reset password email to email: {To}", sendingRequest.Email);
             return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
         }
     }
