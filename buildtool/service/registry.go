@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
 	"log"
+	"net"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -247,7 +248,13 @@ func (r *Registry) WriteDockerCompose() error {
 				ports = append(ports, fmt.Sprintf("${ENVIRONMENT_BIND_ADDR}:%d:%d", exp.OuterPort, exp.InnerPort))
 			}
 
-			environment[exp.Type.GetExposureVar(name)] = fmt.Sprintf("0.0.0.0:%d", exp.InnerPort)
+			varname := exp.Type.GetExposureVar(name)
+			environment[varname] = fmt.Sprintf("0.0.0.0:%d", exp.InnerPort)
+
+			if service.Yaml.SplitAddressParts {
+				environment[varname+"_HOSTPART"] = "0.0.0.0"
+				environment[varname+"_PORTPART"] = strconv.Itoa(exp.InnerPort)
+			}
 		}
 
 		if len(ports) > 0 {
@@ -256,7 +263,15 @@ func (r *Registry) WriteDockerCompose() error {
 
 		for _, att := range service.Attach {
 			if att.ResolvedAttachTo.Type.CanBeAttached() {
-				environment[att.ResolvedAttachTo.Type.GetAttachmentVar(att.ResolvedAttachTo.Name)] = att.ResolvedAttachTo.GetComposeServiceAddress()
+				varname := att.ResolvedAttachTo.Type.GetAttachmentVar(att.ResolvedAttachTo.Name)
+				addr := att.ResolvedAttachTo.GetComposeServiceAddress()
+				environment[varname] = addr
+
+				if service.Yaml.SplitAddressParts {
+					host, port, _ := net.SplitHostPort(addr)
+					environment[varname+"_HOSTPART"] = host
+					environment[varname+"_PORTPART"] = port
+				}
 			}
 		}
 
@@ -370,19 +385,37 @@ func (r *Registry) RunApp() {
 				environment["ENVIRONMENT"] = os.Getenv("ENVIRONMENT")
 
 				for _, exp := range service.Expose {
-					envLines = append(envLines, fmt.Sprintf("%s=0.0.0.0:%d", exp.Type.GetExposureVar(exp.Name), exp.OuterPort))
-					environment[exp.Type.GetExposureVar(exp.Name)] = fmt.Sprintf("0.0.0.0:%d", exp.OuterPort)
+					varname := exp.Type.GetExposureVar(exp.Name)
+
+					envLines = append(envLines, fmt.Sprintf("%s=0.0.0.0:%d", varname, exp.OuterPort))
+					environment[varname] = fmt.Sprintf("0.0.0.0:%d", exp.OuterPort)
+
+					if service.Yaml.SplitAddressParts {
+						envLines = append(envLines, fmt.Sprintf("%s_HOSTPART=0.0.0.0", varname))
+						environment[varname+"_HOSTPART"] = "0.0.0.0"
+
+						envLines = append(envLines, fmt.Sprintf("%s_PORTPART=%d", varname, exp.OuterPort))
+						environment[varname+"_PORTPART"] = strconv.Itoa(exp.OuterPort)
+					}
 				}
 
 				for _, att := range service.Attach {
 					if att.ResolvedAttachTo.Type.CanBeAttached() {
-						envLines = append(envLines,
-							fmt.Sprintf("%s=%s",
-								att.ResolvedAttachTo.Type.GetAttachmentVar(att.ResolvedAttachTo.Name),
-								att.ResolvedAttachTo.GetComposeServiceAddress(),
-							),
-						)
-						environment[att.ResolvedAttachTo.Type.GetAttachmentVar(att.ResolvedAttachTo.Name)] = att.ResolvedAttachTo.GetComposeServiceAddress()
+						varname := att.ResolvedAttachTo.Type.GetAttachmentVar(att.ResolvedAttachTo.Name)
+						addr := att.ResolvedAttachTo.GetComposeServiceAddress()
+
+						envLines = append(envLines, fmt.Sprintf("%s=%s", varname, addr))
+						environment[varname] = addr
+
+						if service.Yaml.SplitAddressParts {
+							host, port, _ := net.SplitHostPort(addr)
+
+							envLines = append(envLines, fmt.Sprintf("%s_HOSTPART=%s", varname, host))
+							environment[varname+"_HOSTPART"] = host
+
+							envLines = append(envLines, fmt.Sprintf("%s_PORTPART=%s", varname, port))
+							environment[varname+"_PORTPART"] = port
+						}
 					}
 				}
 
