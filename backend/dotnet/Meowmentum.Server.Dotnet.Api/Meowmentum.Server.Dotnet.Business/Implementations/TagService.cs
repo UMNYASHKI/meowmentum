@@ -14,7 +14,8 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
     {
         var isUnique = await repository.IsUnique(tag =>
             tag.UserId == userId &&
-            tag.Name.ToLower() == request.Name.ToLower()
+            tag.Name.ToLower() == request.Name.ToLower(),
+            ct
         );
 
         if (!isUnique.IsSuccess || !isUnique.Data)
@@ -81,7 +82,8 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
         var isUnique = await repository.IsUnique(tag => 
             tag.UserId == userId &&
             tag.Name.ToLower() == request.Name.ToLower() && 
-            tag.Id != tagId
+            tag.Id != tagId,
+            ct
         );
 
         if (!isUnique.IsSuccess || !isUnique.Data)

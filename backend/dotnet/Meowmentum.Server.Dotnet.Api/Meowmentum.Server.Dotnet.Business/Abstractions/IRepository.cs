@@ -23,5 +23,5 @@ public interface IRepository<TEntity> where TEntity : class
         Expression<Func<TEntity, bool>> filter, 
         CancellationToken ct = default);
 
-    Task<Result<bool>> IsUnique(Expression<Func<TEntity, bool>> filter);
+    Task<Result<bool>> IsUnique(Expression<Func<TEntity, bool>> filter, CancellationToken ct = default);
 }
