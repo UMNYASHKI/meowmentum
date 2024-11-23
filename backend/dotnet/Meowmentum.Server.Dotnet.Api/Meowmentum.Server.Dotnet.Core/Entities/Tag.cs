@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Meowmentum.Server.Dotnet.Core.Interfaces;
 
 namespace Meowmentum.Server.Dotnet.Core.Entities;
 
-public class Tag
+public class Tag : ITrackingEntity
 {
     public long Id { get; set; }
     public string Name { get; set; }

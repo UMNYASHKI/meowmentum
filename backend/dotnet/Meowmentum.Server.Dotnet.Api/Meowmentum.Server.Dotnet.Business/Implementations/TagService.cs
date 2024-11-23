@@ -2,7 +2,7 @@
 using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
-using Meowmentum.Server.Dotnet.Shared.Requests.Tags;
+using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Responses;
 using Meowmentum.Server.Dotnet.Shared.Results;
 
@@ -10,7 +10,7 @@ namespace Meowmentum.Server.Dotnet.Business.Implementations;
 
 public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagService
 {
-    public async Task<Result<bool>> CreateAsync(long userId, CreateTagRequest request, CancellationToken ct = default)
+    public async Task<Result<bool>> CreateAsync(long userId, TagRequest request, CancellationToken ct = default)
     {
         var tag = mapper.Map<Tag>(request);
         tag.UserId = userId;
@@ -66,7 +66,7 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
         return Result.Success(tagResponse);
     }
 
-    public async Task<Result<bool>> UpdateAsync(long userId, long tagId, UpdateTagRequest request, CancellationToken ct = default)
+    public async Task<Result<bool>> UpdateAsync(long userId, long tagId, TagRequest request, CancellationToken ct = default)
     {
         var result = await repository.GetFirstOrDefaultAsync(
             tag => tag.Id == tagId && tag.UserId == userId,

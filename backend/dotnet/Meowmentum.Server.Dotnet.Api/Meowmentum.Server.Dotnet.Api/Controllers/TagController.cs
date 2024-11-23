@@ -1,6 +1,6 @@
 ﻿using Meowmentum.Server.Dotnet.Api.Helpers;
 using Meowmentum.Server.Dotnet.Business.Abstractions;
-using Meowmentum.Server.Dotnet.Shared.Requests.Tags;
+using Meowmentum.Server.Dotnet.Shared.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,7 +36,7 @@ public class TagController(ITagService tagService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromRoute] long userId, [FromBody] CreateTagRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> Create([FromRoute] long userId, [FromBody] TagRequest request, CancellationToken ct = default)
     {
         var result = await tagService.CreateAsync(userId, request, ct);
 
@@ -47,7 +47,7 @@ public class TagController(ITagService tagService) : ControllerBase
     }
 
     [HttpPut("{tagId}")]
-    public async Task<IActionResult> Update([FromRoute] long userId, long tagId, [FromBody] UpdateTagRequest request, CancellationToken ct = default)
+    public async Task<IActionResult> Update([FromRoute] long userId, long tagId, [FromBody] TagRequest request, CancellationToken ct = default)
     {
         var result = await tagService.UpdateAsync(userId, tagId, request, ct);
 
