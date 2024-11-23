@@ -1,8 +1,10 @@
 service.dotnet:
   image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
   build:
-    context: ".."
-    dockerfile: "./Dockerfile"
+    context: "/backend"
+    dockerfile: "/backend/dotnet/Meowmentum.Server.Dotnet.Api/Dockerfile"
+    additional_contexts:
+      proto: "/backend/proto"
     target: final
   expose:
     http:
@@ -19,3 +21,4 @@ service.dotnet:
     - SECRET_POSTGRES_PASSWORD
     - SECRET_POSTGRES_DATABASE
     - SECRET_REDIS_PASSWORD
+

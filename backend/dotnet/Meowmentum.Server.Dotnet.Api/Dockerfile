@@ -4,25 +4,27 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
-# TODO: Remove EXPOSE from dockerfile, use buildtool to run local environment with nginx
-EXPOSE 8080
-# TODO: There is no need for HTTPS webserver, TLS will be handled externally by reverse proxy in production
-EXPOSE 8081
-
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api.csproj", "Meowmentum.Server.Dotnet.Api/"]
-COPY ["Meowmentum.Server.Dotnet.Business/Meowmentum.Server.Dotnet.Business.csproj", "Meowmentum.Server.Dotnet.Business/"]
-COPY ["Meowmentum.Server.Dotnet.Core/Meowmentum.Server.Dotnet.Core.csproj", "Meowmentum.Server.Dotnet.Core/"]
-COPY ["Meowmentum.Server.Dotnet.Shared/Meowmentum.Server.Dotnet.Shared.csproj", "Meowmentum.Server.Dotnet.Shared/"]
-COPY ["Meowmentum.Server.Dotnet.Infrastructure/Meowmentum.Server.Dotnet.Infrastructure.csproj", "Meowmentum.Server.Dotnet.Infrastructure/"]
-COPY ["Meowmentum.Server.Dotnet.Persistence/Meowmentum.Server.Dotnet.Persistence.csproj", "Meowmentum.Server.Dotnet.Persistence/"]
+ARG BUILD_CONFIGURATION=Release
+COPY --from=proto / /src/proto/
+
+RUN mkdir -p /src/dotnet/Meowmentum.Server.Dotnet.Api
+
+WORKDIR /src/dotnet/Meowmentum.Server.Dotnet.Api
+
+COPY dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api ./Meowmentum.Server.Dotnet.Api
+COPY dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Business ./Meowmentum.Server.Dotnet.Business
+COPY dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Core ./Meowmentum.Server.Dotnet.Core
+COPY dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Shared ./Meowmentum.Server.Dotnet.Shared
+COPY dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Infrastructure ./Meowmentum.Server.Dotnet.Infrastructure
+COPY dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Persistence ./Meowmentum.Server.Dotnet.Persistence
+
 RUN dotnet restore "./Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api.csproj"
 COPY . .
-WORKDIR "/src/Meowmentum.Server.Dotnet.Api"
+WORKDIR "/src/dotnet/Meowmentum.Server.Dotnet.Api/Meowmentum.Server.Dotnet.Api"
 RUN dotnet build "./Meowmentum.Server.Dotnet.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
