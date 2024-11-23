@@ -13,10 +13,10 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
 {
     public async Task<Result<bool>> SendOtpByEmailAsync(OtpEmailSendingRequest sendingRequest, CancellationToken ct = default) //todo create retry logic
     {
+        ct.ThrowIfCancellationRequested();
+
         try
         {
-            ct.ThrowIfCancellationRequested();
-
             var request = mapper.Map<RegistrationConfirmationRequest>(sendingRequest);
 
             logger.LogInformation("Sending OTP to email: {To}", sendingRequest.Email);
@@ -39,10 +39,10 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
 
     public async Task<Result<bool>> SendResetPasswordEmailAsync(ResetPasswordEmailSendingRequest sendingRequest, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
+
         try
         {
-            ct.ThrowIfCancellationRequested();
-
             var request = mapper.Map<PasswordResetRequest>(sendingRequest);
 
             logger.LogInformation("Sending reset password email to email: {To}", sendingRequest.Email);

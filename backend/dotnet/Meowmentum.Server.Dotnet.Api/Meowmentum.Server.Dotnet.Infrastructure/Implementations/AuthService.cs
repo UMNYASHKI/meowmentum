@@ -31,8 +31,6 @@ public class AuthService(
             }
 
             var user = new AppUser { UserName = request.UserName, Email = request.Email };
-            //var otp = otpService.GenerateOtp();
-            //await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp });
             var response = await userManager.CreateAsync(user, request.Password);
 
             if (response.Succeeded)
