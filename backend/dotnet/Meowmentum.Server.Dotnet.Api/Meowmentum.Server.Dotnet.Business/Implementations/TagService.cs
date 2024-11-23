@@ -12,6 +12,16 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
 {
     public async Task<Result<bool>> CreateAsync(long userId, TagRequest request, CancellationToken ct = default)
     {
+        var isUnique = await repository.IsUnique(tag =>
+            tag.UserId == userId &&
+            tag.Name.ToLower() == request.Name.ToLower()
+        );
+
+        if (!isUnique.IsSuccess || !isUnique.Data)
+        {
+            return Result.Failure<bool>(ResultMessages.Tag.TagNameAlreadyExists);
+        }
+
         var tag = mapper.Map<Tag>(request);
         tag.UserId = userId;
         return await repository.AddAsync(tag, ct);
@@ -68,6 +78,17 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
 
     public async Task<Result<bool>> UpdateAsync(long userId, long tagId, TagRequest request, CancellationToken ct = default)
     {
+        var isUnique = await repository.IsUnique(tag => 
+            tag.UserId == userId &&
+            tag.Name.ToLower() == request.Name.ToLower() && 
+            tag.Id != tagId
+        );
+
+        if (!isUnique.IsSuccess || !isUnique.Data)
+        {
+            return Result.Failure<bool>(ResultMessages.Tag.TagNameAlreadyExists);
+        }
+
         var result = await repository.GetFirstOrDefaultAsync(
             tag => tag.Id == tagId && tag.UserId == userId,
             ct

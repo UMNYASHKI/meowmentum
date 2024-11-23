@@ -22,4 +22,6 @@ public interface IRepository<TEntity> where TEntity : class
     Task<Result<TEntity>> GetFirstOrDefaultAsync(
         Expression<Func<TEntity, bool>> filter, 
         CancellationToken ct = default);
+
+    Task<Result<bool>> IsUnique(Expression<Func<TEntity, bool>> filter);
 }

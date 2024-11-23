@@ -126,6 +126,22 @@ public class Repository<TEntity>(ApplicationDbContext _context)
         }
     }
 
+    public async Task<Result<bool>> IsUnique(Expression<Func<TEntity, bool>> filter)
+    {
+        try
+        {
+            IQueryable<TEntity> query = _context.Set<TEntity>().AsQueryable();
+            var exists = await query.AnyAsync(filter);
+            Console.WriteLine($"Checking uniqueness: {filter}, Exists: {exists}");
+            return Result.Success(!exists);
+            //return Result.Success(!query.Any(filter));
+        }
+        catch
+        {
+            return Result.Failure<bool>($"Cannot check uniqueness of {typeof(TEntity).Name}");
+        }
+    }
+
     public async Task<Result<bool>> UpdateAsync(TEntity entity, CancellationToken ct = default)
     {
         try

@@ -77,5 +77,6 @@ public static class ResultMessages
         public const string TagNotFound = "Tag not found!";
         public const string FetchTagsError = "Error fetching tags";
         public const string UnexpectedError = "An unexpected error:\n";
+        public const string TagNameAlreadyExists = "A tag with the same name already exists.";
     }
 }
