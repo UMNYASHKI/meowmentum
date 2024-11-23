@@ -2,19 +2,20 @@
 using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
-using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Responses;
 using Meowmentum.Server.Dotnet.Shared.Results;
 
 namespace Meowmentum.Server.Dotnet.Business.Implementations;
 
-public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagService
+public class TagService(
+    IRepository<Tag> repository, 
+    IMapper mapper) : ITagService
 {
-    public async Task<Result<bool>> CreateAsync(long userId, TagRequest request, CancellationToken ct = default)
+    public async Task<Result<bool>> CreateAsync(long userId, Tag tag, CancellationToken ct = default)
     {
-        var isUnique = await repository.IsUnique(tag =>
-            tag.UserId == userId &&
-            tag.Name.ToLower() == request.Name.ToLower(),
+        var isUnique = await repository.IsUnique(t =>
+            t.UserId == userId &&
+            t.Name.ToLower() == tag.Name.ToLower(),
             ct
         );
 
@@ -23,7 +24,6 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
             return Result.Failure<bool>(ResultMessages.Tag.TagNameAlreadyExists);
         }
 
-        var tag = mapper.Map<Tag>(request);
         tag.UserId = userId;
         return await repository.AddAsync(tag, ct);
     }
@@ -77,12 +77,12 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
         return Result.Success(tagResponse);
     }
 
-    public async Task<Result<bool>> UpdateAsync(long userId, long tagId, TagRequest request, CancellationToken ct = default)
+    public async Task<Result<bool>> UpdateAsync(long userId, long tagId, Tag tag, CancellationToken ct = default)
     {
-        var isUnique = await repository.IsUnique(tag => 
-            tag.UserId == userId &&
-            tag.Name.ToLower() == request.Name.ToLower() && 
-            tag.Id != tagId,
+        var isUnique = await repository.IsUnique(t => 
+            t.UserId == userId &&
+            t.Name.ToLower() == tag.Name.ToLower() && 
+            t.Id != tagId,
             ct
         );
 
@@ -100,9 +100,6 @@ public class TagService(IRepository<Tag> repository, IMapper mapper) : ITagServi
         {
             return Result.Failure<bool>(ResultMessages.Tag.TagNotFound);
         }
-
-        mapper.Map(request, result.Data);
-        result.Data.UpdatedDate = DateTime.UtcNow;
 
         return await repository.UpdateAsync(result.Data, ct);
     }

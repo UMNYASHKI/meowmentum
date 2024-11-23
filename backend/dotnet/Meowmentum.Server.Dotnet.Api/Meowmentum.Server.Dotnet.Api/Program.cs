@@ -32,7 +32,6 @@ builder.Services.AddIdentity<AppUser, IdentityRole<long>>()
 builder.Services.AddBusiness();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
-builder.Services.AddScoped<UserAuthorizationFilter>();
 
 builder.Services.AddCors(options =>
 {
