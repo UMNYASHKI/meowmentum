@@ -9,7 +9,6 @@ service.dotnet:
   expose:
     http:
       type: http
-      port: 8080 # TODO: Rewrite service to get bind address and port from EXPOSE_HTTP, remove this property
       routes:
         "/api/core/": "/"
   attach:
@@ -21,4 +20,14 @@ service.dotnet:
     - SECRET_POSTGRES_PASSWORD
     - SECRET_POSTGRES_DATABASE
     - SECRET_REDIS_PASSWORD
+    - SECRET_JWT_KEY
+    - ATTACH_GRPC_EMAIL
+  envmap:
+    ConnectionString__MasterDatabase: "Server=localhost;Database=${SECRET_POSTGRES_DATABASE};Port=5432;User Id=${SECRET_POSTGRES_USERNAME};Password=${SECRET_POSTGRES_PASSWORD};Include Error Detail=false;"   #??? Can mapper handdle combination of envs in string??
+    JwtSettings__Key: "${SECRET_JWT_KEY}"
+    RedisConfiguration__RedisConnection__Password: "${SECRET_REDIS_PASSWORD}"
+    Grpc__EmailOptions__Address: "${ATTACH_GRPC_EMAIL}"
+    ASPNETCORE_URLS: "http://${EXPOSE_HTTP}" #??? Can mapper handdle combination of envs in string??
+
+
 
