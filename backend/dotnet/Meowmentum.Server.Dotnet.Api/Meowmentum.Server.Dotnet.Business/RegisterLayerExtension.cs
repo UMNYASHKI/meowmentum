@@ -10,6 +10,7 @@ public static class RegisterLayerExtension
     public static void AddBusiness(this IServiceCollection services)
     {
         services.AddScoped<ITagService, TagService>();
+        services.AddScoped<ITaskService, TaskService>();
     }
 }
 

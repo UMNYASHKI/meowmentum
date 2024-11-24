@@ -217,15 +217,4 @@ public class AuthService(
 
         return Result.Success(true, ResultMessages.User.LogoutSuccess);
     }
-    public long GetCurrentUserId()
-    {
-        var userIdClaim = httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (long.TryParse(userIdClaim, out long userId))
-        {
-            return userId;
-        }
-
-        return 0;
-    }
 }

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Meowmentum.Server.Dotnet.Core.Entities
 {
@@ -21,9 +16,9 @@ namespace Meowmentum.Server.Dotnet.Core.Entities
         public string Description { get; set; }
 
         [Required]
-        [ForeignKey("Task")] // Указывает, что TaskId — это внешний ключ
+        [ForeignKey("Task")]
         public long TaskId { get; set; }
 
-        public virtual Task Task { get; set; } // Связь с Task
+        public virtual Task Task { get; set; }
     }
 }

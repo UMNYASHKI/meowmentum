@@ -78,6 +78,7 @@ public static class ResultMessages
     public static class Task
     {
         public const string TaskNotFound = "Task not found.";
+        public const string NoFilteredTasks = "No tasks with filter.";
         public const string UnauthorizedAccess = "You are not authorized to access this task.";
         public const string UnauthorizedUpdate = "You are not authorized to update this task.";
         public const string UnauthorizedDelete = "You are not authorized to delete this task.";

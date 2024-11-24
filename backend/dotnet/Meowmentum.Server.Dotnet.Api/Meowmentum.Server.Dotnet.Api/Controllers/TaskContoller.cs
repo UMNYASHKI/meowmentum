@@ -1,59 +1,64 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Shared.Requests.Task;
-using Microsoft.AspNetCore.Authorization;
-using Meowmentum.Server.Dotnet.Shared.Results;
+using Meowmentum.Server.Dotnet.Api.Helpers;
+using Task = Meowmentum.Server.Dotnet.Core.Entities.Task;
 
-namespace Meowmentum.Server.Dotnet.Api.Controllers
+namespace Meowmentum.Server.Dotnet.Api.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+[ValidateModel]
+public class TasksController(ITaskService taskService, IMapper mapper) : BaseController()
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class TasksController(ITaskService taskService) : ControllerBase
+    [HttpPost("create")]
+    public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest createTaskRequest, CancellationToken ct = default)
     {
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest createTaskRequest, CancellationToken ct = default)
-        {
-            var result = await taskService.CreateTaskAsync(createTaskRequest, ct);
+        var task = mapper.Map<Task>(createTaskRequest);
+        var result = await taskService.CreateTaskAsync(CurrentUserId, task, ct);
 
-            if (result.IsSuccess)
-                return Ok(result.Data);
+        if (result.IsSuccess)
+            return Ok(result.Data);
 
-            return BadRequest(result.ErrorMessage);
-        }
+        return BadRequest(result.ErrorMessage);
+    }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTask(long id, [FromBody] CreateTaskRequest updateRequest, CancellationToken ct = default)
-        {
-            var result = await taskService.UpdateTaskAsync(id, updateRequest, ct);
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateTask(long id, [FromBody] CreateTaskRequest updateRequest, CancellationToken ct = default)
+    {
+        var task = mapper.Map<Task>(updateRequest);
+        task.Id = id;
 
-            if (result.IsSuccess)
-                return Ok(result.Data);
+        var result = await taskService.UpdateTaskAsync(CurrentUserId, task, ct);
 
-            return BadRequest(result.ErrorMessage);
-        }
+        if (result.IsSuccess)
+            return Ok(result.Data);
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTask(long id, CancellationToken ct = default)
-        {
-            var result = await taskService.DeleteTaskAsync(id, ct);
+        return BadRequest(result.ErrorMessage);
+    }
 
-            if (result.IsSuccess)
-                return NoContent();
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteTask(long id, CancellationToken ct = default)
+    {
+        var result = await taskService.DeleteTaskAsync(CurrentUserId, id, ct);
 
-            return BadRequest(result.ErrorMessage);
-        }
+        if (result.IsSuccess)
+            return NoContent();
 
-        [HttpGet("tasks")]
-        public async Task<IActionResult> GetTasks([FromQuery] TaskFilterRequest filterRequest, CancellationToken ct = default)
-        {
-            var result = await taskService.GetTasksAsync(filterRequest, ct);
+        return BadRequest(result.ErrorMessage);
+    }
 
-            if (result.IsSuccess)
-                return Ok(result.Data);
+    [HttpGet("tasks")]
+    public async Task<IActionResult> GetTasks([FromQuery] TaskFilterRequest filterRequest, CancellationToken ct = default)
+    {
+        var result = await taskService.GetTasksAsync(CurrentUserId, filterRequest, ct);
 
-            return BadRequest(result.ErrorMessage);
-        }
+        if (result.IsSuccess)
+            return Ok(result.Data);
+
+        return BadRequest(result.ErrorMessage);
     }
 }
