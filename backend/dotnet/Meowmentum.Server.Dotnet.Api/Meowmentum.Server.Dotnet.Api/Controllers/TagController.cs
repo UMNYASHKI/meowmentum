@@ -12,10 +12,7 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers;
 [ApiController]
 [Authorize]
 [ValidateModel]
-public class TagController(
-    ITagService tagService, 
-    ICurrentUserService currentUserService, 
-    IMapper mapper) : BaseController(currentUserService, mapper)
+public class TagController(ITagService tagService) : BaseController()
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct = default)
@@ -42,7 +39,7 @@ public class TagController(
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] TagRequest request, CancellationToken ct = default)
     {
-        var tag = mapper.Map<Tag>(request);
+        var tag = Mapper.Map<Tag>(request);
         var result = await tagService.CreateAsync(CurrentUserId, tag, ct);
 
         if (result.IsSuccess)
@@ -54,7 +51,7 @@ public class TagController(
     [HttpPut("{tagId}")]
     public async Task<IActionResult> Update(long tagId, [FromBody] TagRequest request, CancellationToken ct = default)
     {
-        var tag = mapper.Map<Tag>(request);
+        var tag = Mapper.Map<Tag>(request);
         var result = await tagService.UpdateAsync(CurrentUserId, tagId, tag, ct);
 
         if (result.IsSuccess)

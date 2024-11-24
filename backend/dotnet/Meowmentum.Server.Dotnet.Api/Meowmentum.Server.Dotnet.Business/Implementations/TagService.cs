@@ -139,6 +139,7 @@ public class TagService(
             return Result.Failure<bool>(ResultMessages.Tag.TagNotFound);
         }
 
+        result.Data.Name = tag.Name;
         var updateResult = await repository.UpdateAsync(result.Data, ct);
         if (updateResult.IsSuccess)
         {
