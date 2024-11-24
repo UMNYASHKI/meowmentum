@@ -4,6 +4,7 @@ using Meowmentum.Server.Dotnet.Business;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure;
 using Meowmentum.Server.Dotnet.Persistence;
+using Meowmentum.Server.Dotnet.Shared.Profiles;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,10 +19,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGeneration();
 
-builder.Services.AddAutoMapper(config =>
-{
-    //config.AddProfile<ProfileType>();
-});
+builder.Services.AddAutoMapper(typeof(MainMappingProfile).Assembly);
 
 builder.Services.AddIdentity<AppUser, IdentityRole<long>>()
     .AddDefaultTokenProviders()

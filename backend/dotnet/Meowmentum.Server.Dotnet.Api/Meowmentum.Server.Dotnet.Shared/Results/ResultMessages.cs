@@ -22,6 +22,9 @@ public static class ResultMessages
         public const string LogoutFailed = "Logout failed. Please try again.";
         public const string LogoutSuccess = "Logout successful.";
         public const string TokenBlacklisted = "Token is blacklisted";
+        public const string NoCurrentUser = "No current user in the context";
+        public const string FailedToGetCurrentUser = "Failed to get current user";
+        public const string FailedToGetUserId = "Failed to get user ID from current user";
     }
 
     public static class Registration
@@ -70,5 +73,13 @@ public static class ResultMessages
 
         public const string KeyNotFound = "Key not found in Redis cache";
         public const string NullOrEmptyValue = "Value is null or empty";
+    }
+
+    public static class Tag
+    {
+        public const string TagNotFound = "Tag not found!";
+        public const string FetchTagsError = "Error fetching tags";
+        public const string UnexpectedError = "An unexpected error:\n";
+        public const string TagNameAlreadyExists = "A tag with the same name already exists.";
     }
 }
