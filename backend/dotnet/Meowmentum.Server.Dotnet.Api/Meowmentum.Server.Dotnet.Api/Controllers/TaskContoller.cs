@@ -46,7 +46,7 @@ public class TasksController(ITaskService taskService, IMapper mapper) : BaseCon
         var result = await taskService.DeleteTaskAsync(CurrentUserId, id, ct);
 
         if (result.IsSuccess)
-            return NoContent();
+            return Ok();
 
         return BadRequest(result.ErrorMessage);
     }
