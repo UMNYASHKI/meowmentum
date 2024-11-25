@@ -14,7 +14,7 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers;
 [ValidateModel]
 public class TasksController(ITaskService taskService, IMapper mapper) : BaseController()
 {
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest createTaskRequest, CancellationToken ct = default)
     {
         var task = mapper.Map<Task>(createTaskRequest);
@@ -51,7 +51,7 @@ public class TasksController(ITaskService taskService, IMapper mapper) : BaseCon
         return BadRequest(result.ErrorMessage);
     }
 
-    [HttpGet("tasks")]
+    [HttpGet]
     public async Task<IActionResult> GetTasks([FromQuery] TaskFilterRequest filterRequest, CancellationToken ct = default)
     {
         var result = await taskService.GetTasksAsync(CurrentUserId, filterRequest, ct);
