@@ -7,6 +7,7 @@ using Meowmentum.Server.Dotnet.Persistence;
 using Meowmentum.Server.Dotnet.Shared.Profiles;
 using Microsoft.AspNetCore.Identity;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRouting(options =>
@@ -18,6 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGeneration();
+
 
 builder.Services.AddAutoMapper(typeof(MainMappingProfile).Assembly);
 

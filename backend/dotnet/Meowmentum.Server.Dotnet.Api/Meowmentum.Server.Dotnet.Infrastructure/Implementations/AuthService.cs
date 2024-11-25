@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
 
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 

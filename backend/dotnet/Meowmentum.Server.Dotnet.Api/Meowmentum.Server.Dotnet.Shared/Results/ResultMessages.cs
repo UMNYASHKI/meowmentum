@@ -75,6 +75,18 @@ public static class ResultMessages
         public const string NullOrEmptyValue = "Value is null or empty";
     }
 
+    public static class Task
+    {
+        public const string TaskNotFound = "Task not found.";
+        public const string NoFilteredTasks = "No tasks with filter.";
+        public const string UnauthorizedAccess = "You are not authorized to access this task.";
+        public const string UnauthorizedUpdate = "You are not authorized to update this task.";
+        public const string UnauthorizedDelete = "You are not authorized to delete this task.";
+        public const string InvalidTagId = "Invalid tag ID.";
+        public const string UnexpectedError = "An unexpected error occurred.";
+        public const string UserNotFound = "User not found or not authorized.";
+        public const string InvalidFilterRequest = "Filter request contains invalid data.";
+    }
     public static class Tag
     {
         public const string TagNotFound = "Tag not found!";
