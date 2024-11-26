@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
 }
@@ -14,12 +15,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       setIsAuthenticated(true);
     }
+    setIsLoading(false);
   }, []);
 
   const login = (token: string) => {
@@ -33,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,6 +1,7 @@
 import '@styles/globals.css';
 import { ProvidersComponent } from '@/lib/providers/provider';
 import PopupMessage from '@common/popupMessage';
+import Section from '@/app/(main)/section';
 
 export default function RootLayout({
   children,

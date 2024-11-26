@@ -8,13 +8,13 @@ import { Spinner } from '@nextui-org/react';
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isLoading) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   if (!isAuthenticated) {
     return (
