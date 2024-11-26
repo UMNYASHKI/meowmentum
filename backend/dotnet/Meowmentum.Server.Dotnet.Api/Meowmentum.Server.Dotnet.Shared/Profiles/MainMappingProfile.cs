@@ -2,4 +2,4 @@
 
 namespace Meowmentum.Server.Dotnet.Shared.Profiles;
 
-public class MainMappingProfile : Profile { }
+public class MainMappingProfile : Profile {}

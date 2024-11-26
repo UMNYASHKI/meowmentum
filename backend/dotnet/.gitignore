@@ -162,3 +162,5 @@ dist-ssr
 
 # Ignore Visual Studio specific files
 /Meowmentum.Server.Dotnet.Api/.vs/
+
+/Meowmentum.Server.Dotnet.Api/Protos/

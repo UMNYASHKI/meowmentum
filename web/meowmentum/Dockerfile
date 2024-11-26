@@ -8,8 +8,8 @@ RUN yarn install --frozen-lockfile
 COPY . .
 
 # TODO: Rewrite to use /api as public api endpoint. /api/core points to dotnet, /api/{service} may be used in Go services
-ARG ATTACH_CORE_API_ENDPOINT="/api/core"
-ENV NEXT_PUBLIC_API_ENDPOINT $ATTACH_CORE_API_ENDPOINT
+ARG ATTACH_API_ENDPOINT="/api"
+ENV NEXT_PUBLIC_API_ENDPOINT $ATTACH_API_ENDPOINT
 ENV NODE_ENV production
 
 RUN yarn run build
@@ -26,8 +26,5 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 COPY --from=builder /app/public ./public
-
-# TODO: Remove EXPOSE from dockerfile, use buildtool to run local environment with nginx
-EXPOSE 3000
 
 CMD ["node", "server.js"]

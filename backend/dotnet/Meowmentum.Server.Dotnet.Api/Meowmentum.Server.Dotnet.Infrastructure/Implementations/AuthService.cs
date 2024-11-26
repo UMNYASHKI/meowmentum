@@ -5,6 +5,7 @@ using Meowmentum.Server.Dotnet.Shared.Requests.Registration;
 using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
+using Meowmentum.Server.Dotnet.Shared.Requests.Email;
 using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
 
 using Microsoft.AspNetCore.Http;
@@ -42,8 +43,12 @@ public class AuthService(
                     return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
                 }
 
-                await emailService.SendOtpByEmailAsync(user.Email, otp, ct);
-                
+                var sendingResult = await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp });
+                if (!sendingResult.IsSuccess)
+                {
+                    return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+                }
+
                 return Result.Success(true, ResultMessages.Registration.Success);
             }
 
@@ -123,7 +128,12 @@ public class AuthService(
                 return Result.Failure<bool>(ResultMessages.Otp.FailedToSaveOtp);
             }
 
-            await emailService.SendOtpByEmailAsync(user.Email, otp, ct);
+            var sendingResult = await emailService.SendOtpByEmailAsync(new OtpEmailSendingRequest { Email = user.Email, Name = user.UserName, Otp = otp }, ct);
+            if (!sendingResult.IsSuccess)
+            {
+                return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+            }
+
             return Result.Success(true);
         }
         catch (OperationCanceledException)
