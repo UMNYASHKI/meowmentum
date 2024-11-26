@@ -11,6 +11,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        tablet: '820px',
+      },
       colors: {
         background: {
           light: '#ffffff',
