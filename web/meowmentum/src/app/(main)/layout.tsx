@@ -1,6 +1,5 @@
 import ProtectedRoute from '@utils/protectedRoute';
 import Section from '@/app/(main)/section';
-import Dashboard from '@/app/(main)/dashboard';
 
 export default function MainLayout({
   children,
@@ -9,9 +8,9 @@ export default function MainLayout({
 }) {
   return (
     <ProtectedRoute>
-      <div className="flex flex-row">
+      <div className="flex flex-row h-[100vh]">
         <Section />
-        <Dashboard>{children}</Dashboard>
+        {children}
       </div>
     </ProtectedRoute>
   );

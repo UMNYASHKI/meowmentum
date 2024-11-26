@@ -17,10 +17,7 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
 }) => {
   return (
     <div>
-      <select
-        className={twMerge('', className)}
-        onChange={onChange}
-      >
+      <select className={twMerge('', className)} onChange={onChange}>
         <option disabled selected>
           {placeholder}
         </option>
