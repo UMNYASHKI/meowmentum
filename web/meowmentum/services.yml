@@ -1,14 +1,14 @@
 service.web:
-  image: '${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}'
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
   build:
-    context: '.'
+    context: "."
     target: runner
   expose:
     http:
       type: http
       routes:
-        '/': '/'
+        "/": "/"
   split_address_parts: true
   envmap:
-    ATTACH_API_ENDPOINT: '/api'
-    PORT: '${EXPOSE_HTTP_PORTPART}'
+    ATTACH_API_ENDPOINT: "/api"
+    PORT: "${EXPOSE_HTTP_PORTPART}"
