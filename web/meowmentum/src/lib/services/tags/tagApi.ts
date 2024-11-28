@@ -3,7 +3,8 @@ import baseAuthQuery from '@services/helpers/baseAuthQuery';
 import { TagResponse } from '@services/tags/tagDtos';
 
 const name = 'tagApi';
-const endpointRoute: string = 'core/api/tag';
+const endpointRoute: string =
+  process.env.NODE_ENV !== 'production' ? 'api/tag' : 'core/api/tag';
 
 export const tagApi = createApi({
   reducerPath: name,
@@ -18,4 +19,4 @@ export const tagApi = createApi({
   }),
 });
 
-export const { useGetAllTagsQuery } = tagApi;
+export const { useLazyGetAllTagsQuery } = tagApi;

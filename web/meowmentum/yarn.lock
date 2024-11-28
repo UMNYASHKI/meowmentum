@@ -1227,9 +1227,9 @@
     "@react-types/button" "3.9.4"
     "@react-types/shared" "3.23.1"
 
-"@nextui-org/calendar@2.0.12":
+"@nextui-org/calendar@2.0.12", "@nextui-org/calendar@^2.0.12":
   version "2.0.12"
-  resolved "https://registry.npmjs.org/@nextui-org/calendar/-/calendar-2.0.12.tgz"
+  resolved "https://registry.yarnpkg.com/@nextui-org/calendar/-/calendar-2.0.12.tgz#e3e5df719cd08b710a51602d279a25d737b3c5b2"
   integrity sha512-FnEnOQnsuyN+F+hy4LEJBvZZcfXMpDGgLkTdnDdoZObXQWwd0PWPjU8GzY+ukhhR5eiU7QIj2AADVRCvuAkiLA==
   dependencies:
     "@internationalized/date" "^3.5.4"
@@ -1374,6 +1374,22 @@
     "@react-stately/menu" "3.7.1"
     "@react-types/menu" "3.9.9"
 
+"@nextui-org/dropdown@^2.1.31":
+  version "2.1.31"
+  resolved "https://registry.yarnpkg.com/@nextui-org/dropdown/-/dropdown-2.1.31.tgz#4606509b00101f9a04a420400837485fe0390081"
+  integrity sha512-tP6c5MAhWK4hJ6U02oX6APUpjjrn97Zn7t+56Xx4YyQOSj0CJx18VF0JsU+MrjFZxPX3UBKU3B2zGBHOEGE4Kw==
+  dependencies:
+    "@nextui-org/aria-utils" "2.0.26"
+    "@nextui-org/menu" "2.0.30"
+    "@nextui-org/popover" "2.1.29"
+    "@nextui-org/react-utils" "2.0.17"
+    "@nextui-org/shared-utils" "2.0.8"
+    "@react-aria/focus" "3.17.1"
+    "@react-aria/menu" "3.14.1"
+    "@react-aria/utils" "3.24.1"
+    "@react-stately/menu" "3.7.1"
+    "@react-types/menu" "3.9.9"
+
 "@nextui-org/framer-utils@2.0.25":
   version "2.0.25"
   resolved "https://registry.npmjs.org/@nextui-org/framer-utils/-/framer-utils-2.0.25.tgz"
@@ -1472,27 +1488,7 @@
     "@react-types/menu" "3.9.9"
     "@react-types/shared" "3.23.1"
 
-"@nextui-org/modal@2.0.41":
-  version "2.0.41"
-  resolved "https://registry.npmjs.org/@nextui-org/modal/-/modal-2.0.41.tgz"
-  integrity sha512-Sirn319xAf7E4cZqvQ0o0Vd3Xqy0FRSuhOTwp8dALMGTMY61c2nIyurgVCNP6hh8dMvMT7zQEPP9/LE0boFCEQ==
-  dependencies:
-    "@nextui-org/framer-utils" "2.0.25"
-    "@nextui-org/react-utils" "2.0.17"
-    "@nextui-org/shared-icons" "2.0.9"
-    "@nextui-org/shared-utils" "2.0.8"
-    "@nextui-org/use-aria-button" "2.0.10"
-    "@nextui-org/use-aria-modal-overlay" "2.0.13"
-    "@nextui-org/use-disclosure" "2.0.10"
-    "@react-aria/dialog" "3.5.14"
-    "@react-aria/focus" "3.17.1"
-    "@react-aria/interactions" "3.21.3"
-    "@react-aria/overlays" "3.22.1"
-    "@react-aria/utils" "3.24.1"
-    "@react-stately/overlays" "3.6.7"
-    "@react-types/overlays" "3.8.7"
-
-"@nextui-org/modal@^2.0.41":
+"@nextui-org/modal@2.0.41", "@nextui-org/modal@^2.0.41":
   version "2.0.41"
   resolved "https://registry.yarnpkg.com/@nextui-org/modal/-/modal-2.0.41.tgz#3fba82661413236e9b41f3b4d6c50c3205d6292c"
   integrity sha512-Sirn319xAf7E4cZqvQ0o0Vd3Xqy0FRSuhOTwp8dALMGTMY61c2nIyurgVCNP6hh8dMvMT7zQEPP9/LE0boFCEQ==
@@ -3895,6 +3891,11 @@ data-view-byte-offset@^1.0.0:
     call-bind "^1.0.6"
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
+
+date-fns@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-4.1.0.tgz#64b3d83fff5aa80438f5b1a633c2e83b8a1c2d14"
+  integrity sha512-Ukq0owbQXxa/U3EGtsdVBkR1w7KOQ5gIBqdH2hkvknzZPYvBxb/aa6E8L7tmjFtkwZBu3UXBbjIgPo/Ez4xaNg==
 
 debug@^3.2.7:
   version "3.2.7"

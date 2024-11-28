@@ -17,6 +17,6 @@ namespace Meowmentum.Server.Dotnet.Shared.Requests.Task
         public TaskPriority? Priority { get; set; }
         public TaskStatus? Status { get; set; }
 
-        public long? TagId { get; set; }
+        public long? TagId { get; set; } // todo: many to many relation
     }
 }

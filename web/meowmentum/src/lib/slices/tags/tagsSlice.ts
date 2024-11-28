@@ -16,9 +16,7 @@ export const tagSlice = createSlice({
     addTag: (state, action: PayloadAction<ITag>) => {
       state.push(action.payload);
     },
-    removeTag: (state, action: PayloadAction<ITag>) => {
-
-    },
+    removeTag: (state, action: PayloadAction<ITag>) => {},
   },
 });
 
