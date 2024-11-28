@@ -7,12 +7,17 @@ import androidx.compose.runtime.Composable
 @Composable
 fun MainTheme(content: @Composable () -> Unit) {
     val colors = lightColorScheme(
-        background = BackgroundColor,
-        surface = PrimarySurfaceColor,
-        onPrimary = PrimaryTextColor,
-        onSecondary = SecondaryTextColor,
-        onError = AccentColor,
-        onErrorContainer = AccentSurfaceColor
+        primary = PrimaryColor,
+        secondary = SecondaryColor,
+        tertiary = TeritaryColor,
+        error = AccentColor,
+        errorContainer = AccentSurfaceColor,
+        background = BackgroundColor
     )
-    MaterialTheme(colors, content = content)
+    val typography = AlbertSansTypography()
+    MaterialTheme(
+        colorScheme = colors,
+        typography = typography,
+        content = content
+    )
 }

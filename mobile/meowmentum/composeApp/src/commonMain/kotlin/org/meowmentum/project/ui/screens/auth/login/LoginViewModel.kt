@@ -5,8 +5,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import org.meowmentum.project.data.models.LoginCredentials
-
 import org.meowmentum.project.domain.repository.AuthRepository
 import org.meowmentum.project.domain.validation.AuthValidation
 import org.meowmentum.project.domain.validation.ValidationResult
@@ -25,6 +23,7 @@ class LoginViewModel(
             email = email,
             emailError = null
         )
+        _errorMessage.value = null
     }
 
     fun onPasswordChanged(password: String) {
@@ -32,70 +31,55 @@ class LoginViewModel(
             password = password,
             passwordError = null
         )
+        _errorMessage.value = null
     }
 
     fun login() {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-
-            val emailValidation = AuthValidation.validateEmail(_state.value.email)
-            val passwordValidation = AuthValidation.validatePassword(_state.value.password)
-
-            if (emailValidation is ValidationResult.Invalid ||
-                passwordValidation is ValidationResult.Invalid) {
-                _state.value = _state.value.copy(
-                    emailError = (emailValidation as? ValidationResult.Invalid)?.message,
-                    passwordError = (passwordValidation as? ValidationResult.Invalid)?.message,
-                    isLoading = false
-                )
-                return@launch
-            }
-
             try {
-                val result = authRepository.login(
-                    LoginCredentials(
-                        email = _state.value.email,
-                        password = _state.value.password
+                _errorMessage.value = null
+
+                val emailValidation = AuthValidation.validateEmail(_state.value.email)
+                val passwordValidation = AuthValidation.validatePassword(_state.value.password)
+
+                if (emailValidation is ValidationResult.Invalid ||
+                    passwordValidation is ValidationResult.Invalid
+                ) {
+                    _state.value = _state.value.copy(
+                        emailError = (emailValidation as? ValidationResult.Invalid)?.message,
+                        passwordError = (passwordValidation as? ValidationResult.Invalid)?.message,
+                        isLoading = false
                     )
-                )
-                result.fold(
-                    onSuccess = {
-                        _state.value = _state.value.copy(
-                            isLoading = false,
-                            isLoggedIn = true
-                        )
-                    },
-                    onFailure = { error ->
-                        _errorMessage.value = error.message
-                        _state.value = _state.value.copy(isLoading = false)
-                    }
-                )
-            } catch (e: Exception) {
-                _errorMessage.value = e.message
-                _state.value = _state.value.copy(isLoading = false)
-            }
-        }
-    }
+                    return@launch
+                }
 
-    fun loginWithGoogle(token: String) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            try {
-                val result = authRepository.loginWithGoogle(token)
+                _state.value = _state.value.copy(isLoading = true)
+
+                val result = authRepository.login(
+                    email = _state.value.email.trim(),
+                    password = _state.value.password
+                )
+
                 result.fold(
-                    onSuccess = {
+                    onSuccess = { token ->
                         _state.value = _state.value.copy(
                             isLoading = false,
                             isLoggedIn = true
                         )
                     },
                     onFailure = { error ->
-                        _errorMessage.value = error.message
+                        _errorMessage.value = when {
+                            error.message?.contains("401", ignoreCase = true) == true ->
+                                "Invalid email or password"
+                            error.message?.contains("network", ignoreCase = true) == true ->
+                                "Network error. Please check your connection"
+                            else -> error.message ?: "Login failed"
+                        }
                         _state.value = _state.value.copy(isLoading = false)
                     }
                 )
             } catch (e: Exception) {
-                _errorMessage.value = e.message
+                _errorMessage.value = "An unexpected error occurred"
                 _state.value = _state.value.copy(isLoading = false)
             }
         }

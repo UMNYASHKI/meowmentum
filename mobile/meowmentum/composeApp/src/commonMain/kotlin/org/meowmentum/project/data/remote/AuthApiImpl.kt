@@ -7,52 +7,53 @@ import io.ktor.http.*
 import org.meowmentum.project.data.models.*
 
 class AuthApiImpl(
-    private val client: HttpClient
+    private val client: HttpClient,
+    private val baseUrl: String = "http://10.0.2.2:8080/api" // Replace with your actual API base URL
 ) : AuthApi {
-    private val baseUrl = "https://api.meowmentum.project" // Replace with your actual API base URL
 
-    override suspend fun login(credentials: LoginCredentials): AuthResponse {
-        return client.post("$baseUrl/auth/login") {
+    override suspend fun register(request: RegisterUserRequest): String {
+        return client.post("$baseUrl/core/api/auth/register") {
             contentType(ContentType.Application.Json)
-            setBody(credentials)
+            setBody(request)
         }.body()
     }
 
-    override suspend fun register(credentials: RegisterCredentials): AuthResponse {
-        return client.post("$baseUrl/auth/register") {
+    override suspend fun verifyOtp(request: OtpValidationRequest): String {
+        return client.post("$baseUrl/core/api/auth/verify-otp") {
             contentType(ContentType.Application.Json)
-            setBody(credentials)
+            setBody(request)
         }.body()
     }
 
-    override suspend fun loginWithGoogle(token: String): AuthResponse {
-        return client.post("$baseUrl/auth/google") {
+    override suspend fun login(request: LoginRequest): LoginResponse {
+        return client.post("$baseUrl/core/api/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf("token" to token))
+            setBody(request)
         }.body()
     }
 
-    override suspend fun refreshToken(refreshToken: String): AuthResponse {
-        return client.post("$baseUrl/auth/refresh") {
+    override suspend fun sendResetOtp(email: String): String {
+        return client.post("$baseUrl/core/api/auth/send-reset-otp") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf("refreshToken" to refreshToken))
+            setBody(PasswordResetRequest(email))
         }.body()
     }
 
-    override suspend fun sendPasswordResetEmail(email: String) {
-        client.post("$baseUrl/auth/forgot-password") {
+    override suspend fun verifyResetOtp(request: OtpValidationRequest): ResetPasswordResponse {
+        return client.post("$baseUrl/core/api/auth/verify-reset-otp") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf("email" to email))
-        }
+            setBody(request)
+        }.body()
     }
 
-    override suspend fun resetPassword(token: String, newPassword: String) {
-        client.post("$baseUrl/auth/reset-password") {
+    override suspend fun resetPassword(request: PasswordUpdateRequest): String {
+        return client.post("$baseUrl/core/api/auth/reset-password") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf(
-                "token" to token,
-                "newPassword" to newPassword
-            ))
-        }
+            setBody(request)
+        }.body()
+    }
+
+    override suspend fun logout(): String {
+        return client.post("$baseUrl/core/api/auth/logout").body()
     }
 }
