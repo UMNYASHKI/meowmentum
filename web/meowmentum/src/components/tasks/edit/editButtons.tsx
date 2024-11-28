@@ -57,11 +57,10 @@ export default function ActionButtons({
   );
 
   const selectedTagValue = useMemo(() => {
-    // Map selected IDs to their names from tagsDict
     const selectedNames = Array.from(selectedTags)
       .map((id) => tagsDict[id]?.name || '')
       .filter((name) => name !== null && name !== '');
-    return selectedNames.join(', '); // Join names and replace underscores if needed
+    return selectedNames.join(', ');
   }, [selectedTags, tagsDict]);
 
   const handleDateChange = (date: CalendarDate) => {
