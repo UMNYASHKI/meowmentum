@@ -3,23 +3,39 @@ package org.meowmentum.project.data.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LoginCredentials(
+data class LoginRequest(
     val email: String,
     val password: String
 )
 
 @Serializable
-data class RegisterCredentials(
-    val name: String,
-    val email: String,
-    val password: String
+data class LoginResponse(
+    val token: String
 )
 
 @Serializable
-data class AuthResponse(
+data class RegisterUserRequest(
+    val email: String,
+    val password: String,
+    val name: String
+)
+
+@Serializable
+data class OtpValidationRequest(
+    val email: String,
+    val code: String
+)
+
+@Serializable
+data class PasswordResetRequest(
+    val email: String
+)
+
+@Serializable
+data class PasswordUpdateRequest(
+    val email: String,
     val token: String,
-    val refreshToken: String,
-    val user: UserDto
+    val newPassword: String
 )
 
 @Serializable
@@ -30,8 +46,6 @@ data class UserDto(
 )
 
 @Serializable
-sealed class AuthResult {
-    data class Success(val user: UserDto) : AuthResult()
-    data class Error(val message: String) : AuthResult()
-}
-
+data class ResetPasswordResponse(
+    val token: String
+)

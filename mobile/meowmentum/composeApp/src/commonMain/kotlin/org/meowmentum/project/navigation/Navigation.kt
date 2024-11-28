@@ -1,6 +1,7 @@
 package org.meowmentum.project.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import cafe.adriel.voyager.navigator.Navigator
@@ -12,23 +13,15 @@ import org.meowmentum.project.domain.repository.AuthRepository
 import org.meowmentum.project.ui.screens.auth.login.LoginScreen
 import org.meowmentum.project.ui.screens.home.HomeScreen
 
-
 @OptIn(KoinInternalApi::class)
 @Composable
 fun AppNavigation() {
-
-    println("isLoggedIn:")
-
-    val koin = getKoin()
-
-    println(koin.instanceRegistry.instances)
-
     val authRepository: AuthRepository = koinInject()
-
-    println("DI AuthRepository resolved: $authRepository")
-
     val isLoggedIn by authRepository.isUserLoggedIn().collectAsState(initial = false)
 
+    LaunchedEffect(Unit) {
+        println("Initial login state: $isLoggedIn")
+    }
 
     Navigator(
         screen = if (isLoggedIn) HomeScreen() else LoginScreen()

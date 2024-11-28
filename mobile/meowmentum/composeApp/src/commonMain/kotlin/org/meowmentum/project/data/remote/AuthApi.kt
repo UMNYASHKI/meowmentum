@@ -3,10 +3,11 @@ package org.meowmentum.project.data.remote
 import org.meowmentum.project.data.models.*
 
 interface AuthApi {
-    suspend fun login(credentials: LoginCredentials): AuthResponse
-    suspend fun register(credentials: RegisterCredentials): AuthResponse
-    suspend fun loginWithGoogle(token: String): AuthResponse
-    suspend fun refreshToken(refreshToken: String): AuthResponse
-    suspend fun sendPasswordResetEmail(email: String)
-    suspend fun resetPassword(token: String, newPassword: String)
+    suspend fun register(request: RegisterUserRequest): String
+    suspend fun verifyOtp(request: OtpValidationRequest): String
+    suspend fun login(request: LoginRequest): LoginResponse
+    suspend fun sendResetOtp(email: String): String
+    suspend fun verifyResetOtp(request: OtpValidationRequest): ResetPasswordResponse
+    suspend fun resetPassword(request: PasswordUpdateRequest): String
+    suspend fun logout(): String
 }
