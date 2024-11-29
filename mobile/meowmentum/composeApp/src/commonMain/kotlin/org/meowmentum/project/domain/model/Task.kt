@@ -6,5 +6,7 @@ data class Task(
     val description: String? = null,
     val dueDate: String? = null,
     val isCompleted: Boolean = false,
+    val priority: Int = 0,
+    val tag: String? = null,
     val userId: String? = null
 )

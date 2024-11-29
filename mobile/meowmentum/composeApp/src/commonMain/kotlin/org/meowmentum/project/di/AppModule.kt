@@ -19,6 +19,9 @@ import org.meowmentum.project.ui.screens.auth.login.LoginViewModel
 import org.meowmentum.project.ui.screens.auth.register.RegisterViewModel
 import org.meowmentum.project.ui.screens.auth.forgotpassword.ForgotPasswordViewModel
 import org.meowmentum.project.ui.screens.auth.resetpassword.ResetPasswordViewModel
+import org.meowmentum.project.ui.screens.task.create.CreateTaskViewModel
+import org.meowmentum.project.ui.screens.task.edit.EditTaskViewModel
+import org.meowmentum.project.ui.screens.task.list.TaskListViewModel
 
 fun appModule() = module {
     // Storage
@@ -42,6 +45,9 @@ fun appModule() = module {
     factory { RegisterViewModel(get()) }
     factory { ForgotPasswordViewModel(get()) }
     factory { ResetPasswordViewModel(get()) }
+    factory { TaskListViewModel(get()) }
+    factory { CreateTaskViewModel(get()) }
+    factory { EditTaskViewModel(get()) }
 }
 
 fun koinConfiguration() = koinApplication {
