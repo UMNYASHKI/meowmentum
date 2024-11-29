@@ -4,13 +4,14 @@ import androidx.compose.runtime.*
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.koin.compose.koinInject
 import org.koin.core.component.inject
 import org.meowmentum.project.ui.components.TaskForm
 
 class CreateTaskScreen : Screen {
     @Composable
     override fun Content() {
-        val viewModel: CreateTaskViewModel by inject()
+        val viewModel: CreateTaskViewModel = koinInject()
         val navigator = LocalNavigator.currentOrThrow
         val isLoading by viewModel.isLoading.collectAsState()
 
