@@ -12,7 +12,9 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
+        mobile: '540px',
         tablet: '820px',
+        largeTablet: '1020px',
       },
       colors: {
         background: {
