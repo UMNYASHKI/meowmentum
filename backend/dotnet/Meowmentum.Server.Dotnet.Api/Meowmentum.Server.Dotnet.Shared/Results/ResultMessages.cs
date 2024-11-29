@@ -49,6 +49,7 @@ public static class ResultMessages
 
     public static class Email
     {
+        public const string FailToSend = "Failed to send email";
         public const string NetworkError = "Network error while sending OTP:\n";
         public const string TimeoutError = "Request to send OTP timed out:\n";
         public const string UnexpectedError = "An unexpected error occurred while sending to email:\n";

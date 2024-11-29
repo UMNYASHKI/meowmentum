@@ -8,9 +8,9 @@ import org.meowmentum.project.theme.MainTheme
 
 @Composable
 fun MainApp() {
-    KoinApplication(::koinConfiguration){
+    //KoinApplication(::koinConfiguration){
         MainTheme {
             AppNavigation()
         }
-    }
+    //}
 }

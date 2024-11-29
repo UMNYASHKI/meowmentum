@@ -55,3 +55,5 @@ legacy_code/**
 *.mjs
 *.css
 *.json
+
+*.yml

@@ -1,35 +1,67 @@
-﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+﻿using AutoMapper;
+using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Proto.Email;
+using Meowmentum.Server.Dotnet.Shared.Extensions;
+using Meowmentum.Server.Dotnet.Shared.Requests.Email;
 using Meowmentum.Server.Dotnet.Shared.Results;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using EmailClient = Meowmentum.Server.Dotnet.Proto.Email.EmailService.EmailServiceClient;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Implementations;
 
-public class EmailService : IEmailService
+public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger, IMapper mapper) : IEmailService
 {
-    public async Task<Result<bool>> SendOtpByEmailAsync(string email, string otp, CancellationToken token)
+    public async Task<Result<bool>> SendOtpByEmailAsync(OtpEmailSendingRequest sendingRequest, CancellationToken ct = default) //todo create retry logic
     {
+        ct.ThrowIfCancellationRequested();
+
         try
         {
-            await Task.Delay(100);
-            Console.WriteLine($"OTP {otp} sent to {email}");
+            var request = mapper.Map<RegistrationConfirmationRequest>(sendingRequest);
+
+            logger.LogInformation("Sending OTP to email: {To}", sendingRequest.Email);
+            var response = await emailClient.RegistrationConfirmationAsync(request, cancellationToken: ct);
+            if (response is null)
+            {
+                logger.LogError("Failed to send email {To}", sendingRequest.Email);
+                return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+            }
+
+            logger.LogInformation("OTP sent to email: {To}", sendingRequest.Email);
 
             return Result.Success(true);
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex)
         {
-            return Result.Failure<bool>($"{ResultMessages.Email.NetworkError} {ex.Message}");
+            logger.LogError(ex, "Failed to send OTP to email: {To}", sendingRequest.Email);
+            return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
         }
-        catch (TimeoutException ex)
+    }
+
+    public async Task<Result<bool>> SendResetPasswordEmailAsync(ResetPasswordEmailSendingRequest sendingRequest, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        try
         {
-            return Result.Failure<bool>($"{ResultMessages.Email.TimeoutError} {ex.Message}");
+            var request = mapper.Map<PasswordResetRequest>(sendingRequest);
+
+            logger.LogInformation("Sending reset password email to email: {To}", sendingRequest.Email);
+            var response = await emailClient.PasswordResetAsync(request, cancellationToken: ct);
+            if (response is null)
+            {
+                logger.LogError("Failed to send email {To}", sendingRequest.Email);
+                return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+            }
+
+            logger.LogInformation("Reset password email sent to email: {To}", sendingRequest.Email);
+
+            return Result.Success(true);
         }
         catch (Exception ex)
         {
-            return Result.Failure<bool>($"{ResultMessages.Email.UnexpectedError} {ex.Message}");
+            logger.LogError(ex, "Failed to send reset password email to email: {To}", sendingRequest.Email);
+            return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
         }
     }
 }

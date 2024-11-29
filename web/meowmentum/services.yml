@@ -6,8 +6,9 @@ service.web:
   expose:
     http:
       type: http
-      port: 3000 # TODO: Rewrite service to get bind address and port from EXPOSE_HTTP, remove this property
       routes:
         "/": "/"
+  split_address_parts: true
   envmap:
-    ATTACH_CORE_API_ENDPOINT: "/api/core"
+    ATTACH_API_ENDPOINT: "/api"
+    PORT: "${EXPOSE_HTTP_PORTPART}"

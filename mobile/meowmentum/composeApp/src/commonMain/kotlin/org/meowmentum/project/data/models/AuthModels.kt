@@ -1,35 +1,51 @@
 package org.meowmentum.project.data.models
 
-@kotlinx.serialization.Serializable
-data class LoginCredentials(
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class LoginRequest(
     val email: String,
     val password: String
 )
 
-@kotlinx.serialization.Serializable
-data class RegisterCredentials(
-    val name: String,
-    val email: String,
-    val password: String
+@Serializable
+data class LoginResponse(
+    val token: String
 )
 
-@kotlinx.serialization.Serializable
-data class AuthResponse(
+@Serializable
+data class RegisterUserRequest(
+    val email: String,
+    val password: String,
+    val name: String
+)
+
+@Serializable
+data class OtpValidationRequest(
+    val email: String,
+    val code: String
+)
+
+@Serializable
+data class PasswordResetRequest(
+    val email: String
+)
+
+@Serializable
+data class PasswordUpdateRequest(
+    val email: String,
     val token: String,
-    val refreshToken: String,
-    val user: UserDto
+    val newPassword: String
 )
 
-@kotlinx.serialization.Serializable
+@Serializable
 data class UserDto(
     val id: String,
     val email: String,
     val name: String
 )
 
-@kotlinx.serialization.Serializable
-sealed class AuthResult {
-    data class Success(val user: UserDto) : AuthResult()
-    data class Error(val message: String) : AuthResult()
-}
-
+@Serializable
+data class ResetPasswordResponse(
+    val token: String
+)

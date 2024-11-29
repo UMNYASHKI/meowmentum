@@ -16,29 +16,18 @@ import org.meowmentum.project.ui.screens.auth.register.RegisterViewModel
 import org.meowmentum.project.ui.screens.auth.forgotpassword.ForgotPasswordViewModel
 import org.meowmentum.project.ui.screens.auth.resetpassword.ResetPasswordViewModel
 
-fun appModule(): Module = module {
-    // Network Client
-    single<HttpClient> { NetworkModule.provideHttpClient() }
+fun appModule() = module {
+    // Storage
+    single<AuthTokenStorage> { createAuthTokenStorage() }
 
-    // API Layer
-    single<AuthApi> {
-        AuthApiImpl(
-            client = get()
-        )
-    }
+    // Network
+    single { NetworkModule.provideHttpClient(get()) }
 
-    // Storage Layer
-    single<AuthTokenStorage> {
-        createAuthTokenStorage()
-    }
+    // API
+    single<AuthApi> { AuthApiImpl(get()) }
 
-    // Repository Layer
-    single<AuthRepository> {
-        AuthRepositoryImpl(
-            api = get(),
-            tokenStorage = get()
-        )
-    }
+    // Repository
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
 
     // ViewModels
     factory { LoginViewModel(get()) }

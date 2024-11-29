@@ -16,78 +16,80 @@ class AuthRepositoryImpl(
 ) : AuthRepository {
     private val _currentUser = MutableStateFlow<UserDto?>(null)
 
-    override suspend fun login(credentials: LoginCredentials): Result<User> {
+    override suspend fun register(email: String, password: String, name: String): Result<String> {
         return try {
-            val response = api.login(credentials)
-            handleAuthResponse(response)
+            val response = api.register(RegisterUserRequest(email, password, name))
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun register(credentials: RegisterCredentials): Result<User> {
+    override suspend fun verifyOtp(email: String, code: String): Result<String> {
         return try {
-            val response = api.register(credentials)
-            handleAuthResponse(response)
+            val response = api.verifyOtp(OtpValidationRequest(email, code))
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun loginWithGoogle(token: String): Result<User> {
+    override suspend fun login(email: String, password: String): Result<String> {
         return try {
-            val response = api.loginWithGoogle(token)
-            handleAuthResponse(response)
+            val response = api.login(LoginRequest(email, password))
+            tokenStorage.saveTokens(
+                accessToken = response.token,
+                refreshToken = ""
+            )
+            Result.success(response.token)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun logout() {
-        tokenStorage.clearTokens()
-        _currentUser.value = null
-    }
-
-    override suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
+    override suspend fun sendResetOtp(email: String): Result<String> {
         return try {
-            api.sendPasswordResetEmail(email)
-            Result.success(Unit)
+            val response = api.sendResetOtp(email)
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun resetPassword(token: String, newPassword: String): Result<Unit> {
+    override suspend fun verifyResetOtp(email: String, code: String): Result<String> {
         return try {
-            api.resetPassword(token, newPassword)
-            Result.success(Unit)
+            val response = api.verifyResetOtp(OtpValidationRequest(email, code))
+            Result.success(response.token)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override fun getCurrentUser(): Flow<User?> {
-        return _currentUser.map { it?.toDomain() }
+    override suspend fun resetPassword(email: String, token: String, newPassword: String): Result<String> {
+        return try {
+            val response = api.resetPassword(PasswordUpdateRequest(email, token, newPassword))
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
+
+    override suspend fun logout(): Result<String> {
+        return try {
+            val response = api.logout()
+            tokenStorage.clearTokens()
+            _currentUser.value = null
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun getCurrentUser(): Flow<User?> = _currentUser.map { it?.toDomain() }
 
     override fun isUserLoggedIn(): Flow<Boolean> {
-        return _currentUser.map { it != null }
-    }
-
-    override suspend fun refreshToken(): Result<Unit> {
-        return try {
-            val refreshToken = tokenStorage.getRefreshToken() ?: return Result.failure(Exception("No refresh token"))
-            val response = api.refreshToken(refreshToken)
-            tokenStorage.saveTokens(response.token, response.refreshToken)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
+        // First check if we have a stored token
+        return tokenStorage.getAccessTokenFlow().map { token ->
+            token != null && token.isNotEmpty()
         }
-    }
-
-    private suspend fun handleAuthResponse(response: AuthResponse): Result<User> {
-        tokenStorage.saveTokens(response.token, response.refreshToken)
-        _currentUser.value = response.user
-        return Result.success(response.user.toDomain())
-    }
-}
+    }}

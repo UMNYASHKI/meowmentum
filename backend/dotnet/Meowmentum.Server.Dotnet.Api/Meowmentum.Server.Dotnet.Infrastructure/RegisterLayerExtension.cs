@@ -35,6 +35,7 @@ public static class RegisterLayerExtension
 
 
         services.AddHelperServices(configuration);
+        services.AddGrpcClients(configuration);
     }
 }
 

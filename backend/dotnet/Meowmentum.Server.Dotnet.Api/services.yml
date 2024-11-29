@@ -1,0 +1,36 @@
+service.dotnet:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "/backend"
+    dockerfile: "/backend/dotnet/Meowmentum.Server.Dotnet.Api/Dockerfile"
+    additional_contexts:
+      proto: "/backend/proto"
+    target: final
+  expose:
+    http:
+      type: http
+      routes:
+        "/api/core/": "/"
+  attach:
+    - platform.postgres:postgres
+    - platform.redis:redis
+    - service.go.email:email
+  envpass:
+    - SECRET_POSTGRES_USERNAME
+    - SECRET_POSTGRES_PASSWORD
+    - SECRET_POSTGRES_DATABASE
+    - SECRET_REDIS_PASSWORD
+    - SECRET_JWT_KEY
+    - ATTACH_GRPC_EMAIL
+  split_address_parts: true
+  envmap:
+    ConnectionStrings__MasterDatabase: "Server=${ATTACH_STATIC_POSTGRES_HOSTPART};Database=${SECRET_POSTGRES_DATABASE};Port=${ATTACH_STATIC_POSTGRES_PORTPART};User Id=${SECRET_POSTGRES_USERNAME};Password=${SECRET_POSTGRES_PASSWORD};Include Error Detail=false;"
+    JwtSettings__Key: "${SECRET_JWT_KEY}"
+    RedisConfiguration__RedisConnection__Password: "${SECRET_REDIS_PASSWORD}"
+    RedisConfiguration__RedisConnection__Host: "${ATTACH_STATIC_REDIS_HOSTPART}"
+    RedisConfiguration__RedisConnection__Port: "${ATTACH_STATIC_REDIS_PORTPART}"
+    Grpc__EmailOptions__Address: "http://${ATTACH_GRPC_EMAIL}"
+    ASPNETCORE_URLS: "http://${EXPOSE_HTTP}"
+
+
+

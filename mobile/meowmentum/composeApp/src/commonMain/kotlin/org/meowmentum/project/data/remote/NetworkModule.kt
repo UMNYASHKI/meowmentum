@@ -5,19 +5,27 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-
-expect fun createPlatformHttpClient(): HttpClient
+import org.meowmentum.project.data.local.AuthTokenStorage
 
 object NetworkModule {
-    fun provideHttpClient(): HttpClient {
-        return createPlatformHttpClient().config {
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+        isLenient = true
+        prettyPrint = true
+        encodeDefaults = true
+    }
+
+    fun provideHttpClient(tokenStorage: AuthTokenStorage): HttpClient {
+        return HttpClient {
             install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
+                json(json)
             }
+
+            install(TokenAuthPlugin) {
+                this.tokenStorage = tokenStorage
+            }
+
             install(Logging) {
                 level = LogLevel.ALL
             }
