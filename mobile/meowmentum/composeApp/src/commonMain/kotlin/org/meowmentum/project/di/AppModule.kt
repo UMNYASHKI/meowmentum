@@ -9,8 +9,12 @@ import org.meowmentum.project.data.remote.AuthApi
 import org.meowmentum.project.data.remote.AuthApiImpl
 import org.meowmentum.project.data.local.AuthTokenStorage
 import org.meowmentum.project.data.local.createAuthTokenStorage
+import org.meowmentum.project.data.remote.TaskApi
+import org.meowmentum.project.data.remote.TaskApiImpl
 import org.meowmentum.project.data.repository.AuthRepositoryImpl
+import org.meowmentum.project.data.repository.TaskRepositoryImpl
 import org.meowmentum.project.domain.repository.AuthRepository
+import org.meowmentum.project.domain.repository.TaskRepository
 import org.meowmentum.project.ui.screens.auth.login.LoginViewModel
 import org.meowmentum.project.ui.screens.auth.register.RegisterViewModel
 import org.meowmentum.project.ui.screens.auth.forgotpassword.ForgotPasswordViewModel
@@ -28,6 +32,10 @@ fun appModule() = module {
 
     // Repository
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+
+    // Task dependencies
+    single<TaskApi> { TaskApiImpl(get()) }
+    single<TaskRepository> { TaskRepositoryImpl(get()) }
 
     // ViewModels
     factory { LoginViewModel(get()) }
