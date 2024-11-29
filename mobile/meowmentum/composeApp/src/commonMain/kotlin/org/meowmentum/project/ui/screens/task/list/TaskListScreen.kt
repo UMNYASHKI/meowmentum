@@ -11,15 +11,17 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.koin.compose.koinInject
 import org.koin.core.component.inject
 import org.meowmentum.project.domain.model.Task
 import org.meowmentum.project.ui.screens.task.create.CreateTaskScreen
 import org.meowmentum.project.ui.screens.task.edit.EditTaskScreen
 
 class TaskListScreen : Screen {
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val viewModel: TaskListViewModel by inject()
+        val viewModel: TaskListViewModel = koinInject()
         val navigator = LocalNavigator.currentOrThrow
         val tasks by viewModel.tasks.collectAsState()
         val isLoading by viewModel.isLoading.collectAsState()
