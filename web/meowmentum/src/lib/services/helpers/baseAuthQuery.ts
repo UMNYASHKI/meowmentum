@@ -4,7 +4,7 @@ const baseAuthQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_ENDPOINT,
   prepareHeaders: (headers) => {
     headers.set('accept', 'application/json');
-
+    console.log(process.env.NEXT_PUBLIC_API_ENDPOINT);
     const token = localStorage.getItem('token');
     if (token) {
       headers.set('Authorization', `Bearer ${token}`); // Attach token to headers

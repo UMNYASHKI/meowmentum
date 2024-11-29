@@ -6,12 +6,14 @@ import {
   OtpValidationRequest,
   PasswordResetRequest,
   PasswordUpdateRequest,
-  RegisterRequest, ResetPasswordResponse,
+  RegisterRequest,
+  ResetPasswordResponse,
   SendOtpRequest,
   VerificationCodeRequest,
 } from '@/lib/services/auth/authDtos';
 
-const controllerRoute: string = 'core/api/auth';
+const controllerRoute: string =
+  process.env.NODE_ENV !== 'production' ? 'api/auth' : 'core/api/auth';
 
 export const authApi = createApi({
   reducerPath: 'apiAuth',
