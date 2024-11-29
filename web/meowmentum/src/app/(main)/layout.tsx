@@ -7,10 +7,6 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    // <div className="flex flex-row h-[100vh]">
-    //   <Section />
-    //   {children}
-    // </div>
     <ProtectedRoute>
       <div className="flex flex-row h-[100vh]">
         <Section />
