@@ -43,7 +43,7 @@ COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Meowmentum.Server.Dotnet.Api.dll"]
 
 # This stage is used to create the migration container, that stays up to be exec-able + automigrates on local env
-FROM build AS migrate
+FROM base AS migrate
 WORKDIR /app
 COPY --from=build /app/efbundle ./efbundle
 
