@@ -131,10 +131,10 @@ public class TaskService(
         {
             tasks = tasks.Where(t => filterRequest.Status.Contains(t.Status));
         }
-        if (filterRequest.TagIds.Any())
-        {
-            tasks = tasks.Where(t => filterRequest.TagIds.Contains(t.TagId));
-        }
+        //if (filterRequest.TagIds.Any())
+        //{
+        //    tasks = tasks.Where(t => filterRequest.TagIds.Contains(t.TagId));
+        //}
         if (filterRequest.Priorities.Any())
         {
             tasks = tasks.Where(t => filterRequest.Priorities.Contains(t.Priority));

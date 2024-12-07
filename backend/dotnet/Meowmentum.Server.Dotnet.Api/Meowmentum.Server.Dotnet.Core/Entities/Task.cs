@@ -24,18 +24,12 @@ namespace Meowmentum.Server.Dotnet.Core.Entities
 
         public TaskPriority? Priority { get; set; } 
 
-        [ForeignKey("Tag")]
-        public long? TagId { get; set; }
-
-        [ForeignKey(nameof(TagId))]
-        public virtual Tag? Tag { get; set; }
-
         [Required]
         [ForeignKey("User")]
         public long UserId { get; set; }
 
-
         public virtual ICollection<TimeInterval>? TimeIntervals { get; set; }
+        public virtual ICollection<TaskTag>? TaskTags { get; set; }
     }
 
     public enum TaskStatus

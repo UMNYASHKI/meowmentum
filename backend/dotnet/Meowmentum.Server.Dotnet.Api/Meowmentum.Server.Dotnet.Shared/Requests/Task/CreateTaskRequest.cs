@@ -1,9 +1,4 @@
 ﻿using Meowmentum.Server.Dotnet.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TaskStatus = Meowmentum.Server.Dotnet.Core.Entities.TaskStatus;
 
 namespace Meowmentum.Server.Dotnet.Shared.Requests.Task
@@ -17,6 +12,6 @@ namespace Meowmentum.Server.Dotnet.Shared.Requests.Task
         public TaskPriority? Priority { get; set; }
         public TaskStatus? Status { get; set; }
 
-        public long? TagId { get; set; } // todo: many to many relation
+        //public long? TagId { get; set; } // todo: many to many relation
     }
 }

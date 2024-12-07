@@ -12,7 +12,7 @@ namespace Meowmentum.Server.Dotnet.Shared.Requests.Task
     {
         public long? TaskId { get; set; }
         public List<TaskStatus?> Status { get; set; } = new List<TaskStatus?>();
-        public List<long?> TagIds { get; set; } = new List<long?>();
+        //public List<long?> TagIds { get; set; } = new List<long?>();
         public List<TaskPriority?> Priorities { get; set; } = new List<TaskPriority?>();
     }
 }
