@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dropdown,
   DropdownItem,
@@ -15,18 +15,19 @@ import Calendar from '@public/calendar.svg';
 import Priority from '@public/priority.svg';
 import Add from '@public/add.svg';
 import { ITag } from '@/common/tags';
-import { TaskPriority, TaskPriorityMapping } from '@/common/tasks';
+import { TaskPriority } from '@/common/tasks';
 
 interface ActionButtonsProps {
   deadline: Date | undefined;
   setDeadline: React.Dispatch<React.SetStateAction<Date | undefined>>;
-  priority: number | undefined;
-  setPriority: React.Dispatch<React.SetStateAction<number | undefined>>;
+  priority: string | undefined;
+  setPriority: React.Dispatch<React.SetStateAction<string | undefined>>;
   tags: number[];
   setTags: React.Dispatch<React.SetStateAction<number[]>>;
   availableTags: ITag[]; // Tags fetched from API
 }
 
+// @ts-ignore
 export default function ActionButtons({
   deadline,
   setDeadline,
@@ -38,31 +39,22 @@ export default function ActionButtons({
 }: ActionButtonsProps) {
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedPriority, setSelectedPriority] = useState(
-    new Set(priority ? [TaskPriorityMapping[priority]] : ['Set priority'])
+    new Set(['Set Priority'])
   );
-  console.log(selectedPriority);
-  const [selectedTags, setSelectedTags] = useState(new Set<number>());
+  const [selectedTags, setSelectedTags] = useState(new Set(tags));
 
-  const selectedPriorityValue = useMemo(
-    () => Array.from(selectedPriority).join(', ').replaceAll('_', ' '),
-    [selectedPriority]
+  useEffect(() => {
+    if (priority !== undefined) {
+      setSelectedPriority(new Set([priority]));
+    }
+
+    setSelectedTags(new Set(tags));
+  }, [priority, tags]);
+
+  const selectedTagValue = React.useMemo(
+    () => Array.from(selectedTags).join(', ').replaceAll('_', ' '),
+    [selectedTags]
   );
-
-  const tagsDict = availableTags.reduce(
-    (dict, tag) => {
-      dict[tag.id] = tag;
-      return dict;
-    },
-    {} as Record<number, ITag>
-  );
-
-  const selectedTagValue = useMemo(() => {
-    const selectedNames = Array.from(selectedTags)
-      .map((id) => tagsDict[id]?.name || '')
-      .filter((name) => name !== null && name !== '');
-    return selectedNames.join(', ');
-  }, [selectedTags, tagsDict]);
-
   const handleDateChange = (date: CalendarDate) => {
     setDeadline(date.toDate(Intl.DateTimeFormat().resolvedOptions().timeZone));
     setShowCalendar(false);
@@ -71,13 +63,13 @@ export default function ActionButtons({
   const handlePriorityChange = (keys: SharedSelection) => {
     setSelectedPriority(keys as Set<TaskPriority>);
     // @ts-ignore
-    setPriority(TaskPriorityMapping[keys.currentKey as TaskPriority]);
+    setPriority(keys.currentKey as TaskPriority);
   };
 
   const handleTagsChange = (keys: SharedSelection) => {
-    console.log(keys);
-    setSelectedTags(keys as Set<number>);
-    setTags(Array.from(keys as Set<number>));
+    let selectedTags = keys as Set<number>;
+    setSelectedTags(selectedTags);
+    setTags(Array.from(selectedTags));
   };
 
   return (
@@ -108,7 +100,7 @@ export default function ActionButtons({
         <DropdownTrigger>
           <button className="flex items-center space-x-2 py-2 px-4 h-10 rounded-lg text-white bg-[#676A6E] hover:bg-[#BFC0C0]">
             <Priority className="h-6 w-6" />
-            <span className="capitalize">{selectedPriorityValue}</span>
+            <span className="capitalize">{selectedPriority} </span>
           </button>
         </DropdownTrigger>
         <DropdownMenu
@@ -128,11 +120,7 @@ export default function ActionButtons({
       <Dropdown>
         <DropdownTrigger>
           <button className="flex items-center space-x-2 py-2 px-4 h-10 rounded-lg text-black bg-[#E5E5E5] hover:bg-[#BFC0C0]">
-            <span>
-              {selectedTagValue == null || selectedTagValue == ''
-                ? 'Add tags'
-                : ''}
-            </span>
+            <span>Add tags</span>
             <Add className="dark:invert h-4 w-4" />
           </button>
         </DropdownTrigger>

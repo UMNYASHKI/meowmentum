@@ -14,13 +14,17 @@ import ActionButtons from '@/components/tasks/edit/editButtons';
 import { ITag } from '@/common/tags';
 import { useLazyGetAllTagsQuery } from '@services/tags/tagApi';
 import { CreateTaskRequest, TaskResponse } from '@services/tasks/tasksDtos';
-import { TaskPriority, TaskPriorityMapping } from '@/common/tasks';
 import {
   useCreateTaskMutation,
   useLazyGetTaskQuery,
 } from '@services/tasks/tasksApi';
 import { setPopupMessage } from '@/lib/slices/app/appSlice';
 import { useAppDispatch } from '@/lib/hooks';
+import {
+  ReverseTaskPriorityMapping,
+  TaskPriority,
+  TaskPriorityMapping,
+} from '@/common/tasks';
 
 type PageMode = 'create' | 'edit';
 
@@ -42,8 +46,8 @@ export default function EditComponent({
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
   const [description, setDescription] = useState<string | undefined>(undefined);
   const [deadline, setDeadline] = useState<Date | undefined>(undefined);
-  const [priority, setPriority] = useState<number | undefined>(undefined);
-  const [tags, setTags] = useState<number[]>([]); // Selected tags
+  const [priority, setPriority] = useState<string | undefined>(undefined);
+  const [tags, setTags] = useState<number[]>([]); // Tags that are in task + Selected tags
   const [availableTags, setAvailableTags] = useState<ITag[]>([]); // Tags fetched from API
 
   useEffect(() => {
@@ -67,10 +71,15 @@ export default function EditComponent({
             return;
           }
           const task = tasks[0];
+          if (task.priority != undefined) {
+            setPriority(TaskPriorityMapping[task.priority]);
+          }
+
+          console.log(task);
           setTaskName(task.title);
           setDescription(task.description);
           setDeadline(task.deadline);
-          setPriority(task.priority);
+          setTags(task.tags.map((t) => t.id));
         })
         .catch((error) => {
           console.error('Error fetching task:', error);
@@ -89,16 +98,26 @@ export default function EditComponent({
   };
 
   const handleSave = async () => {
+    let tempPriority = undefined;
+    if (priority != undefined) {
+      tempPriority = ReverseTaskPriorityMapping[priority as TaskPriority];
+    }
+
+    const actualTags = tags.filter(
+      (item) => !isNaN(Number(item)) && item.toString() !== ' '
+    );
     const payload: CreateTaskRequest = {
       title: taskName ?? '',
       description: description ?? '',
       deadline: deadline,
-      priority: priority,
-      // priority: priority,
+      priority: tempPriority,
       status: undefined,
       tagId: undefined,
       // todo: add tags + status
     };
+    //
+    // console.log(payload);
+    console.log(actualTags);
 
     try {
       const response = await createTask(payload);
@@ -179,7 +198,7 @@ export default function EditComponent({
                 onPress={handleSave}
                 className="rounded-lg"
               >
-                {mode === 'create' ? 'Create Task' : 'Save Changes'}
+                Save
               </Button>
             </ModalFooter>
           </div>

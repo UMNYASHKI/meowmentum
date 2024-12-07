@@ -1,4 +1,5 @@
-import { TaskPriority, TaskStatus } from '@/common/tasks';
+import { TaskStatus } from '@/common/tasks';
+import { ITag } from '@/common/tags';
 
 export interface CreateTaskRequest {
   title: string;
@@ -11,12 +12,18 @@ export interface CreateTaskRequest {
   // todo: tags management  + status
 }
 
+export interface TagPlain extends ITag {
+  id: number;
+  name: string;
+}
+
 export interface TaskResponse {
   id: number;
   title: string;
   description: string;
   deadline: Date;
   priority: number | undefined;
+  tags: TagPlain[];
 }
 
 export interface TaskFilterRequest {
