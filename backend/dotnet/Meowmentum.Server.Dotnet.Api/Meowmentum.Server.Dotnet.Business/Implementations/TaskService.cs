@@ -22,14 +22,10 @@ public class TaskService(
 
         logger.LogInformation("Attempting to create task for user {UserId}", userId);
 
-        if (task.TaskTags?.Any() ?? false)
+        var tagValidationResult = await ValidateTaskTagsAsync(task, ct);
+        if (!tagValidationResult.IsSuccess)
         {
-            var tagIds = task.TaskTags.Select(tt => tt.TagId).ToList();
-            var tagsResult = await tagRepository.GetAllAsync(t => tagIds.Contains(t.Id), ct: ct);
-            if (!tagsResult.IsSuccess || tagsResult.Data.Count() != task.TaskTags.Count)
-            {
-                return Result.Failure<bool>(ResultMessages.Task.InvalidTag);
-            }
+            return tagValidationResult;
         }
 
         var addResult = await taskRepository.AddAsync(task, ct);
@@ -59,14 +55,10 @@ public class TaskService(
             return Result.Failure<bool>(ResultMessages.Task.TaskNotFound);
         }
 
-        if (task.TaskTags?.Any() ?? false)
+        var tagValidationResult = await ValidateTaskTagsAsync(task, ct);
+        if (!tagValidationResult.IsSuccess)
         {
-            var tagIds = task.TaskTags.Select(tt => tt.TagId).ToList();
-            var tagsResult = await tagRepository.GetAllAsync(t => tagIds.Contains(t.Id), ct: ct);
-            if (!tagsResult.IsSuccess || tagsResult.Data.Count() != task.TaskTags.Count)
-            {
-                return Result.Failure<bool>(ResultMessages.Task.InvalidTag);
-            }
+            return tagValidationResult;
         }
 
         mapper.Map(task, result.Data);
@@ -83,6 +75,22 @@ public class TaskService(
         }
 
         return updateResult;
+    }
+
+    private async Task<Result<bool>> ValidateTaskTagsAsync(Task task, CancellationToken ct)
+    {
+        if (task.TaskTags?.Any() ?? false)
+        {
+            var tagIds = task.TaskTags.Select(tt => tt.TagId).ToList();
+            var tagsResult = await tagRepository.GetAllAsync(t => tagIds.Contains(t.Id), ct: ct);
+
+            if (!tagsResult.IsSuccess || tagsResult.Data.Count() != task.TaskTags.Count)
+            {
+                return Result.Failure<bool>(ResultMessages.Task.InvalidTag);
+            }
+        }
+
+        return Result.Success(true);
     }
 
     public async Task<Result<bool>> UpsertTaskAsync(long userId, Task task, long? taskId, CancellationToken ct = default)
