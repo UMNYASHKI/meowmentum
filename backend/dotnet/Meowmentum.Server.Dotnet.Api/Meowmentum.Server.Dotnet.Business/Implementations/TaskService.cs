@@ -85,6 +85,21 @@ public class TaskService(
         return updateResult;
     }
 
+    public async Task<Result<bool>> UpsertTaskAsync(long userId, Task task, long? taskId, CancellationToken ct = default)
+    {
+        logger.LogInformation("Attempting to upsert task for user {UserId}", userId);
+
+        if (taskId.HasValue)
+        {
+            task.Id = taskId.Value;
+            return await UpdateTaskAsync(userId, task, ct);
+        }
+        else
+        {
+            return await CreateTaskAsync(userId, task, ct);
+        }
+    }
+
     public async Task<Result<bool>> DeleteTaskAsync(long userId, long taskId, CancellationToken ct = default)
     {
         logger.LogInformation("Attempting to delete task with ID {TaskId} for user {UserId}", taskId, userId);

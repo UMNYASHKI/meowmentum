@@ -3,7 +3,7 @@ using TaskStatus = Meowmentum.Server.Dotnet.Core.Entities.TaskStatus;
 
 namespace Meowmentum.Server.Dotnet.Shared.Requests.Task;
 
-public class CreateTaskRequest
+public class TaskRequest
 {
     public string Title { get; set; }
     public string Description { get; set; }

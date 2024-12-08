@@ -8,7 +8,7 @@ public class TaskProfile : Profile
 {
     public TaskProfile()
     {
-        CreateMap<CreateTaskRequest, Task>()
+        CreateMap<TaskRequest, Task>()
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority))
