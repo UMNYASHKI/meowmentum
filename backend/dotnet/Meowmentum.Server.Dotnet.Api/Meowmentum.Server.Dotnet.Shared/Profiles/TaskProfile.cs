@@ -19,7 +19,7 @@ public class TaskProfile : Profile
 
         CreateMap<Task, TaskResponse>()
             .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
-            .ForMember(dest => dest.TimeSpent, opt => opt.MapFrom(src => src.TimeIntervals))
+            .ForMember(dest => dest.TimeIntervals, opt => opt.MapFrom(src => src.TimeIntervals))
             .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
             .ForMember(dest => dest.TagName, opt => opt.MapFrom(src => src.Tag != null ? src.Tag.Name : null))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
