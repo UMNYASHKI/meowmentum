@@ -1,8 +1,12 @@
 import Clock from '@public/clock.svg';
 import Add from '@public/add.svg';
 import { AddTime } from '@components/time-logs/addTimeModal';
+import { ITimeInterval } from '@/common/timeIntervals';
 
-export default function TimeLogsHeader() {
+interface TimeLogsHeaderProps {
+  onAdd: (interval: ITimeInterval) => void;
+}
+export default function TimeLogsHeader({ onAdd }: TimeLogsHeaderProps) {
   return (
     <div className="flex justify-between items-center">
       <div className="flex flex-row items-center">
@@ -12,7 +16,7 @@ export default function TimeLogsHeader() {
         </span>
       </div>
       <div className="flex flex-row items-center">
-        <AddTime taskId={1} />
+        <AddTime mode={'create'} taskId={1} interval={null} onSave={onAdd} />
       </div>
     </div>
   );
