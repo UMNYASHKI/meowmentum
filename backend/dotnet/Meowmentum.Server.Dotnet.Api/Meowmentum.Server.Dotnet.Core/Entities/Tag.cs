@@ -10,4 +10,5 @@ public class Tag : ITrackingEntity
     public DateTime? UpdatedDate { get; set;}
     public long UserId { get; set; }
     public virtual AppUser User { get; set; }
+    public virtual ICollection<TaskTag>? TaskTags { get; set; }
 }
