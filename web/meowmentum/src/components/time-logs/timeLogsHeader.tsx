@@ -1,5 +1,6 @@
 import Clock from '@public/clock.svg';
 import Add from '@public/add.svg';
+import { AddTime } from '@components/time-logs/addTimeModal';
 
 export default function TimeLogsHeader() {
   return (
@@ -11,10 +12,7 @@ export default function TimeLogsHeader() {
         </span>
       </div>
       <div className="flex flex-row items-center">
-        <button className="flex items-center">
-          <span className="text-black mr-2">Add time</span>
-          <Add className="dark:invert h-3 w-3" />
-        </button>
+        <AddTime taskId={1} />
       </div>
     </div>
   );
