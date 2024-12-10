@@ -87,6 +87,7 @@ public static class ResultMessages
         public const string UnexpectedError = "An unexpected error occurred.";
         public const string UserNotFound = "User not found or not authorized.";
         public const string InvalidFilterRequest = "Filter request contains invalid data.";
+        public const string InvalidTag = "Invalid or missing tag(s)";
     }
     public static class Tag
     {

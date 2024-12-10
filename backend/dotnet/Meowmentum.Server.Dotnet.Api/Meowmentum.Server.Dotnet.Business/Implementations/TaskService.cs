@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Shared.Requests.Task;
 using Meowmentum.Server.Dotnet.Shared.Responses.Task;
@@ -10,7 +11,8 @@ using Task = Meowmentum.Server.Dotnet.Core.Entities.Task;
 namespace Meowmentum.Server.Dotnet.Business.Implementations;
 
 public class TaskService(
-    IRepository<Task> repository,
+    IRepository<Task> taskRepository,
+    IRepository<Tag> tagRepository,
     IMapper mapper,
     ILogger<TaskService> logger) : ITaskService
 {
@@ -20,7 +22,13 @@ public class TaskService(
 
         logger.LogInformation("Attempting to create task for user {UserId}", userId);
 
-        var addResult = await repository.AddAsync(task, ct);
+        var tagValidationResult = await ValidateTaskTagsAsync(userId, task, ct);
+        if (!tagValidationResult.IsSuccess)
+        {
+            return tagValidationResult;
+        }
+
+        var addResult = await taskRepository.AddAsync(task, ct);
 
         if (addResult.IsSuccess)
         {
@@ -38,7 +46,7 @@ public class TaskService(
     {
         logger.LogInformation("Attempting to update task with ID {TaskId} for user {UserId}", task.Id, userId);
 
-        var result = await repository.GetFirstOrDefaultAsync(
+        var result = await taskRepository.GetFirstOrDefaultAsync(
             t => t.Id == task.Id && t.UserId == userId, ct);
 
         if (!result.IsSuccess)
@@ -47,9 +55,15 @@ public class TaskService(
             return Result.Failure<bool>(ResultMessages.Task.TaskNotFound);
         }
 
+        var tagValidationResult = await ValidateTaskTagsAsync(userId, task, ct);
+        if (!tagValidationResult.IsSuccess)
+        {
+            return tagValidationResult;
+        }
+
         mapper.Map(task, result.Data);
 
-        var updateResult = await repository.UpdateAsync(result.Data, ct);
+        var updateResult = await taskRepository.UpdateAsync(result.Data, ct);
 
         if (updateResult.IsSuccess)
         {
@@ -63,11 +77,46 @@ public class TaskService(
         return updateResult;
     }
 
+    private async Task<Result<bool>> ValidateTaskTagsAsync(long userId, Task task, CancellationToken ct = default)
+    {
+        if (task.TaskTags?.Any() ?? false)
+        {
+            var tagIds = task.TaskTags.Select(tt => tt.TagId).ToList();
+
+            var tagsResult = await tagRepository.GetAllAsync(
+                t => tagIds.Contains(t.Id) && t.UserId == userId,
+                ct: ct
+            );
+
+            if (!tagsResult.IsSuccess || tagsResult.Data.Count() != task.TaskTags.Count)
+            {
+                return Result.Failure<bool>(ResultMessages.Task.InvalidTag);
+            }
+        }
+
+        return Result.Success(true);
+    }
+
+    public async Task<Result<bool>> UpsertTaskAsync(long userId, Task task, long? taskId, CancellationToken ct = default)
+    {
+        logger.LogInformation("Attempting to upsert task for user {UserId}", userId);
+
+        if (taskId.HasValue)
+        {
+            task.Id = taskId.Value;
+            return await UpdateTaskAsync(userId, task, ct);
+        }
+        else
+        {
+            return await CreateTaskAsync(userId, task, ct);
+        }
+    }
+
     public async Task<Result<bool>> DeleteTaskAsync(long userId, long taskId, CancellationToken ct = default)
     {
         logger.LogInformation("Attempting to delete task with ID {TaskId} for user {UserId}", taskId, userId);
 
-        var taskResult = await repository.GetFirstOrDefaultAsync(
+        var taskResult = await taskRepository.GetFirstOrDefaultAsync(
             t => t.Id == taskId && t.UserId == userId, ct);
 
         if (!taskResult.IsSuccess)
@@ -76,7 +125,7 @@ public class TaskService(
             return Result.Failure<bool>(ResultMessages.Task.TaskNotFound);
         }
 
-        var deleteResult = await repository.DeleteAsync(taskId, ct);
+        var deleteResult = await taskRepository.DeleteAsync(taskId, ct);
 
         if (deleteResult.IsSuccess)
         {
@@ -94,7 +143,7 @@ public class TaskService(
     {
         if (filterRequest.TaskId.HasValue)
         {
-            var taskResult = await repository.GetByIdAsync(filterRequest.TaskId.Value, ct);
+            var taskResult = await taskRepository.GetByIdAsync(filterRequest.TaskId.Value, ct);
 
             if (!taskResult.IsSuccess)
             {
@@ -114,7 +163,7 @@ public class TaskService(
             return Result.Success(new List<TaskResponse> { mapper.Map<TaskResponse>(task) }.AsEnumerable());
         }
 
-        var queryResult = await repository.GetAllAsync(
+        var queryResult = await taskRepository.GetAllAsync(
             t => t.UserId == userId,
             orderBy: t => t.OrderBy(task => task.CreatedAt),
             ct: ct);
@@ -131,13 +180,13 @@ public class TaskService(
         {
             tasks = tasks.Where(t => filterRequest.Status.Contains(t.Status));
         }
-        if (filterRequest.TagIds.Any())
-        {
-            tasks = tasks.Where(t => filterRequest.TagIds.Contains(t.TagId));
-        }
         if (filterRequest.Priorities.Any())
         {
             tasks = tasks.Where(t => filterRequest.Priorities.Contains(t.Priority));
+        }
+        if (filterRequest.TagIds.Any())
+        {
+            tasks = tasks.Where(t => t.TaskTags != null && t.TaskTags.Any(tt => filterRequest.TagIds.Contains(tt.TagId)));
         }
 
         var taskResponses = mapper.Map<IEnumerable<TaskResponse>>(tasks);
