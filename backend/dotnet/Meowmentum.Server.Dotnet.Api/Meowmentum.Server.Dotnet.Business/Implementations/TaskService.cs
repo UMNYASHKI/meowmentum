@@ -22,7 +22,7 @@ public class TaskService(
 
         logger.LogInformation("Attempting to create task for user {UserId}", userId);
 
-        var tagValidationResult = await ValidateTaskTagsAsync(task, ct);
+        var tagValidationResult = await ValidateTaskTagsAsync(userId, task, ct);
         if (!tagValidationResult.IsSuccess)
         {
             return tagValidationResult;
@@ -55,7 +55,7 @@ public class TaskService(
             return Result.Failure<bool>(ResultMessages.Task.TaskNotFound);
         }
 
-        var tagValidationResult = await ValidateTaskTagsAsync(task, ct);
+        var tagValidationResult = await ValidateTaskTagsAsync(userId, task, ct);
         if (!tagValidationResult.IsSuccess)
         {
             return tagValidationResult;
@@ -77,12 +77,16 @@ public class TaskService(
         return updateResult;
     }
 
-    private async Task<Result<bool>> ValidateTaskTagsAsync(Task task, CancellationToken ct)
+    private async Task<Result<bool>> ValidateTaskTagsAsync(long userId, Task task, CancellationToken ct = default)
     {
         if (task.TaskTags?.Any() ?? false)
         {
             var tagIds = task.TaskTags.Select(tt => tt.TagId).ToList();
-            var tagsResult = await tagRepository.GetAllAsync(t => tagIds.Contains(t.Id), ct: ct);
+
+            var tagsResult = await tagRepository.GetAllAsync(
+                t => tagIds.Contains(t.Id) && t.UserId == userId,
+                ct: ct
+            );
 
             if (!tagsResult.IsSuccess || tagsResult.Data.Count() != task.TaskTags.Count)
             {
