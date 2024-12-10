@@ -3,6 +3,7 @@ using Meowmentum.Server.Dotnet.Shared.Requests.Task;
 using Meowmentum.Server.Dotnet.Shared.Responses.Task;
 using Task = Meowmentum.Server.Dotnet.Core.Entities.Task;
 using AutoMapper;
+using Meowmentum.Server.Dotnet.Shared.Responses;
 
 public class TaskProfile : Profile
 {
@@ -22,14 +23,16 @@ public class TaskProfile : Profile
 
         CreateMap<Task, TaskResponse>()
             .ForMember(dest => dest.TimeSpent, opt => opt.MapFrom(src => src.TimeIntervals))
-            .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src => 
-                src.TaskTags != null 
-                ? src.TaskTags.Select(tt => tt.TagId).ToList() 
-                : new List<long>()))
-            .ForMember(dest => dest.TagNames, opt => opt.MapFrom(src => 
-                src.TaskTags != null 
-                ? src.TaskTags.Select(tt => tt.Tag.Name).ToList() 
-                : new List<string>()))
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src =>
+                src.TaskTags != null
+                ? src.TaskTags.Select(tt => new TagResponse
+                {
+                    Id = tt.TagId,
+                    Name = tt.Tag.Name,
+                    CreatedDate = tt.Tag.CreatedDate,
+                    UpdatedDate = tt.Tag.UpdatedDate
+                }).ToList()
+                : new List<TagResponse>()))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority))
             .ForMember(dest => dest.Deadline, opt => opt.MapFrom(src => src.Deadline))

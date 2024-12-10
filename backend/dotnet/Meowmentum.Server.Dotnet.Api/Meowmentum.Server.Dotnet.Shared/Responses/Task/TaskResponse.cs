@@ -12,8 +12,7 @@ public class TaskResponse
     public DateTime? Deadline { get; set; }
     public TaskStatus? Status { get; set; }
     public TaskPriority? Priority { get; set; }
-    public List<long>? TagIds { get; set; }
-    public List<string>? TagNames { get; set; }
+    public List<TagResponse>? Tags { get; set; }
     public List<TimeInterval>? TimeSpent { get; set; }
 }
 
