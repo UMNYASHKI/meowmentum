@@ -12,5 +12,6 @@ public class TimerUpdateRequest
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }
     public string? Description { get; set; }
+    public int? SpendedTime { get; set; } 
 }
 

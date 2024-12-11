@@ -4,12 +4,14 @@ using Meowmentum.Server.Dotnet.Business.Implementations;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Shared.Requests;
 using Meowmentum.Server.Dotnet.Shared.Requests.Task;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Meowmentum.Server.Dotnet.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class TimerController(ITimeService timeService) : BaseController()
     {
         [HttpPost("start")]
@@ -28,6 +30,19 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers
         public async Task<IActionResult> StopTimer(long taskId, CancellationToken ct = default)
         {
             var result = await timeService.StopTimerAsync(CurrentUserId, taskId, ct);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+
+            return BadRequest(result.ErrorMessage);
+        }
+
+        [HttpPost("log")]
+        public async Task<IActionResult> ManualLogTime([FromBody] ManualLogRequest logRequest, CancellationToken ct)
+        {
+            var result = await timeService.ManualLogTimeAsync(CurrentUserId, logRequest, ct);
+
             if (result.IsSuccess)
             {
                 return Ok(result.Data);

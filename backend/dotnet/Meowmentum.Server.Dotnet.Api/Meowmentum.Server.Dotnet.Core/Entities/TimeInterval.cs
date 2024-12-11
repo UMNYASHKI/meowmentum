@@ -19,8 +19,6 @@ namespace Meowmentum.Server.Dotnet.Core.Entities
         [Required]
         [ForeignKey("Task")]
         public long TaskId { get; set; }
-
-        [JsonIgnore]
         public virtual Task Task { get; set; }
     }
 }
