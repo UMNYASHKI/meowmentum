@@ -13,6 +13,6 @@ public class TaskResponse
     public TaskStatus? Status { get; set; }
     public TaskPriority? Priority { get; set; }
     public List<TagResponse>? Tags { get; set; }
-    public List<TimeInterval>? TimeSpent { get; set; }
+    public List<TimeIntervalResponse>? TimeIntervals { get; set; }
 }
 

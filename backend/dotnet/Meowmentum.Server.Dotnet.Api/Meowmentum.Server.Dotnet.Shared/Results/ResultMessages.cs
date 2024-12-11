@@ -96,4 +96,12 @@ public static class ResultMessages
         public const string UnexpectedError = "An unexpected error:\n";
         public const string TagNameAlreadyExists = "A tag with the same name already exists.";
     }
+
+    public static class Timer
+    {
+        public const string NoActiveTimer = "There is no active timers for this task";
+        public const string ActiveTimerAlreadyExists = "There is already active timer for this task";
+        public const string TimerNotFound = "Timer with this ID not found";
+        public const string TimerNotBelongsToUser = "Timer not belongs to this user";
+    }
 }
