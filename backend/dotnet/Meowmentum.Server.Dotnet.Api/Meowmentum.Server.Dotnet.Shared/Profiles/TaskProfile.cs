@@ -18,16 +18,16 @@ public class TaskProfile : Profile
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
 
         CreateMap<Task, TaskResponse>()
-            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
-            .ForMember(dest => dest.TimeSpent, opt => opt.MapFrom(src => src.TimeIntervals))
-            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
-            .ForMember(dest => dest.TagName, opt => opt.MapFrom(src => src.Tag != null ? src.Tag.Name : null))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.Deadline, opt => opt.MapFrom(src => src.Deadline))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.Priority, opt => opt.MapFrom(src => src.Priority))
-            .ForMember(dest => dest.Deadline, opt => opt.MapFrom(src => src.Deadline))
-            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
-            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description)) 
-            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title));
+            .ForMember(dest => dest.TagId, opt => opt.MapFrom(src => src.TagId))
+            .ForMember(dest => dest.TagName, opt => opt.MapFrom(src => src.Tag != null ? src.Tag.Name : null))
+            .ForMember(dest => dest.TimeIntervals, opt => opt.MapFrom(src => src.TimeIntervals));
 
         CreateMap<Task, Task>()
             .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))

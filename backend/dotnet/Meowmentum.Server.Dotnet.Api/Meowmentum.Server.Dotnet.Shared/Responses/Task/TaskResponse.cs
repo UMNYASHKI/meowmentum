@@ -19,7 +19,7 @@ namespace Meowmentum.Server.Dotnet.Shared.Responses.Task
         public TaskPriority? Priority { get; set; }
         public long? TagId { get; set; }
         public string? TagName { get; set; }
-        public List<TimeInterval>? TimeSpent { get; set; }
+        public List<TimeIntervalResponse>? TimeIntervals { get; set; }
     }
     
 }
