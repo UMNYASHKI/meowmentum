@@ -30,7 +30,6 @@ export default function TimeLogs({ taskId }: TimeLogsProps) {
 
   useEffect(() => {
     if (!taskId) {
-      setError('Something went wrong');
       return;
     }
     try {

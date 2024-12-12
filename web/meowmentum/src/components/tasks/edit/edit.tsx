@@ -184,7 +184,7 @@ export default function EditComponent({
                 setStatus={setStatus}
               />
             </ModalBody>
-            <TimeLogs taskId={taskId} />
+            {mode !== 'create' ? <TimeLogs taskId={taskId} /> : null}
             <ModalFooter className="pt-4 space-x-4">
               <Button
                 color="primary"
