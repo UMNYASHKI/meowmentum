@@ -3,6 +3,7 @@ using System;
 using Meowmentum.Server.Dotnet.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Meowmentum.Server.Dotnet.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241208202419_EditTimeIntervalModel")]
+    partial class EditTimeIntervalModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,6 +146,9 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
                     b.Property<int?>("Status")
                         .HasColumnType("integer");
 
+                    b.Property<long?>("TagId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -153,24 +159,11 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TagId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Tasks");
-                });
-
-            modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TaskTag", b =>
-                {
-                    b.Property<long>("TaskId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("TagId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("TaskId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("TaskTags");
                 });
 
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TimeInterval", b =>
@@ -345,30 +338,18 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
 
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.Task", b =>
                 {
+                    b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.Tag", "Tag")
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TaskTag", b =>
-                {
-                    b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.Tag", "Tag")
-                        .WithMany("TaskTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.Task", "Task")
-                        .WithMany("TaskTags")
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Tag");
-
-                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TimeInterval", b =>
@@ -433,15 +414,8 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.Tag", b =>
-                {
-                    b.Navigation("TaskTags");
-                });
-
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.Task", b =>
                 {
-                    b.Navigation("TaskTags");
-
                     b.Navigation("TimeIntervals");
                 });
 #pragma warning restore 612, 618

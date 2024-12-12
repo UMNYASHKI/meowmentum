@@ -87,6 +87,7 @@ public static class ResultMessages
         public const string UnexpectedError = "An unexpected error occurred.";
         public const string UserNotFound = "User not found or not authorized.";
         public const string InvalidFilterRequest = "Filter request contains invalid data.";
+        public const string InvalidTag = "Invalid or missing tag(s)";
     }
     public static class Tag
     {
@@ -94,5 +95,13 @@ public static class ResultMessages
         public const string FetchTagsError = "Error fetching tags";
         public const string UnexpectedError = "An unexpected error:\n";
         public const string TagNameAlreadyExists = "A tag with the same name already exists.";
+    }
+
+    public static class Timer
+    {
+        public const string NoActiveTimer = "There is no active timers for this task";
+        public const string ActiveTimerAlreadyExists = "There is already active timer for this task";
+        public const string TimerNotFound = "Timer with this ID not found";
+        public const string TimerNotBelongsToUser = "Timer not belongs to this user";
     }
 }
