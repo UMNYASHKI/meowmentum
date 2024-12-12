@@ -15,7 +15,7 @@ import Calendar from '@public/calendar.svg';
 import Priority from '@public/priority.svg';
 import Add from '@public/add.svg';
 import { ITag } from '@/common/tags';
-import { TaskPriority } from '@/common/tasks';
+import { TaskPriority, TaskStatus } from '@/common/tasks';
 
 interface ActionButtonsProps {
   deadline: Date | undefined;
@@ -25,6 +25,8 @@ interface ActionButtonsProps {
   tags: number[];
   setTags: React.Dispatch<React.SetStateAction<number[]>>;
   availableTags: ITag[]; // Tags fetched from API
+  status: string | undefined;
+  setStatus: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 // @ts-ignore
@@ -36,20 +38,27 @@ export default function ActionButtons({
   tags,
   setTags,
   availableTags,
+  status,
+  setStatus,
 }: ActionButtonsProps) {
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedPriority, setSelectedPriority] = useState(
     new Set(['Set Priority'])
   );
   const [selectedTags, setSelectedTags] = useState(new Set(tags));
+  const [selectedStatus, setSelectedStatus] = useState(new Set(['Set Status']));
 
   useEffect(() => {
     if (priority !== undefined) {
       setSelectedPriority(new Set([priority]));
     }
 
+    if (status != undefined) {
+      setSelectedStatus(new Set([status]));
+    }
+
     setSelectedTags(new Set(tags));
-  }, [priority, tags]);
+  }, [priority, tags, status]);
 
   const selectedTagValue = React.useMemo(
     () => Array.from(selectedTags).join(', ').replaceAll('_', ' '),
@@ -64,6 +73,12 @@ export default function ActionButtons({
     setSelectedPriority(keys as Set<TaskPriority>);
     // @ts-ignore
     setPriority(keys.currentKey as TaskPriority);
+  };
+
+  const handleStatusChange = (keys: SharedSelection) => {
+    setSelectedStatus(keys as Set<TaskStatus>);
+    // @ts-ignore
+    setStatus(keys.currentKey as TaskStatus);
   };
 
   const handleTagsChange = (keys: SharedSelection) => {
@@ -91,6 +106,7 @@ export default function ActionButtons({
           <NextUiCalendar
             aria-label="Date (Uncontrolled)"
             defaultValue={parseDate(format(new Date(), 'yyyy-MM-dd'))}
+            minValue={parseDate(format(new Date(), 'yyyy-MM-dd'))}
             onChange={handleDateChange}
           />
         </div>
@@ -114,6 +130,27 @@ export default function ActionButtons({
           <DropdownItem key="Low">Low</DropdownItem>
           <DropdownItem key="Medium">Medium</DropdownItem>
           <DropdownItem key="High">High</DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
+
+      <Dropdown>
+        <DropdownTrigger>
+          <button className="flex items-center space-x-2 py-2 px-4 h-10 rounded-lg text-white bg-[#676A6E] hover:bg-[#BFC0C0]">
+            <Priority className="h-6 w-6" />
+            <span className="capitalize">{selectedStatus} </span>
+          </button>
+        </DropdownTrigger>
+        <DropdownMenu
+          aria-label="Set Status"
+          variant="flat"
+          disallowEmptySelection
+          selectionMode="single"
+          selectedKeys={selectedStatus}
+          onSelectionChange={handleStatusChange}
+        >
+          <DropdownItem key="Pending">Pending</DropdownItem>
+          <DropdownItem key="InProgress">In Progress</DropdownItem>
+          <DropdownItem key="Completed">Completed</DropdownItem>
         </DropdownMenu>
       </Dropdown>
 
