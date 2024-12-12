@@ -70,13 +70,18 @@ export default function TimeLogs({ taskId }: TimeLogsProps) {
       description: null,
     };
 
+    console.log(request);
+
     try {
-      await triggerUpdate(request);
-      setTimeIntervals((prevIntervals) =>
-        prevIntervals.map((item) =>
-          item.id === updatedInterval.id ? updatedInterval : item
-        )
-      );
+      await triggerUpdate(request).then((r) => {
+        if (!r.error) {
+          setTimeIntervals((prevIntervals) =>
+            prevIntervals.map((item) =>
+              item.id === updatedInterval.id ? updatedInterval : item
+            )
+          );
+        }
+      });
     } catch (error) {
       setError('Failed to update time interval');
     }

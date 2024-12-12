@@ -30,7 +30,7 @@ export const timeIntervalsApi = createApi({
     updateInterval: builder.mutation<void, UpdateTimeIntervalRequest>({
       query: (credentials) => ({
         url: `${endpointRoute}/${credentials?.id}`,
-        method: 'POST',
+        method: 'PUT',
         body: credentials,
       }),
     }),
