@@ -12,6 +12,6 @@ namespace Meowmentum.Server.Dotnet.Business.Abstractions
         Task<Result<bool>> UpdateTimerAsync(long timerId, long userId, TimerUpdateRequest updateRequest, CancellationToken ct = default);
         Task<Result<bool>> DeleteTimerAsync(long userId, long timerId, CancellationToken ct = default);
         Task<Result<IEnumerable<TimeIntervalResponse>>> GetTimersAsync(long userId, long? taskId, long? timeIntervalId, CancellationToken ct = default);
-        Task<Result<bool>> ManualLogTimeAsync(long userId, ManualLogRequest logRequest, CancellationToken ct = default);
+        Task<Result<long>> ManualLogTimeAsync(long userId, ManualLogRequest logRequest, CancellationToken ct = default);
     }
 }

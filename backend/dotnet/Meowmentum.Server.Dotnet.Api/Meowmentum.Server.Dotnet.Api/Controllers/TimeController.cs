@@ -52,7 +52,7 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTimer(long id, TimerUpdateRequest updateRequest, CancellationToken ct = default)
+        public async Task<IActionResult> UpdateTimer([FromRoute]long id, [FromBody] TimerUpdateRequest updateRequest, CancellationToken ct = default)
         {
             var result = await timeService.UpdateTimerAsync(id, CurrentUserId, updateRequest, ct);
             if (result.IsSuccess)

@@ -109,7 +109,7 @@ public class TimeService(
         return updateResult;
     }
 
-    public async Task<Result<bool>> ManualLogTimeAsync(long userId, ManualLogRequest logRequest, CancellationToken ct = default)
+    public async Task<Result<long>> ManualLogTimeAsync(long userId, ManualLogRequest logRequest, CancellationToken ct = default)
     {
         logger.LogInformation("User {UserId} is manually logging time for TaskId {TaskId}", userId, logRequest.TaskId);
 
@@ -119,13 +119,13 @@ public class TimeService(
         if (!result.IsSuccess)
         {
             logger.LogError("Task with ID {TaskId} not found ", logRequest.TaskId);
-            return Result.Failure<bool>(ResultMessages.Task.TaskNotFound);
+            return Result.Failure<long>(ResultMessages.Task.TaskNotFound);
         }
 
         if (result.Data.UserId != userId)
         {
             logger.LogError("Task with ID {TaskId} belongs to other user ", logRequest.TaskId);
-            return Result.Failure<bool>(ResultMessages.Task.UnauthorizedAccess);
+            return Result.Failure<long>(ResultMessages.Task.UnauthorizedAccess);
         }
 
         var endTime = logRequest.StartTime.AddMinutes(logRequest.SpendedTime);
@@ -143,11 +143,11 @@ public class TimeService(
         if (!saveResult.IsSuccess)
         {
             logger.LogError("Failed to log time manually for TaskId {TaskId}. Error: {ErrorMessage}", logRequest.TaskId, saveResult.ErrorMessage);
-            return Result.Failure<bool>(saveResult.ErrorMessage);
+            return Result.Failure<long>(saveResult.ErrorMessage);
         }
 
         logger.LogInformation("Successfully logged time manually for TaskId {TaskId} by user {UserId}", logRequest.TaskId, userId);
-        return Result.Success(true);
+        return Result.Success(timeInterval.Id);
     }
 
     public async Task<Result<bool>> UpdateTimerAsync(long timerId, long userId, TimerUpdateRequest updateRequest, CancellationToken ct = default)
