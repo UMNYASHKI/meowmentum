@@ -1,5 +1,6 @@
 export interface ITimeInterval {
-  id: number;
-  date: Date;
+  id: number | null | undefined;
+  taskId: number;
+  date: Date | null;
   amount: string;
 }

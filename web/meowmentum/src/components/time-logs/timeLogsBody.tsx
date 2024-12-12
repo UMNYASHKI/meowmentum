@@ -5,8 +5,9 @@ import Delete from '@public/delete.svg';
 import { AddTime } from '@components/time-logs/addTimeModal';
 
 interface TimeLogsBodyProps {
+  taskId: number | null;
   timeIntervals: ITimeInterval[];
-  handleDelete: (id: number) => void;
+  handleDelete: (id: number | null | undefined) => void;
   handleEdit: (interval: ITimeInterval) => void;
 }
 export default function TimeLogsBody({
@@ -34,14 +35,17 @@ function TimeInterval({
   onEdit,
 }: {
   interval: ITimeInterval;
-  onDelete: (id: number) => void;
+  onDelete: (id: number | null | undefined) => void;
   onEdit: (interval: ITimeInterval) => void;
 }) {
-  const formattedDate = interval.date.toLocaleDateString('en-GB');
   return (
     <div className="flex justify-between items-center py-2 border-b border-gray-200">
       <div className="flex items-center space-x-2">
-        <div className="text-[#282828] text-sm">{formattedDate}</div>
+        <div className="text-[#282828] text-sm">
+          {interval.date != null
+            ? interval.date.toLocaleDateString('en-GB')
+            : 'Invalid Date'}
+        </div>
         <span className="text-gray-400">—</span>
         <div className="text-[#282828] text-sm">Logged {interval.amount}</div>
       </div>
@@ -49,7 +53,7 @@ function TimeInterval({
       <div className="flex items-center space-x-4">
         <AddTime
           mode={'edit'}
-          taskId={null}
+          taskId={interval.taskId}
           interval={interval}
           onSave={onEdit}
         />

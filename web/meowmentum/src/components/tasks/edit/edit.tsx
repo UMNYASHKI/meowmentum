@@ -9,7 +9,6 @@ import {
   ModalFooter,
   Button,
 } from '@nextui-org/react';
-import { Divider } from '@nextui-org/divider';
 import ActionButtons from '@/components/tasks/edit/editButtons';
 import { ITag } from '@/common/tags';
 import { useLazyGetAllTagsQuery } from '@services/tags/tagApi';
@@ -18,8 +17,6 @@ import {
   useCreateTaskMutation,
   useLazyGetTaskQuery,
 } from '@services/tasks/tasksApi';
-import { setPopupMessage } from '@/lib/slices/app/appSlice';
-import { useAppDispatch } from '@/lib/hooks';
 import {
   ReverseTaskPriorityMapping,
   ReverseTaskStatusMapping,
@@ -28,6 +25,10 @@ import {
   TaskStatus,
   TaskStatusMapping,
 } from '@/common/tasks';
+import TimeLogs from '@components/time-logs/timeLogs';
+import { useSetError } from '@utils/popUpsManager';
+import { ITimeInterval } from '@/common/timeIntervals';
+import { transformTimeIntervals } from '@utils/timeIntervalsHelpers';
 
 type PageMode = 'create' | 'edit';
 
@@ -42,7 +43,7 @@ export default function EditComponent({
   onClose,
   taskId,
 }: EditComponentProps) {
-  const dispatch = useAppDispatch();
+  const setError = useSetError();
   const [triggerGetAllTags] = useLazyGetAllTagsQuery({});
   const [createTask] = useCreateTaskMutation();
   const [triggerGetTask] = useLazyGetTaskQuery();
@@ -71,7 +72,7 @@ export default function EditComponent({
         .unwrap()
         .then((tasks: TaskResponse[]) => {
           if (tasks.length < 0) {
-            setError();
+            setError('Failed to get tasks');
             return;
           }
           const task = tasks[0];
@@ -88,24 +89,15 @@ export default function EditComponent({
             task.status != undefined
               ? ReverseTaskStatusMapping[task.status]
               : undefined
-          ),
-            setTags(task.tags.map((t) => t.id));
+          );
+
+          setTags(task.tags.map((t) => t.id));
         })
         .catch((error) => {
           console.error('Error fetching task:', error);
         });
     }
   }, [taskId]);
-
-  const setError = () => {
-    dispatch(
-      setPopupMessage({
-        message: `Failed to create task`,
-        type: 'error',
-        isVisible: true,
-      })
-    );
-  };
 
   const handleSave = async () => {
     const actualTags = tags.filter(
@@ -134,10 +126,10 @@ export default function EditComponent({
         onClose();
         return;
       } else {
-        setError();
+        setError('Failed create task');
       }
     } catch (error) {
-      setError();
+      setError('Failed create task');
     }
   };
 
@@ -148,6 +140,7 @@ export default function EditComponent({
       placement="center"
       backdrop="opaque"
       className="bg-[#FAFAFA] max-w-4xl w-full rounded-xl"
+      scrollBehavior="outside"
     >
       <ModalContent>
         {(onModalClose) => (
@@ -191,9 +184,7 @@ export default function EditComponent({
                 setStatus={setStatus}
               />
             </ModalBody>
-
-            <Divider className="my-4 bg-[#E5E5E5]" />
-            <ModalBody className="h-1/2">{'Time logs'}</ModalBody>
+            {mode !== 'create' ? <TimeLogs taskId={taskId} /> : null}
             <ModalFooter className="pt-4 space-x-4">
               <Button
                 color="primary"

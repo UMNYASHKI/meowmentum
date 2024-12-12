@@ -5,8 +5,9 @@ import { ITimeInterval } from '@/common/timeIntervals';
 
 interface TimeLogsHeaderProps {
   onAdd: (interval: ITimeInterval) => void;
+  taskId: number | null;
 }
-export default function TimeLogsHeader({ onAdd }: TimeLogsHeaderProps) {
+export default function TimeLogsHeader({ taskId, onAdd }: TimeLogsHeaderProps) {
   return (
     <div className="flex justify-between items-center">
       <div className="flex flex-row items-center">
@@ -16,7 +17,12 @@ export default function TimeLogsHeader({ onAdd }: TimeLogsHeaderProps) {
         </span>
       </div>
       <div className="flex flex-row items-center">
-        <AddTime mode={'create'} taskId={1} interval={null} onSave={onAdd} />
+        <AddTime
+          mode={'create'}
+          taskId={taskId}
+          interval={null}
+          onSave={onAdd}
+        />
       </div>
     </div>
   );
