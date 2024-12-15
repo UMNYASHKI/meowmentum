@@ -16,7 +16,7 @@ export const tasksApi = createApi({
   endpoints: (builder) => ({
     createTask: builder.mutation<boolean, CreateTaskRequest>({
       query: (credentials) => ({
-        url: `/${endpointRoute}`,
+        url: `/${endpointRoute}?id=${credentials?.id?.toString() || ''}`,
         method: 'POST',
         body: credentials,
       }),
