@@ -1,4 +1,5 @@
 import { ITag } from '@/common/tags';
+import { TimeIntervalResponse } from '@services/timeIntervals/timeIntervalsDtos';
 
 export interface CreateTaskRequest {
   id: number | null;
@@ -23,6 +24,7 @@ export interface TaskResponse {
   priority: number | undefined;
   status: number | undefined;
   tags: TagPlain[];
+  timeIntervals: TimeIntervalResponse[] | undefined;
 }
 
 export interface TaskFilterRequest {
