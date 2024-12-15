@@ -1,6 +1,8 @@
-import { TaskPriority, TaskStatus } from '@/common/tasks';
+import { ITag } from '@/common/tags';
+import { TimeIntervalResponse } from '@services/timeIntervals/timeIntervalsDtos';
 
 export interface CreateTaskRequest {
+  id: number | null;
   title: string;
   description: string;
   deadline: Date | undefined;

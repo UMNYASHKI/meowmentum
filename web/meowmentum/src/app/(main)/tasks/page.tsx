@@ -16,7 +16,6 @@ import {
   TaskPriority,
   TaskPriorityMapping,
   TaskStatus,
-  taskStatuses,
 } from '@/common/tasks';
 import { useLazyGetTaskQuery } from '@services/tasks/tasksApi';
 import { ReactDOM } from 'next/dist/server/future/route-modules/app-page/vendored/rsc/entrypoints';
@@ -109,7 +108,7 @@ export default function Tasks() {
               <FilterSelect
                 name="Status"
                 placeholder="Status"
-                values={taskStatuses.map((x) => x.toString())}
+                values={['Pending', 'InProgress','Completed']}
                 onChange={handleChangeFilter}
               />
             </div>

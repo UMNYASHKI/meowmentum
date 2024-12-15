@@ -143,9 +143,6 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
                     b.Property<int?>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<long?>("TagId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -156,11 +153,24 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TagId");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TaskTag", b =>
+                {
+                    b.Property<long>("TaskId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("TagId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("TaskId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("TaskTags");
                 });
 
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TimeInterval", b =>
@@ -172,10 +182,9 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("StartTime")
@@ -336,18 +345,30 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
 
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.Task", b =>
                 {
-                    b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.Tag", "Tag")
-                        .WithMany()
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.AppUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TaskTag", b =>
+                {
+                    b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.Tag", "Tag")
+                        .WithMany("TaskTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Meowmentum.Server.Dotnet.Core.Entities.Task", "Task")
+                        .WithMany("TaskTags")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Tag");
+
+                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.TimeInterval", b =>
@@ -412,8 +433,15 @@ namespace Meowmentum.Server.Dotnet.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.Tag", b =>
+                {
+                    b.Navigation("TaskTags");
+                });
+
             modelBuilder.Entity("Meowmentum.Server.Dotnet.Core.Entities.Task", b =>
                 {
+                    b.Navigation("TaskTags");
+
                     b.Navigation("TimeIntervals");
                 });
 #pragma warning restore 612, 618

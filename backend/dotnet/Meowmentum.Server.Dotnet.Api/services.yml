@@ -1,8 +1,7 @@
 service.dotnet:
   image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
   build:
-    context: "/backend"
-    dockerfile: "/backend/dotnet/Meowmentum.Server.Dotnet.Api/Dockerfile"
+    context: "."
     additional_contexts:
       proto: "/backend/proto"
     target: final
@@ -21,7 +20,6 @@ service.dotnet:
     - SECRET_POSTGRES_DATABASE
     - SECRET_REDIS_PASSWORD
     - SECRET_JWT_KEY
-    - ATTACH_GRPC_EMAIL
   split_address_parts: true
   envmap:
     ConnectionStrings__MasterDatabase: "Server=${ATTACH_STATIC_POSTGRES_HOSTPART};Database=${SECRET_POSTGRES_DATABASE};Port=${ATTACH_STATIC_POSTGRES_PORTPART};User Id=${SECRET_POSTGRES_USERNAME};Password=${SECRET_POSTGRES_PASSWORD};Include Error Detail=false;"
@@ -32,5 +30,20 @@ service.dotnet:
     Grpc__EmailOptions__Address: "http://${ATTACH_GRPC_EMAIL}"
     ASPNETCORE_URLS: "http://${EXPOSE_HTTP}"
 
-
-
+service.dotnet.migrate:
+  image: "${ENVIRONMENT}-${SERVICE}:${GIT_COMMIT}"
+  build:
+    context: "."
+    additional_contexts:
+      proto: "/backend/proto"
+    target: migrate
+  attach:
+    - platform.postgres:postgres
+  envpass:
+    - CONFIG_NO_LOCAL_MIGRATE
+    - SECRET_POSTGRES_USERNAME
+    - SECRET_POSTGRES_PASSWORD
+    - SECRET_POSTGRES_DATABASE
+  split_address_parts: true
+  envmap:
+    ConnectionStrings__MasterDatabase: "Server=${ATTACH_STATIC_POSTGRES_HOSTPART};Database=${SECRET_POSTGRES_DATABASE};Port=${ATTACH_STATIC_POSTGRES_PORTPART};User Id=${SECRET_POSTGRES_USERNAME};Password=${SECRET_POSTGRES_PASSWORD};Include Error Detail=false;"

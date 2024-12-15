@@ -58,6 +58,8 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.materialIconsExtended)
             implementation(compose.components.resources)
+            implementation("io.github.vanpra.compose-material-dialogs:datetime:0.9.0")
+
 
             // Voyager
             implementation(libs.voyager.navigator)

@@ -15,18 +15,11 @@ export const tasksApi = createApi({
   baseQuery: baseAuthQuery,
   endpoints: (builder) => ({
     createTask: builder.mutation<boolean, CreateTaskRequest>({
-      query: (credentials) => {
-        const token = localStorage.getItem('token');
-        console.log(token);
-        return {
-          url: `/${endpointRoute}`,
-          method: 'POST',
-          body: credentials,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-      },
+      query: (credentials) => ({
+        url: `/${endpointRoute}?id=${credentials?.id?.toString() || ''}`,
+        method: 'POST',
+        body: credentials,
+      }),
     }),
     getTask: builder.query<TaskResponse[], TaskFilterRequest>({
       query: (filterRequest) => {

@@ -1,7 +1,6 @@
 import {
   TaskPriority,
   TaskStatus,
-  taskStatuses,
   taskPriorities,
 } from '@/common/tasks';
 import More from '../../../public/more.svg';
@@ -23,17 +22,17 @@ interface TypeClasses<T> {
 
 const statusClasses: TypeClasses<TaskStatus>[] = [
   {
-    type: taskStatuses[0],
+    type: 'Pending',
     className: 'border-[#C9C9C9] bg-[#EBEBEB] text-[#959595]',
     placeholder: 'Not Started',
   },
   {
-    type: taskStatuses[1],
+    type: 'InProgress',
     className: 'border-[#F8D255] bg-[#FFF8D4] text-[#E5AC09]',
     placeholder: 'In Progress',
   },
   {
-    type: taskStatuses[2],
+    type: 'Completed',
     className: 'border-[#81D164] bg-[#EBFFDF] text-[#41B52D]',
     placeholder: 'Done',
   },

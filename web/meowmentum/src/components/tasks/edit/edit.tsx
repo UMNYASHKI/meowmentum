@@ -9,18 +9,26 @@ import {
   ModalFooter,
   Button,
 } from '@nextui-org/react';
-import { Divider } from '@nextui-org/divider';
 import ActionButtons from '@/components/tasks/edit/editButtons';
 import { ITag } from '@/common/tags';
 import { useLazyGetAllTagsQuery } from '@services/tags/tagApi';
 import { CreateTaskRequest, TaskResponse } from '@services/tasks/tasksDtos';
-import { TaskPriority, TaskPriorityMapping, ReversedTaskPriorityMapping } from '@/common/tasks';
 import {
   useCreateTaskMutation,
   useLazyGetTaskQuery,
 } from '@services/tasks/tasksApi';
-import { setPopupMessage } from '@/lib/slices/app/appSlice';
-import { useAppDispatch } from '@/lib/hooks';
+import {
+  ReverseTaskPriorityMapping,
+  ReverseTaskStatusMapping,
+  TaskPriority,
+  TaskPriorityMapping,
+  TaskStatus,
+  TaskStatusMapping,
+} from '@/common/tasks';
+import TimeLogs from '@components/time-logs/timeLogs';
+import { useSetError } from '@utils/popUpsManager';
+import { ITimeInterval } from '@/common/timeIntervals';
+import { transformTimeIntervals } from '@utils/timeIntervalsHelpers';
 
 type PageMode = 'create' | 'edit';
 
@@ -35,15 +43,16 @@ export default function EditComponent({
   onClose,
   taskId,
 }: EditComponentProps) {
-  const dispatch = useAppDispatch();
+  const setError = useSetError();
   const [triggerGetAllTags] = useLazyGetAllTagsQuery({});
   const [createTask] = useCreateTaskMutation();
   const [triggerGetTask] = useLazyGetTaskQuery();
   const [taskName, setTaskName] = useState<string | undefined>(undefined);
   const [description, setDescription] = useState<string | undefined>(undefined);
   const [deadline, setDeadline] = useState<Date | undefined>(undefined);
-  const [priority, setPriority] = useState<number | undefined>(undefined);
-  const [tags, setTags] = useState<number[]>([]); // Selected tags
+  const [priority, setPriority] = useState<string | undefined>(undefined);
+  const [status, setStatus] = useState<string | undefined>(undefined);
+  const [tags, setTags] = useState<number[]>([]); // Tags that are in task + Selected tags
   const [availableTags, setAvailableTags] = useState<ITag[]>([]); // Tags fetched from API
 
   useEffect(() => {
@@ -63,16 +72,26 @@ export default function EditComponent({
         .unwrap()
         .then((tasks: TaskResponse[]) => {
           if (tasks.length < 0) {
-            setError();
+            setError('Failed to get tasks');
             return;
           }
           const task = tasks[0];
+
           setTaskName(task.title);
           setDescription(task.description);
           setDeadline(task.deadline);
           setPriority(
-            ReversedTaskPriorityMapping[task.priority as TaskPriority]
+            task.priority != undefined
+              ? TaskPriorityMapping[task.priority]
+              : undefined
           );
+          setStatus(
+            task.status != undefined
+              ? ReverseTaskStatusMapping[task.status]
+              : undefined
+          );
+
+          setTags(task.tags.map((t) => t.id));
         })
         .catch((error) => {
           console.error('Error fetching task:', error);
@@ -80,26 +99,24 @@ export default function EditComponent({
     }
   }, [taskId]);
 
-  const setError = () => {
-    dispatch(
-      setPopupMessage({
-        message: `Failed to create task`,
-        type: 'error',
-        isVisible: true,
-      })
-    );
-  };
-
   const handleSave = async () => {
+    const actualTags = tags.filter(
+      (item) => !isNaN(Number(item)) && item.toString() !== ' '
+    );
     const payload: CreateTaskRequest = {
+      id: taskId,
       title: taskName ?? '',
       description: description ?? '',
       deadline: deadline,
-      priority: priority,
-      // priority: priority,
-      status: undefined,
-      tagId: undefined,
-      // todo: add tags + status
+      priority:
+        priority != undefined
+          ? ReverseTaskPriorityMapping[priority as TaskPriority]
+          : undefined,
+      status:
+        status != undefined
+          ? TaskStatusMapping[status as TaskStatus]
+          : undefined,
+      tagIds: actualTags,
     };
 
     try {
@@ -109,10 +126,10 @@ export default function EditComponent({
         onClose();
         return;
       } else {
-        setError();
+        setError('Failed create task');
       }
     } catch (error) {
-      setError();
+      setError('Failed create task');
     }
   };
 
@@ -123,6 +140,7 @@ export default function EditComponent({
       placement="center"
       backdrop="opaque"
       className="bg-[#FAFAFA] max-w-4xl w-full rounded-xl"
+      scrollBehavior="outside"
     >
       <ModalContent>
         {(onModalClose) => (
@@ -162,11 +180,11 @@ export default function EditComponent({
                 tags={tags}
                 setTags={setTags}
                 availableTags={availableTags}
+                status={status}
+                setStatus={setStatus}
               />
             </ModalBody>
-
-            <Divider className="my-4 bg-[#E5E5E5]" />
-            <ModalBody className="h-1/2">{'Time logs'}</ModalBody>
+            {mode !== 'create' ? <TimeLogs taskId={taskId} /> : null}
             <ModalFooter className="pt-4 space-x-4">
               <Button
                 color="primary"
@@ -181,7 +199,7 @@ export default function EditComponent({
                 onPress={handleSave}
                 className="rounded-lg"
               >
-                {mode === 'create' ? 'Create Task' : 'Save Changes'}
+                Save
               </Button>
             </ModalFooter>
           </div>

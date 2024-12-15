@@ -15,24 +15,10 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers;
 public class TasksController(ITaskService taskService, IMapper mapper) : BaseController()
 {
     [HttpPost]
-    public async Task<IActionResult> CreateTask([FromBody] CreateTaskRequest createTaskRequest, CancellationToken ct = default)
+    public async Task<IActionResult> UpsertTask([FromQuery] long? id, [FromBody] TaskRequest createTaskRequest, CancellationToken ct = default)
     {
         var task = mapper.Map<Task>(createTaskRequest);
-        var result = await taskService.CreateTaskAsync(CurrentUserId, task, ct);
-
-        if (result.IsSuccess)
-            return Ok(result.Data);
-
-        return BadRequest(result.ErrorMessage);
-    }
-
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTask(long id, [FromBody] CreateTaskRequest updateRequest, CancellationToken ct = default)
-    {
-        var task = mapper.Map<Task>(updateRequest);
-        task.Id = id;
-
-        var result = await taskService.UpdateTaskAsync(CurrentUserId, task, ct);
+        var result = await taskService.UpsertTaskAsync(CurrentUserId, task, id, ct);
 
         if (result.IsSuccess)
             return Ok(result.Data);
