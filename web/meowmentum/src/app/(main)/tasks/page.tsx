@@ -4,24 +4,77 @@ import DashboardHeader from '@/components/dashboard/dashboardHeader';
 import Add from '@public/add.svg';
 import DashboardBody from '@/components/dashboard/dashboardBody';
 import DashboardContainer from '@/components/dashboard/dashboardContainer';
-import {
-  TaskPriority,
-  TaskResponse,
-  TaskStatus,
-} from '@services/tasks/tasksDtos';
-import { useState } from 'react';
+import { TaskResponse } from '@services/tasks/tasksDtos';
+import { useEffect, useState } from 'react';
 import { TagResponse } from '@services/tags/tagsDtos';
 import TaskShortView from '@/components/tasks/taskShortView';
 import { useDisclosure } from '@nextui-org/react';
 import EditComponent from '@/components/tasks/edit/edit';
+import FilterSelect from '@common/filterSelect';
+import {
+  taskPriorities,
+  TaskPriority,
+  TaskPriorityMapping,
+  TaskStatus,
+  taskStatuses,
+} from '@/common/tasks';
+import { useLazyGetTaskQuery } from '@services/tasks/tasksApi';
+import { ReactDOM } from 'next/dist/server/future/route-modules/app-page/vendored/rsc/entrypoints';
+import { useLazyGetAllTagsQuery } from '@services/tags/tagApi';
+
+interface FiltersModel
+{
+
+}
 
 export default function Tasks() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
+  const [getTasks] = useLazyGetTaskQuery();
+  const [getTags] = useLazyGetAllTagsQuery();
   const [tags, setTags] = useState<TagResponse[]>([]);
   const [tasks, setTasks] = useState<TaskResponse[]>([]);
 
+  useEffect(() => {
+    getTasks({ priorities: [], status: [], tagIds: [], taskId: undefined })
+      .unwrap()
+      .then((data) => {
+        setTasks(data);
+        let processed = tasks;
+        for (let i = 0; i < data.length; i++) {
+          processed[i] = {
+            ...data[i],
+            priority: getPriority(data[i].priority as any),
+            status: getStatus(data[i].status as any),
+          };
+        }
+        setTasks(processed);
+        console.log(processed);
+      });
+  }, [getTasks, tasks]);
+
   function handleChangeFilter() {}
+
+  function getPriority(priority: number): TaskPriority {
+    switch (priority) {
+      case 2:
+        return 'Medium';
+      case 3:
+        return 'High';
+      case 1:
+        return 'Low';
+    }
+  }
+
+  function getStatus(status: number): TaskStatus {
+    switch (status) {
+      case 2:
+        return 'InProgress';
+      case 3:
+        return 'Completed';
+      case 1:
+        return 'Pending';
+    }
+  }
 
   return (
     <>
@@ -43,7 +96,7 @@ export default function Tasks() {
                 className="mr-[20px]"
                 name="Priority"
                 placeholder="Priority"
-                values={Object.values(TaskPriority).map((x) => x.toString())}
+                values={taskPriorities.map((x) => x.toString())}
                 onChange={handleChangeFilter}
               />
               <FilterSelect
@@ -56,45 +109,26 @@ export default function Tasks() {
               <FilterSelect
                 name="Status"
                 placeholder="Status"
-                values={Object.values(TaskStatus).map((x) => x.toString())}
+                values={taskStatuses.map((x) => x.toString())}
                 onChange={handleChangeFilter}
               />
             </div>
           </div>
           <table className="mt-[36px] m w-full text-center">
             <tbody>
-              <TaskShortView
-                props={{
-                  title: 'Task1Task1Task1Task1Task1Task1Task1Task1Task1Task1Task1Task1Task1',
-                  deadline: new Date('2024-02-18'),
-                  status: TaskStatus.Completed,
-                  priority: TaskPriority.Medium,
-                }}
-              />
-              <TaskShortView
-                props={{
-                  title: 'Task2',
-                  deadline: new Date('2024-02-18'),
-                  status: TaskStatus.Pending,
-                  priority: TaskPriority.High,
-                }}
-              />
-              <TaskShortView
-                props={{
-                  title: 'Task3',
-                  deadline: new Date('2024-02-18'),
-                  status: TaskStatus.Completed,
-                  priority: TaskPriority.Low,
-                }}
-              />
-              <TaskShortView
-                props={{
-                  title: 'Task4',
-                  deadline: new Date('2024-02-18'),
-                  status: TaskStatus.InProgress,
-                  priority: TaskPriority.High,
-                }}
-              />
+              {tasks.map((x) => {
+                return (
+                  <TaskShortView
+                    key={x.id}
+                    props={{
+                      title: x.title ?? '',
+                      deadline: x.deadline ?? new Date('01-01-0000'),
+                      status: x.status ?? 'Completed',
+                      priority: x.priority ?? 'High',
+                    }}
+                  />
+                );
+              })}
             </tbody>
           </table>
 

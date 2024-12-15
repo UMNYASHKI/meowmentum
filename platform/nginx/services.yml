@@ -13,4 +13,4 @@ platform.nginx:
     http:
       type: static
       port: 8080
-      pin: 8080
+      pin: 8085

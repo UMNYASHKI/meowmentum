@@ -2,6 +2,7 @@
 
 import { twMerge } from 'tailwind-merge';
 import NavigateNext from '../../../public/navigate_next.svg';
+import { Fragment } from 'react';
 
 interface FilterSelectProps {
   placeholder?: string;
@@ -31,10 +32,10 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
         {placeholder}
       </option>
       {values.map((val) => (
-        <option key={val}>
-          {val}
+        <Fragment key={val}>
+          <option key={val}>{val}</option>
           <NavigateNext />
-        </option>
+        </Fragment>
       ))}
     </select>
   );

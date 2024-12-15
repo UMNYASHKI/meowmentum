@@ -14,7 +14,7 @@ import ActionButtons from '@/components/tasks/edit/editButtons';
 import { ITag } from '@/common/tags';
 import { useLazyGetAllTagsQuery } from '@services/tags/tagApi';
 import { CreateTaskRequest, TaskResponse } from '@services/tasks/tasksDtos';
-import { TaskPriority, TaskPriorityMapping } from '@/common/tasks';
+import { TaskPriority, TaskPriorityMapping, ReversedTaskPriorityMapping } from '@/common/tasks';
 import {
   useCreateTaskMutation,
   useLazyGetTaskQuery,
@@ -70,7 +70,9 @@ export default function EditComponent({
           setTaskName(task.title);
           setDescription(task.description);
           setDeadline(task.deadline);
-          setPriority(task.priority);
+          setPriority(
+            ReversedTaskPriorityMapping[task.priority as TaskPriority]
+          );
         })
         .catch((error) => {
           console.error('Error fetching task:', error);

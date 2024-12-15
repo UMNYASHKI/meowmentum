@@ -1,9 +1,4 @@
 import { TaskPriority, TaskStatus } from '@/common/tasks';
-export enum TaskStatus {
-  Pending = 'Pending',
-  InProgress = 'InProgress',
-  Completed = 'Completed',
-}
 
 export interface CreateTaskRequest {
   title: string;
@@ -13,11 +8,6 @@ export interface CreateTaskRequest {
   //priority: TaskPriority | undefined;
   status: TaskStatus | undefined;
   tagId: number | undefined;
-  // todo: tags management  + status
-export enum TaskPriority {
-  High = 'High',
-  Medium = 'Medium',
-  Low = 'Low',
 }
 
 export interface TimeInterval {
@@ -29,17 +19,19 @@ export interface TimeInterval {
 
 export interface TaskResponse {
   id: number;
-  title: string | null;
-  description: string | null;
+  title: string | undefined;
+  description: string | undefined;
   createdAt: Date;
-  deadline: Date | null;
-  status: TaskStatus | null;
-  priority: TaskPriority | null;
-  tagId: number | null;
-  tagName: string | null;
-  timeSpent: TimeInterval[] | null;
+  deadline: Date | undefined;
+  status: TaskStatus | undefined;
+  priority: TaskPriority | undefined;
+  tagId: number | undefined;
+  tagName: string | undefined;
+  timeSpent: TimeInterval[] | undefined;
+}
+
 export interface TaskFilterRequest {
-  taskId: number | null;
+  taskId: number | undefined;
   status: string[];
   tagIds: number[];
   priorities: string[];

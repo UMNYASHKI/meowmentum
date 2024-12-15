@@ -40,7 +40,6 @@ export default function ActionButtons({
   const [selectedPriority, setSelectedPriority] = useState(
     new Set(priority ? [TaskPriorityMapping[priority]] : ['Set priority'])
   );
-  console.log(selectedPriority);
   const [selectedTags, setSelectedTags] = useState(new Set<number>());
 
   const selectedPriorityValue = useMemo(
@@ -75,7 +74,7 @@ export default function ActionButtons({
   };
 
   const handleTagsChange = (keys: SharedSelection) => {
-    console.log(keys);
+    //console.log(keys);
     setSelectedTags(keys as Set<number>);
     setTags(Array.from(keys as Set<number>));
   };

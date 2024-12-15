@@ -1,11 +1,16 @@
-import { TaskPriority, TaskStatus } from '@services/tasks/tasksDtos';
+import {
+  TaskPriority,
+  TaskStatus,
+  taskStatuses,
+  taskPriorities,
+} from '@/common/tasks';
 import More from '../../../public/more.svg';
 import Today from '@public/today.svg';
 import { twMerge } from 'tailwind-merge';
 
 interface TaskShortViewProps {
   title: string;
-  deadline: Date;
+  deadline: Date | undefined;
   status: TaskStatus;
   priority: TaskPriority;
 }
@@ -18,34 +23,34 @@ interface TypeClasses<T> {
 
 const statusClasses: TypeClasses<TaskStatus>[] = [
   {
-    type: TaskStatus.Pending,
+    type: taskStatuses[0],
     className: 'border-[#C9C9C9] bg-[#EBEBEB] text-[#959595]',
     placeholder: 'Not Started',
   },
   {
-    type: TaskStatus.InProgress,
+    type: taskStatuses[1],
     className: 'border-[#F8D255] bg-[#FFF8D4] text-[#E5AC09]',
     placeholder: 'In Progress',
   },
   {
-    type: TaskStatus.Completed,
+    type: taskStatuses[2],
     className: 'border-[#81D164] bg-[#EBFFDF] text-[#41B52D]',
     placeholder: 'Done',
   },
 ];
 const priorityClasses: TypeClasses<TaskPriority>[] = [
   {
-    type: TaskPriority.Low,
+    type: taskPriorities[0],
     className: 'border-[#81D164] bg-[#EBFFDF] text-[#41B52D]',
     placeholder: 'P2',
   },
   {
-    type: TaskPriority.Medium,
+    type: taskPriorities[1],
     className: 'border-[#F8D255] bg-[#FFF8D4] text-[#E5AC09]',
     placeholder: 'P1',
   },
   {
-    type: TaskPriority.High,
+    type: taskPriorities[2],
     className: 'border-[#F2B8B8] bg-[#FFE8E8] text-[#DD6969]',
     placeholder: 'P0',
   },
@@ -62,14 +67,16 @@ export default function TaskShortView({
     priorityClasses.find((x) => x.type === props.priority) ??
     priorityClasses[0];
   return (
-    <tr className="h-[42px] flex flex-row w-full justify-between">
+    <tr className="h-[42px]">
       <th className="border w-[42px]"> </th>
-      <th className="text-left min-w-[160px] max-w-[220px] overflow-auto border pl-[12px] pr-[12px] text-black text-[20px] font-[400]">
+      <th className="text-left min-w-[140px] max-w-[220px] overflow-auto border pl-[12px] pr-[12px] text-black text-[20px] font-[400]">
         {props.title}
       </th>
-      <th className="border text-[#282828] min-w-[160px] overflow-auto text-[16px] font-[400] hidden largeTablet:block">
+      <th className="border text-[#282828] min-w-[140px] overflow-auto text-[16px] font-[400]">
         <Today className="inline w-[18px] h-[18px] mt-[-2px] mr-[3px]" />
-        {props.deadline.toDateString()}
+        {props.deadline === undefined
+          ? new Date('01-01-0000').toDateString()
+          : props.deadline.toString()}
       </th>
       <th className="border min-w-[136px]">
         <span
@@ -81,7 +88,7 @@ export default function TaskShortView({
           {statusClass.placeholder}
         </span>
       </th>
-      <th className="border max-w-[100px] min-w-[56px] hidden mobile:block">
+      <th className="border max-w-[100px] min-w-[56px] ">
         <span
           className={twMerge(
             'p-[2px] pl-[10px] pr-[10px] rounded-xl border-1',
