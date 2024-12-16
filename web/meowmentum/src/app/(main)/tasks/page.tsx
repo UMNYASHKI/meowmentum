@@ -11,6 +11,8 @@ import { useDisclosure } from '@nextui-org/react';
 import EditComponent from '@/components/tasks/edit/edit';
 import FilterSelect from '@common/filterSelect';
 import {
+  ReverseTaskPriorityMapping,
+  ReverseTaskStatusMapping,
   taskPriorities,
   TaskPriority,
   TaskPriorityMapping,
@@ -168,8 +170,8 @@ export default function Tasks() {
                     props={{
                       title: x.title ?? '',
                       deadline: x.deadline ?? new Date('01-01-0000'),
-                      status: x.status ?? 'Completed',
-                      priority: x.priority ?? 'High',
+                      status: ReverseTaskStatusMapping[x.status ?? 0],
+                      priority: TaskPriorityMapping[x.priority ?? 0],
                     }}
                   />
                 );

@@ -8,16 +8,8 @@ export interface CreateTaskRequest {
   description: string;
   deadline: Date | undefined;
   priority: number | undefined;
-  //priority: TaskPriority | undefined;
-  status: TaskStatus | undefined;
-  tagId: number | undefined;
-}
-
-export interface TimeInterval {
-  id: number;
-  startTime: Date;
-  endTime: Date;
-  description: string;
+  status: number | undefined;
+  tagIds: number[];
 }
 
 export interface TaskResponse {
@@ -28,7 +20,13 @@ export interface TaskResponse {
   deadline: Date | undefined;
   status: number | undefined;
   priority: number | undefined;
-  timeSpent: TimeInterval[] | undefined;
+  tags: TagPlain[];
+  timeIntervals: TimeIntervalResponse[] | undefined;
+}
+
+export interface TagPlain extends ITag {
+  id: number;
+  name: string;
 }
 
 export interface TaskFilterRequest {
