@@ -1,5 +1,6 @@
 import { ITag } from '@/common/tags';
 import { TimeIntervalResponse } from '@services/timeIntervals/timeIntervalsDtos';
+import { TaskPriority, TaskStatus } from '@/common/tasks';
 
 export interface CreateTaskRequest {
   id: number | null;
@@ -25,10 +26,8 @@ export interface TaskResponse {
   description: string | undefined;
   createdAt: Date;
   deadline: Date | undefined;
-  status: TaskStatus | undefined;
-  priority: TaskPriority | undefined;
-  tagId: number | undefined;
-  tagName: string | undefined;
+  status: number | undefined;
+  priority: number | undefined;
   timeSpent: TimeInterval[] | undefined;
 }
 

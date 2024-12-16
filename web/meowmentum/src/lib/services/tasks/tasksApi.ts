@@ -23,15 +23,27 @@ export const tasksApi = createApi({
     }),
     getTask: builder.query<TaskResponse[], TaskFilterRequest>({
       query: (filterRequest) => {
-        // const queryString = new URLSearchParams({
-        //   taskId: filterRequest.taskId?.toString() || '',
-        //   status: filterRequest.status?.join(',') || '',
-        //   tagIds: filterRequest.tagIds?.join(',') || '',
-        //   priorities: filterRequest.priorities?.join(',') || '',
-        // }).toString();
+        let queryString = '';
+        queryString +=
+          filterRequest.taskId !== undefined
+            ? 'taskId=' + filterRequest.taskId + '&'
+            : '';
+        queryString +=
+          filterRequest.tagIds.length > 0
+            ? filterRequest.tagIds.map((x) => 'tagIds=' + x + '&').join()
+            : '';
+        queryString +=
+          filterRequest.priorities.length > 0
+            ? filterRequest.priorities.map((x) => 'priorities=' + x + '&').join()
+            : '';
+        queryString +=
+          filterRequest.status.length > 0
+            ? filterRequest.status.map((x) => 'status=' + x + '&').join()
+            : '';
         const token = localStorage.getItem('token');
+        console.log(`/${endpointRoute}?` + queryString);
         return {
-          url: `/${endpointRoute}?${''}`,
+          url: `/${endpointRoute}?` + queryString,
           method: 'GET',
           headers: {
             Authorization: 'Bearer' + token,

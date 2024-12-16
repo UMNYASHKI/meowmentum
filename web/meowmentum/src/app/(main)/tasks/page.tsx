@@ -5,8 +5,7 @@ import Add from '@public/add.svg';
 import DashboardBody from '@/components/dashboard/dashboardBody';
 import DashboardContainer from '@/components/dashboard/dashboardContainer';
 import { TaskResponse } from '@services/tasks/tasksDtos';
-import { useEffect, useState } from 'react';
-import { TagResponse } from '@services/tags/tagsDtos';
+import { ChangeEvent, SyntheticEvent, useEffect, useState } from 'react';
 import TaskShortView from '@/components/tasks/taskShortView';
 import { useDisclosure } from '@nextui-org/react';
 import EditComponent from '@/components/tasks/edit/edit';
@@ -20,11 +19,9 @@ import {
 import { useLazyGetTaskQuery } from '@services/tasks/tasksApi';
 import { ReactDOM } from 'next/dist/server/future/route-modules/app-page/vendored/rsc/entrypoints';
 import { useLazyGetAllTagsQuery } from '@services/tags/tagApi';
+import { TagResponse } from '@services/tags/tagDtos';
 
-interface FiltersModel
-{
-
-}
+interface FiltersModel {}
 
 export default function Tasks() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -32,26 +29,71 @@ export default function Tasks() {
   const [getTags] = useLazyGetAllTagsQuery();
   const [tags, setTags] = useState<TagResponse[]>([]);
   const [tasks, setTasks] = useState<TaskResponse[]>([]);
+  const [filterPriority, setFilterPriority] = useState<string[]>([]);
+  const [filterStatus, setFilterStatus] = useState<string[]>([]);
+  const [filterTag, setFilterTag] = useState<number[]>([]);
+  const [filterId, setFilterId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    getTasks({ priorities: [], status: [], tagIds: [], taskId: undefined })
+    getTags()
       .unwrap()
       .then((data) => {
-        setTasks(data);
-        let processed = tasks;
-        for (let i = 0; i < data.length; i++) {
-          processed[i] = {
-            ...data[i],
-            priority: getPriority(data[i].priority as any),
-            status: getStatus(data[i].status as any),
-          };
-        }
-        setTasks(processed);
-        console.log(processed);
+        setTags(data);
       });
-  }, [getTasks, tasks]);
 
-  function handleChangeFilter() {}
+    getTasks({
+      priorities: filterPriority,
+      status: filterStatus,
+      tagIds: filterTag,
+      taskId: filterId,
+    })
+      .unwrap()
+      .then((data) => {
+        console.log(data);
+        setTasks(data);
+        // let processed = tasks;
+        // for (let i = 0; i < data.length; i++) {
+        //   processed[i] = {
+        //     ...data[i],
+        //     priority: getPriority(data[i].priority as any),
+        //     status: getStatus(data[i].status as any),
+        //   };
+        // }
+        // setTasks(processed);
+      });
+  }, [
+    getTags,
+    getTasks,
+    tasks,
+    filterTag,
+    filterId,
+    filterPriority,
+    filterStatus,
+  ]);
+
+  function handleChangeFilterStatus(e: ChangeEvent<HTMLSelectElement>) {
+    if (filterStatus.includes(e.target.value)) {
+      setFilterStatus(filterStatus.filter((x) => x !== e.target.value));
+    } else {
+      setFilterStatus([...filterStatus, e.target.value]);
+    }
+  }
+  function handleChangeFilterPriority(e: ChangeEvent<HTMLSelectElement>) {
+    if (filterPriority.includes(e.target.value)) {
+      setFilterPriority(filterPriority.filter((x) => x !== e.target.value));
+    } else {
+      setFilterPriority([...filterPriority, e.target.value]);
+    }
+  }
+  function handleChangeFilterTags(e: ChangeEvent<HTMLSelectElement>) {
+    const tag = tags.find(x=>x.name === e.target.value);
+    if(tag?.id === undefined) return;
+    if (filterTag.includes(tag?.id)) {
+      setFilterTag(filterTag.filter((x) => x !== tag?.id));
+    } else {
+      setFilterTag([...filterTag, tag?.id]);
+    }
+  }
 
   function getPriority(priority: number): TaskPriority {
     switch (priority) {
@@ -60,6 +102,8 @@ export default function Tasks() {
       case 3:
         return 'High';
       case 1:
+        return 'Low';
+      default:
         return 'Low';
     }
   }
@@ -72,6 +116,8 @@ export default function Tasks() {
         return 'Completed';
       case 1:
         return 'Pending';
+      default:
+        return 'Pending'
     }
   }
 
@@ -96,20 +142,20 @@ export default function Tasks() {
                 name="Priority"
                 placeholder="Priority"
                 values={taskPriorities.map((x) => x.toString())}
-                onChange={handleChangeFilter}
+                onChange={handleChangeFilterPriority}
               />
               <FilterSelect
                 className="mr-[20px]"
                 name="Tag"
                 placeholder="Tag"
                 values={tags.map((x) => x.name)}
-                onChange={handleChangeFilter}
+                onChange={handleChangeFilterTags}
               />
               <FilterSelect
                 name="Status"
                 placeholder="Status"
-                values={['Pending', 'InProgress','Completed']}
-                onChange={handleChangeFilter}
+                values={['Pending', 'InProgress', 'Completed']}
+                onChange={handleChangeFilterStatus}
               />
             </div>
           </div>
