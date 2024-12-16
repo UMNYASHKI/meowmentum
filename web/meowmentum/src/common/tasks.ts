@@ -1,4 +1,6 @@
-export type TaskPriority = 'Low' | 'Medium' | 'High';
+export const taskPriorities = ['Low', 'Medium', 'High'] as const;
+
+export type TaskPriority = (typeof taskPriorities)[number];
 
 type TaskPriorityMappingType = Record<number, TaskPriority>;
 export const TaskPriorityMapping: TaskPriorityMappingType = {

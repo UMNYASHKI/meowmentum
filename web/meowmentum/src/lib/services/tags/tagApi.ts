@@ -14,6 +14,9 @@ export const tagApi = createApi({
       query: (credentials) => ({
         url: `/${endpointRoute}`,
         method: 'GET',
+        headers: {
+          Authorization: 'Bearer' + localStorage.getItem('token'),
+        },
       }),
     }),
   }),
