@@ -23,7 +23,7 @@ public class TimeService(
         logger.LogInformation("Attempting to start timer for task with ID {TaskId} for user {UserId}", taskId, userId);
 
         var result = await taskRepository.GetFirstOrDefaultAsync(
-            t => t.Id == taskId, ct);
+            t => t.Id == taskId && !t.IsDeleted, ct);
 
         if (!result.IsSuccess)
         {
@@ -69,7 +69,7 @@ public class TimeService(
         logger.LogInformation("Attempting to stop timer for task with ID {TaskId} for user {UserId}", taskId, userId);
 
         var result = await taskRepository.GetFirstOrDefaultAsync(
-            t => t.Id == taskId, ct);
+            t => t.Id == taskId && !t.IsDeleted, ct);
 
         if (!result.IsSuccess)
         {
@@ -114,7 +114,7 @@ public class TimeService(
         logger.LogInformation("User {UserId} is manually logging time for TaskId {TaskId}", userId, logRequest.TaskId);
 
         var result = await taskRepository.GetFirstOrDefaultAsync(
-            t => t.Id == logRequest.TaskId, ct);
+            t => t.Id == logRequest.TaskId && !t.IsDeleted, ct);
 
         if (!result.IsSuccess)
         {

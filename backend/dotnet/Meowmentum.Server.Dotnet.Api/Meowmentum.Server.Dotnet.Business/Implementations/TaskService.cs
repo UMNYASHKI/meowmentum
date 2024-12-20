@@ -47,7 +47,7 @@ public class TaskService(
         logger.LogInformation("Attempting to update task with ID {TaskId} for user {UserId}", task.Id, userId);
 
         var result = await taskRepository.GetFirstOrDefaultAsync(
-            t => t.Id == task.Id && t.UserId == userId, ct);
+            t => t.Id == task.Id && t.UserId == userId && !t.IsDeleted, ct);
 
         if (!result.IsSuccess)
         {
@@ -117,7 +117,7 @@ public class TaskService(
         logger.LogInformation("Attempting to delete task with ID {TaskId} for user {UserId}", taskId, userId);
 
         var taskResult = await taskRepository.GetFirstOrDefaultAsync(
-            t => t.Id == taskId && t.UserId == userId, ct);
+            t => t.Id == taskId && t.UserId == userId && !t.IsDeleted, ct);
 
         if (!taskResult.IsSuccess)
         {
@@ -125,18 +125,21 @@ public class TaskService(
             return Result.Failure<bool>(ResultMessages.Task.TaskNotFound);
         }
 
-        var deleteResult = await taskRepository.DeleteAsync(taskId, ct);
+        var taskToDelete = taskResult.Data;
+        taskToDelete.IsDeleted = true;
 
-        if (deleteResult.IsSuccess)
+        var updateResult = await taskRepository.UpdateAsync(taskToDelete, ct);
+
+        if (updateResult.IsSuccess)
         {
-            logger.LogInformation("Successfully deleted task with ID {TaskId} for user {UserId}", taskId, userId);
+            logger.LogInformation("Successfully soft-deleted task with ID {TaskId} for user {UserId}", taskId, userId);
         }
         else
         {
-            logger.LogError("Failed to delete task with ID {TaskId} for user {UserId}: {ErrorMessage}", taskId, userId, deleteResult.ErrorMessage);
+            logger.LogError("Failed to soft-delete task with ID {TaskId} for user {UserId}: {ErrorMessage}", taskId, userId, updateResult.ErrorMessage);
         }
 
-        return deleteResult;
+        return updateResult;
     }
 
     public async Task<Result<IEnumerable<TaskResponse>>> GetTasksAsync(long userId, TaskFilterRequest filterRequest, CancellationToken ct = default)
@@ -145,7 +148,7 @@ public class TaskService(
         {
             var taskResult = await taskRepository.GetByIdAsync(filterRequest.TaskId.Value, ct);
 
-            if (!taskResult.IsSuccess)
+            if (!taskResult.IsSuccess || taskResult.Data.IsDeleted)
             {
                 logger.LogError("Task with ID {TaskId} not found for user {UserId}", filterRequest.TaskId.Value, userId);
                 return Result.Failure<IEnumerable<TaskResponse>>(ResultMessages.Task.TaskNotFound);
@@ -164,7 +167,7 @@ public class TaskService(
         }
 
         var queryResult = await taskRepository.GetAllAsync(
-            t => t.UserId == userId,
+            t => t.UserId == userId && !t.IsDeleted,
             orderBy: t => t.OrderBy(task => task.CreatedAt),
             ct: ct);
 
