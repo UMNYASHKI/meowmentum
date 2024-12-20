@@ -292,15 +292,16 @@ public class TimeService(
 
     private async Task<Result<IEnumerable<TimeIntervalResponse>>> GetTimeIntervalsByTaskIdAsync(long userId, long taskId, CancellationToken ct)
     {
-        var taskResult = await taskService.GetTasksAsync(userId, new Shared.Requests.Task.TaskFilterRequest { TaskId = taskId }, ct);
+        var taskResult = await taskRepository.GetFirstOrDefaultAsync(
+            t => t.Id == taskId && t.UserId == userId, ct);
 
-        if (!taskResult.IsSuccess || taskResult.Data == null || !taskResult.Data.Any())
+        if (!taskResult.IsSuccess || taskResult.Data == null)
         {
             logger.LogError("No tasks found for user {UserId} with task ID {TaskId}", userId, taskId);
             return Result.Failure<IEnumerable<TimeIntervalResponse>>(ResultMessages.Task.TaskNotFound);
         }
 
-        var task = taskResult.Data.First();
+        var task = taskResult.Data;
 
         if (task.TimeIntervals == null || !task.TimeIntervals.Any())
         {
@@ -318,7 +319,10 @@ public class TimeService(
 
     private async Task<Result<IEnumerable<TimeIntervalResponse>>> GetAllTimeIntervalsForUserAsync(long userId, CancellationToken ct)
     {
-        var tasksResult = await taskService.GetTasksAsync(userId, new Shared.Requests.Task.TaskFilterRequest { }, ct);
+        var tasksResult = await taskRepository.GetAllAsync(
+            t => t.UserId == userId,
+            orderBy: t => t.OrderBy(task => task.CreatedAt),
+            ct: ct);
 
         if (!tasksResult.IsSuccess)
         {
