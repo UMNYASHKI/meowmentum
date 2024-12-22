@@ -69,6 +69,25 @@ export default function Section() {
                 </p>
               </div>
             )}
+
+            {path.includes('statistics') || path === '/' ? (
+              <div className="flex flex-row mt-[20px] bg-white rounded h-[47px]">
+                <Edit className="w-[20px] h-[20px] m-[10px] items-center" />
+                <p className="font-[500] text-[20px] text-black pt-[5px]">
+                  Statistics
+                </p>
+              </div>
+            ) : (
+              <div
+                onClick={() => router.push('/statistics')}
+                className="flex flex-row mt-[20px] bg-none rounded h-[47px]"
+              >
+                <EditActive className="w-[20px] h-[20px] m-[10px] items-center" />
+                <p className="font-[500] text-[20px] text-white pt-[5px]">
+                  Statistics
+                </p>
+              </div>
+            )}
           </div>
           <div>
             <div className="flex flex-row mt-[20px] rounded hover:bg-neutral-700 h-[47px]">
