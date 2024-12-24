@@ -64,4 +64,9 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
             return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
         }
     }
+
+    public Task<Result<bool>> SendNotificationEmailAsync(string email, string message, CancellationToken ct = default)
+    {
+        throw new NotImplementedException();
+    }
 }
