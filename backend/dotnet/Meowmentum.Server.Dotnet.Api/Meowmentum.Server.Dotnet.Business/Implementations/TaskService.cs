@@ -7,6 +7,7 @@ using Meowmentum.Server.Dotnet.Shared.Responses.Task;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.Extensions.Logging;
 using Task = Meowmentum.Server.Dotnet.Core.Entities.Task;
+using TaskStatus = Meowmentum.Server.Dotnet.Core.Entities.TaskStatus;
 
 namespace Meowmentum.Server.Dotnet.Business.Implementations;
 
@@ -41,7 +42,6 @@ public class TaskService(
 
         return addResult;
     }
-
     public async Task<Result<bool>> UpdateTaskAsync(long userId, Task task, CancellationToken ct = default)
     {
         logger.LogInformation("Attempting to update task with ID {TaskId} for user {UserId}", task.Id, userId);
@@ -61,6 +61,10 @@ public class TaskService(
             return tagValidationResult;
         }
 
+        if(task.Status == TaskStatus.Completed && result.Data.Status != TaskStatus.Completed) 
+        {
+            task.CompletedAt = DateTime.UtcNow;
+        }
         mapper.Map(task, result.Data);
 
         var updateResult = await taskRepository.UpdateAsync(result.Data, ct);
