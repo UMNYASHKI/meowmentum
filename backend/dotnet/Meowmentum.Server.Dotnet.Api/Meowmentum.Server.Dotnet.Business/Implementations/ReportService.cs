@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
+using Meowmentum.Server.Dotnet.Core.Models;
 using Task = Meowmentum.Server.Dotnet.Core.Entities.Task;
 using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -15,24 +16,28 @@ public class ReportService(
     IRepository<Tag> tagRepository,
     IRepository<TimeInterval> timeIntervalRepository) : IReportService
 {
-    private const string FontNameBold = "Bahnschrift SemiBold";
-    private const int HeaderFontSize = 12;
-
-    private void ApplyHeaderStyle(IXLCell cell)
+    private void ApplyFontStyle(IXLCell cell, string fontName = "Bahnschrift SemiBold", int fontSize = 12, bool isBold = true)
     {
-        cell.Style.Font.Bold = true;
-        cell.Style.Font.FontSize = HeaderFontSize;
-        cell.Style.Font.FontName = FontNameBold;
+        cell.Style.Font.FontName = fontName;
+        cell.Style.Font.FontSize = fontSize;
+        cell.Style.Font.Bold = isBold;
         cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
         cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-        cell.Style.Fill.SetBackgroundColor(XLColor.LightGray);
         cell.Style.Alignment.WrapText = true;
     }
 
-    private void ApplyTableHeaderStyle(IXLRow row)
+    private void ApplyHeaderStyle(IXLCell cell, string fontName = "Bahnschrift SemiBold", int fontSize = 12)
     {
-        row.Style.Font.Bold = true;
-        row.Style.Font.FontName = FontNameBold;
+        ApplyFontStyle(cell, fontName, fontSize);
+        cell.Style.Fill.SetBackgroundColor(XLColor.LightGray);
+    }
+
+    private void ApplyTableHeaderStyle(IXLRow row, string fontName = "Bahnschrift SemiBold", int fontSize = 12)
+    {
+        foreach (var cell in row.Cells())
+        {
+            ApplyFontStyle(cell, fontName, fontSize);
+        }
     }
 
     private void ApplyTableBorder(IXLRange targetRange, XLBorderStyleValues borderStyle)
@@ -64,19 +69,20 @@ public class ReportService(
         }
     }
 
-    private FileContentResult GenerateExcelReport(XLWorkbook workbook, string fileName)
+    private FileModel GenerateExcelReport(XLWorkbook workbook, string fileName)
     {
         using var memoryStream = new MemoryStream();
         workbook.SaveAs(memoryStream);
         memoryStream.Seek(0, SeekOrigin.Begin);
 
-        return new FileContentResult(memoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-        {
-            FileDownloadName = fileName
-        };
+        return new FileModel(
+            content: memoryStream.ToArray(),
+            fileName: fileName,
+            contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
     }
 
-    public async Task<Result<FileContentResult>> GenerateCompletedTasksReport(DateTime startDate, DateTime endDate, long userId, CancellationToken ct = default)
+    public async Task<Result<FileModel>> GenerateCompletedTasksReport(DateTime startDate, DateTime endDate, long userId, CancellationToken ct = default)
     {
         var userResult = await userRepository.GetByIdAsync(userId);
         var user = userResult.Data;
@@ -86,7 +92,7 @@ public class ReportService(
                  t.CompletedAt >= startDate.ToUniversalTime() && t.CompletedAt <= endDate.ToUniversalTime());
 
         if (!completedTasksResult.IsSuccess || completedTasksResult.Data == null)
-            return Result.Failure<FileContentResult>(ResultMessages.Task.NoCompletedTasks);
+            return Result.Failure<FileModel>(ResultMessages.Task.NoCompletedTasks);
 
         var tasks = completedTasksResult.Data;
 
@@ -115,7 +121,7 @@ public class ReportService(
             );
 
             if (!timeIntervalsResult.IsSuccess)
-                return Result.Failure<FileContentResult>(ResultMessages.Timer.ErrorRetrieve +  $"{task.Id}.");
+                return Result.Failure<FileModel>(ResultMessages.Timer.ErrorRetrieve +  $"{task.Id}.");
 
             var totalTimeSpent = timeIntervalsResult.Data?.Sum(ti => (ti.EndTime.Value - ti.StartTime).TotalHours) ?? 0;
             globalTimeSpent += totalTimeSpent;
@@ -147,14 +153,14 @@ public class ReportService(
         return Result.Success(GenerateExcelReport(workbook, "CompletedTasksReport.xlsx"));
     }
 
-    public async Task<Result<FileContentResult>> GenerateTagReport(DateTime startDate, DateTime endDate, long userId, CancellationToken ct = default)
+    public async Task<Result<FileModel>> GenerateTagReport(DateTime startDate, DateTime endDate, long userId, CancellationToken ct = default)
     {
         var userResult = await userRepository.GetByIdAsync(userId);
         var user = userResult.Data;
 
         var tagsResult = await tagRepository.GetAllAsync(t => t.UserId == userId);
         if (!tagsResult.IsSuccess || tagsResult.Data == null)
-            return Result.Failure<FileContentResult>(ResultMessages.Task.NoCompletedTasks);
+            return Result.Failure<FileModel>(ResultMessages.Task.NoCompletedTasks);
 
         var tags = tagsResult.Data;
         double globalTotalTime = 0;
@@ -194,7 +200,7 @@ public class ReportService(
                 );
 
                 if (!timeIntervalsResult.IsSuccess)
-                    return Result.Failure<FileContentResult>(ResultMessages.Timer.ErrorRetrieve + $"{task.Id}.");
+                    return Result.Failure<FileModel>(ResultMessages.Timer.ErrorRetrieve + $"{task.Id}.");
 
                 var taskTime = timeIntervalsResult.Data?.Sum(ti => (ti.EndTime.Value - ti.StartTime).TotalHours) ?? 0;
                 totalTagTime += taskTime;
@@ -213,6 +219,7 @@ public class ReportService(
 
         worksheet.Cell(row, 3).Value = globalTotalTime.ToString("0.00");
         ApplyHeaderStyle(worksheet.Cell(row, 3));
+        worksheet.Cell(row, 3).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
         ApplyTableBorder(worksheet.Range($"A1:C{row}"), XLBorderStyleValues.Thick);
 
@@ -221,7 +228,7 @@ public class ReportService(
         return Result.Success(GenerateExcelReport(workbook, "TasksByTagReport.xlsx"));
     }
 
-    public async Task<Result<FileContentResult>> GenerateDeadlineReport(long userId, DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    public async Task<Result<FileModel>> GenerateDeadlineReport(long userId, DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
         var userResult = await userRepository.GetByIdAsync(userId);
         var user = userResult.Data;
@@ -234,7 +241,7 @@ public class ReportService(
                  && t.CompletedAt <= endDate.ToUniversalTime());
 
         if (!completedTasksResult.IsSuccess || completedTasksResult.Data == null)
-            Result.Failure<FileContentResult>(ResultMessages.Task.NoCompletedTasksWithDeadline);
+            Result.Failure<FileModel>(ResultMessages.Task.NoCompletedTasksWithDeadline);
 
         var tasks = completedTasksResult.Data;
 

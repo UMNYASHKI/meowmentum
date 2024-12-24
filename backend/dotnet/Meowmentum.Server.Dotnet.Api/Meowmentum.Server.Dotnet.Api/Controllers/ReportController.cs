@@ -12,37 +12,43 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers
     [Authorize]
     public class ReportController(IReportService reportService) : BaseController()
     {
-        [HttpPost("completed-tasks-report")]
-        public async Task<IActionResult> GenerateCompletedTasksReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate, CancellationToken ct = default)
+        [HttpGet("completed-tasks")]
+        public async Task<IActionResult> GetCompletedTasksReport(DateTime startDate, DateTime endDate,CancellationToken ct = default)
         {
             var result = await reportService.GenerateCompletedTasksReport(startDate, endDate, CurrentUserId, ct);
 
-            if (result.IsSuccess)
-                return result.Data;
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
 
-            return BadRequest(result.ErrorMessage);
+            var fileModel = result.Data;
+
+            return File(fileModel.Content, fileModel.ContentType, fileModel.FileName);
         }
 
-        [HttpPost("tag-report")]
+        [HttpGet("tag-report")]
         public async Task<IActionResult> GenerateTasksByTagReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate, CancellationToken ct = default)
         {
             var result = await reportService.GenerateTagReport(startDate, endDate, CurrentUserId, ct);
 
-            if (result.IsSuccess)
-                return result.Data;
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
 
-            return BadRequest(result.ErrorMessage);
+            var fileModel = result.Data;
+
+            return File(fileModel.Content, fileModel.ContentType, fileModel.FileName);
         }
 
-        [HttpPost("deadline-report")]
+        [HttpGet("deadline-report")]
         public async Task<IActionResult> GenerateDeadlineCompletionReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate, CancellationToken ct = default)
         {
             var result = await reportService.GenerateDeadlineReport(CurrentUserId, startDate, endDate, ct);
 
-            if (result.IsSuccess)
-                return result.Data;
+            if (!result.IsSuccess)
+                return BadRequest(result.ErrorMessage);
 
-            return BadRequest(result.ErrorMessage);
+            var fileModel = result.Data;
+
+            return File(fileModel.Content, fileModel.ContentType, fileModel.FileName);
         }
     }
 }
