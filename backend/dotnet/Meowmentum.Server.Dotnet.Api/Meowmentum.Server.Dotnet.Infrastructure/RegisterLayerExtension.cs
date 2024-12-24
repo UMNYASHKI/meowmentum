@@ -1,4 +1,5 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Business.Implementations;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Infrastructure.Extensions;
 using Meowmentum.Server.Dotnet.Infrastructure.Helpers;
@@ -20,6 +21,7 @@ public static class RegisterLayerExtension
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<INotificationService, TaskNotificationService>();
         services.AddScoped<JwtTokenValidationHandler>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -36,6 +38,7 @@ public static class RegisterLayerExtension
 
         services.AddHelperServices(configuration);
         services.AddGrpcClients(configuration);
+        services.AddQuartzServices();
     }
 }
 
