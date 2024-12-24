@@ -20,7 +20,9 @@ public class TaskNotificationService(
         try
         {
             var result = await taskRepository.GetAllAsync(
-                t => t.Deadline.HasValue && t.Deadline.Value.Date == DateTime.Now.AddDays(1).Date && t.Status != TaskStatus.Completed,
+                t => t.Deadline.HasValue &&
+                    ((DateTimeOffset)t.Deadline.Value).Date == DateTimeOffset.UtcNow.AddDays(1).Date && 
+                    t.Status != TaskStatus.Completed,
                 ct: ct);
 
             if (!result.IsSuccess)
@@ -68,7 +70,9 @@ public class TaskNotificationService(
         try
         {
             var result = await taskRepository.GetAllAsync(
-                t => t.Deadline.HasValue && t.Deadline.Value.Date < DateTime.Now.Date && t.Status != TaskStatus.Completed,
+                t => t.Deadline.HasValue &&
+                    ((DateTimeOffset)t.Deadline.Value).Date < DateTimeOffset.UtcNow.Date && 
+                    t.Status != TaskStatus.Completed,
                 ct: ct);
 
             if (!result.IsSuccess)
