@@ -18,6 +18,9 @@ namespace Meowmentum.Server.Dotnet.Shared.Profiles
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.ConfirmationCode, opt => opt.MapFrom(src => src.Otp));
 
+            CreateMap<NotificationSendingRequest, SendNotificationRequest>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
         }
     }
 }

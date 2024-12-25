@@ -1,6 +1,7 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
+using Meowmentum.Server.Dotnet.Shared.Requests.Email;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -46,7 +47,8 @@ public class TaskNotificationService(
                 if (user.Email is not null)
                 {
                     var message = $"Task {task.Title} is due tomorrow!";
-                    var emailResult = await emailService.SendNotificationEmailAsync(user.Email, message, ct);
+                    var newRequest = new NotificationSendingRequest { Email = user.Email, Message = message };
+                    var emailResult = await emailService.SendNotificationForUserEmailAsync(newRequest, ct);
 
                     if (!emailResult.IsSuccess)
                     {
@@ -96,7 +98,8 @@ public class TaskNotificationService(
                 if (user.Email is not null)
                 {
                     var message = $"Task {task.Title} is overdue! Please complete it as soon as possible";
-                    var emailResult = await emailService.SendNotificationEmailAsync(user.Email, message, ct);
+                    var newRequest = new NotificationSendingRequest { Email = user.Email, Message = message };
+                    var emailResult = await emailService.SendNotificationForUserEmailAsync(newRequest, ct);
 
                     if (!emailResult.IsSuccess)
                     {
