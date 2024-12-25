@@ -16,3 +16,8 @@ public class TokenBlacklistDbConfig : BaseRedisDbConfig
 { 
     public const string SectionName = "RedisConfiguration:TokenBlacklistDbSettings";
 }
+public class OverdueTaskDbConfig : BaseRedisDbConfig
+{
+    public const string SectionName = "RedisConfiguration:OverdueTaskDbSettings";
+    public required int ExpirationTimeInMinutes { get; set; }
+}

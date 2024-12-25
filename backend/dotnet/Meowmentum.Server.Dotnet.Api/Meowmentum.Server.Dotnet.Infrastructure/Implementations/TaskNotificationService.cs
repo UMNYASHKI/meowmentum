@@ -1,10 +1,14 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
 using Meowmentum.Server.Dotnet.Core.Entities;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
+using Meowmentum.Server.Dotnet.Persistence.Abstractions;
+using Meowmentum.Server.Dotnet.Shared.Extensions;
+using Meowmentum.Server.Dotnet.Shared.Options.Redis;
 using Meowmentum.Server.Dotnet.Shared.Requests.Email;
 using Meowmentum.Server.Dotnet.Shared.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Task = Meowmentum.Server.Dotnet.Core.Entities.Task;
 using TaskStatus = Meowmentum.Server.Dotnet.Core.Entities.TaskStatus;
 
@@ -12,17 +16,23 @@ namespace Meowmentum.Server.Dotnet.Business.Implementations;
 
 public class TaskNotificationService(
     UserManager<AppUser> userManager,
+    IRedisCacheService redisCacheService,
+    IOptions<OverdueTaskDbConfig> overdueTaskOptions,
     IRepository<Task> taskRepository, 
     IEmailService emailService, 
     ILogger<INotificationService> logger) : INotificationService
 {
+    private readonly OverdueTaskDbConfig _overdueTaskConfig = overdueTaskOptions.Value;
+    private readonly TimeSpan _overdueTaskExpirationTime = TimeSpan.FromMinutes(overdueTaskOptions.Value.ExpirationTimeInMinutes);
+
     public async Task<Result<bool>> NotifyAboutUpcomingTasksAsync(CancellationToken ct = default)
     {
         try
         {
             var result = await taskRepository.GetAllAsync(
                 t => t.Deadline.HasValue &&
-                    ((DateTimeOffset)t.Deadline.Value).Date == DateTimeOffset.UtcNow.AddDays(1).Date && 
+                    ((DateTimeOffset)t.Deadline.Value) >= DateTimeOffset.UtcNow &&
+                    ((DateTimeOffset)t.Deadline.Value) <= DateTimeOffset.UtcNow.AddDays(1) &&
                     t.Status != TaskStatus.Completed,
                 ct: ct);
 
@@ -52,7 +62,8 @@ public class TaskNotificationService(
 
                     if (!emailResult.IsSuccess)
                     {
-                        logger.LogError($"Failed to send email for task {task.Title} to user {task.UserId}. Error: {emailResult.ErrorMessage}");
+                        logger.LogError($"Failed to send email for task {task.Title} to user {task.UserId}. " +
+                            $"Error: {emailResult.ErrorMessage}");
                         return Result.Failure<bool>($"Failed to send email for task {task.Title}");
                     }
                 }
@@ -73,7 +84,7 @@ public class TaskNotificationService(
         {
             var result = await taskRepository.GetAllAsync(
                 t => t.Deadline.HasValue &&
-                    ((DateTimeOffset)t.Deadline.Value).Date < DateTimeOffset.UtcNow.Date && 
+                    ((DateTimeOffset)t.Deadline.Value) < DateTimeOffset.UtcNow && 
                     t.Status != TaskStatus.Completed,
                 ct: ct);
 
@@ -87,8 +98,16 @@ public class TaskNotificationService(
 
             foreach (var task in tasks)
             {
-                var user = await userManager.FindByIdAsync(task.UserId.ToString());
+                var redisKey = _overdueTaskConfig.Prefix.Append(task.Id.ToString());
 
+                var notificationExists = await redisCacheService.ExistsAsync(redisKey, _overdueTaskConfig.DbNumber, ct);
+                if (notificationExists.IsSuccess)
+                {
+                    logger.LogInformation($"Notification already sent for overdue task {task.Title}, skipping");
+                    continue;
+                }
+
+                var user = await userManager.FindByIdAsync(task.UserId.ToString());
                 if (user is null)
                 {
                     logger.LogError($"User not found with id: {task.UserId}");
@@ -106,6 +125,21 @@ public class TaskNotificationService(
                         logger.LogError($"Failed to send email for overdue task {task.Title} to user {task.UserId}. Error: {emailResult.ErrorMessage}");
                         return Result.Failure<bool>($"Failed to send email for overdue task {task.Title}");
                     }
+
+                    var setResult = await redisCacheService.SetAsync(
+                        redisKey,
+                        "sent",
+                        _overdueTaskExpirationTime,
+                        _overdueTaskConfig.DbNumber, 
+                        true, 
+                        ct);
+                    if (!setResult.IsSuccess)
+                    {
+                        logger.LogError($"Failed to set overdue task {task.Id} for user {task.UserId} in redis cache");
+                        return Result.Failure<bool>(setResult.ErrorMessage);
+                    }
+
+                    logger.LogInformation($"Notification sent for overdue task {task.Title}.");
                 }
             }
 

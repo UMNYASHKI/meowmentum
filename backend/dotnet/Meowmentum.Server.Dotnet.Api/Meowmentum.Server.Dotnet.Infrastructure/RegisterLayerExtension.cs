@@ -21,7 +21,6 @@ public static class RegisterLayerExtension
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
-        services.AddScoped<INotificationService, TaskNotificationService>();
         services.AddScoped<JwtTokenValidationHandler>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -34,7 +33,6 @@ public static class RegisterLayerExtension
             options.Password.RequiredLength = 6;
             options.Password.RequiredUniqueChars = 1;
         });
-
 
         services.AddHelperServices(configuration);
         services.AddGrpcClients(configuration);

@@ -16,7 +16,7 @@ public static class QuartzConfiguration
              .AddTrigger(opts => opts.ForJob("TaskNotificationJob")
                                       .WithIdentity("TaskNotificationTrigger")
                                       .StartNow()
-                                      .WithSimpleSchedule(x => x.WithIntervalInHours(24).RepeatForever()));
+                                      .WithSimpleSchedule(x => x.WithIntervalInMinutes(5).RepeatForever()));
         });
 
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
