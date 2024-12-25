@@ -1,0 +1,9 @@
+{{- /*gotype: meowmentum/backend/email/internal/service.OverdueAlertProps*/ -}}
+
+<h1>You have {{ .TaskCount }} task(s) overdue!</h1>
+
+<p>
+    Hi <b>{{ .Name }}</b>!<br>
+    <br>
+    {{ .TaskCount }} task(s) are past their deadline date, please review them!<br>
+</p>
