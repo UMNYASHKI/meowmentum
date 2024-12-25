@@ -18,6 +18,7 @@ public static class HelperServicesConfiguration
         services.Configure<TokenBlacklistDbConfig>(configuration.GetSection(TokenBlacklistDbConfig.SectionName));
         services.AddScoped<ITokenBlackListManager, TokenBlackListManager>();
 
+        services.Configure<UpcomingTaskDbConfig>(configuration.GetSection(OverdueTaskDbConfig.SectionName));
         services.Configure<OverdueTaskDbConfig>(configuration.GetSection(OverdueTaskDbConfig.SectionName));
         services.AddScoped<INotificationService, TaskNotificationService>();
 

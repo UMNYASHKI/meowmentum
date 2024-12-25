@@ -5,6 +5,7 @@ option go_package = "./email";
 service EmailService {
   rpc RegistrationConfirmation (RegistrationConfirmationRequest) returns (RegistrationConfirmationResponse);
   rpc PasswordReset (PasswordResetRequest) returns (PasswordResetResponse);
+  rpc SendNotification (SendNotificationRequest) returns (SendNotificationResponse);
 }
 
 message RegistrationConfirmationRequest {
@@ -22,3 +23,10 @@ message PasswordResetRequest {
 }
 
 message PasswordResetResponse {}
+
+message SendNotificationRequest {
+  string Email = 1;
+  string Message = 2;
+}
+
+message SendNotificationResponse {}

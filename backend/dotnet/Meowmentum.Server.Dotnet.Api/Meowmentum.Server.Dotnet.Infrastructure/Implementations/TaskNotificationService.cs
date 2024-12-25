@@ -18,10 +18,14 @@ public class TaskNotificationService(
     UserManager<AppUser> userManager,
     IRedisCacheService redisCacheService,
     IOptions<OverdueTaskDbConfig> overdueTaskOptions,
+    IOptions<UpcomingTaskDbConfig> upcomingTaskOptions,
     IRepository<Task> taskRepository, 
     IEmailService emailService, 
     ILogger<INotificationService> logger) : INotificationService
 {
+    private readonly UpcomingTaskDbConfig _upcomingTaskConfig = upcomingTaskOptions.Value;
+    private readonly TimeSpan _upcomingTaskExpirationTime = TimeSpan.FromMinutes(upcomingTaskOptions.Value.ExpirationTimeInMinutes);
+
     private readonly OverdueTaskDbConfig _overdueTaskConfig = overdueTaskOptions.Value;
     private readonly TimeSpan _overdueTaskExpirationTime = TimeSpan.FromMinutes(overdueTaskOptions.Value.ExpirationTimeInMinutes);
 
@@ -46,8 +50,16 @@ public class TaskNotificationService(
 
             foreach (var task in tasks)
             {
-                var user = await userManager.FindByIdAsync(task.UserId.ToString());
+                var redisKey = _upcomingTaskConfig.Prefix.Append(task.Id.ToString());
 
+                var taskExists = await redisCacheService.ExistsAsync(redisKey, _upcomingTaskConfig.DbNumber, ct);
+                if (taskExists.IsSuccess)
+                {
+                    logger.LogInformation($"Notification already sent for upcoming task {task.Title}, skipping");
+                    continue;
+                }
+
+                var user = await userManager.FindByIdAsync(task.UserId.ToString());
                 if (user is null)
                 {
                     logger.LogError($"User not found with id: {task.UserId}");
@@ -66,6 +78,21 @@ public class TaskNotificationService(
                             $"Error: {emailResult.ErrorMessage}");
                         return Result.Failure<bool>($"Failed to send email for task {task.Title}");
                     }
+
+                    var setResult = await redisCacheService.SetAsync(
+                        redisKey,
+                        "sent",
+                        _upcomingTaskExpirationTime,
+                        _upcomingTaskConfig.DbNumber,
+                        true,
+                        ct);
+                    if (!setResult.IsSuccess)
+                    {
+                        logger.LogError($"Failed to set upcoming task {task.Id} for user {task.UserId} in redis cache");
+                        return Result.Failure<bool>(setResult.ErrorMessage);
+                    }
+
+                    logger.LogInformation($"Notification sent for upcoming task {task.Title}.");
                 }
             }
 
@@ -100,8 +127,8 @@ public class TaskNotificationService(
             {
                 var redisKey = _overdueTaskConfig.Prefix.Append(task.Id.ToString());
 
-                var notificationExists = await redisCacheService.ExistsAsync(redisKey, _overdueTaskConfig.DbNumber, ct);
-                if (notificationExists.IsSuccess)
+                var taskExists = await redisCacheService.ExistsAsync(redisKey, _overdueTaskConfig.DbNumber, ct);
+                if (taskExists.IsSuccess)
                 {
                     logger.LogInformation($"Notification already sent for overdue task {task.Title}, skipping");
                     continue;
