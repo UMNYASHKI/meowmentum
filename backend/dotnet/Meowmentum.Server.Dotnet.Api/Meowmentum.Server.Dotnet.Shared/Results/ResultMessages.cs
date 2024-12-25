@@ -88,6 +88,7 @@ public static class ResultMessages
         public const string UserNotFound = "User not found or not authorized.";
         public const string InvalidFilterRequest = "Filter request contains invalid data.";
         public const string InvalidTag = "Invalid or missing tag(s)";
+        public const string FailToGetTask = "Failed to retrieve task(s)";
     }
     public static class Tag
     {

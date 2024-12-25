@@ -43,7 +43,7 @@ public class TaskNotificationService(
             if (!result.IsSuccess)
             {
                 logger.LogError($"Failed to retrieve tasks. Error: {result.ErrorMessage}");
-                return Result.Failure<bool>("Failed to retrieve tasks");
+                return Result.Failure<bool>(ResultMessages.Task.FailToGetTask);
             }
 
             var tasks = result.Data;
@@ -76,7 +76,7 @@ public class TaskNotificationService(
                     {
                         logger.LogError($"Failed to send email for task {task.Title} to user {task.UserId}. " +
                             $"Error: {emailResult.ErrorMessage}");
-                        return Result.Failure<bool>($"Failed to send email for task {task.Title}");
+                        return Result.Failure<bool>($"{ResultMessages.Email.FailToSend} for upcoming task {task.Title}");
                     }
 
                     var setResult = await redisCacheService.SetAsync(
@@ -101,7 +101,7 @@ public class TaskNotificationService(
         catch (Exception ex)
         {
             logger.LogError(ex, "Error occurred while notifying about upcoming tasks.");
-            return Result.Failure<bool>("An error occurred while notifying about upcoming tasks.");
+            return Result.Failure<bool>(ResultMessages.Email.FailToSend);
         }
     }
 
@@ -118,7 +118,7 @@ public class TaskNotificationService(
             if (!result.IsSuccess)
             {
                 logger.LogError($"Failed to retrieve tasks. Error: {result.ErrorMessage}");
-                return Result.Failure<bool>("Failed to retrieve tasks");
+                return Result.Failure<bool>(ResultMessages.Task.FailToGetTask);
             }
 
             var tasks = result.Data;
@@ -150,7 +150,7 @@ public class TaskNotificationService(
                     if (!emailResult.IsSuccess)
                     {
                         logger.LogError($"Failed to send email for overdue task {task.Title} to user {task.UserId}. Error: {emailResult.ErrorMessage}");
-                        return Result.Failure<bool>($"Failed to send email for overdue task {task.Title}");
+                        return Result.Failure<bool>($"{ResultMessages.Email.FailToSend} for overdue task {task.Title}");
                     }
 
                     var setResult = await redisCacheService.SetAsync(

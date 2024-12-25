@@ -67,28 +67,26 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
 
     public async Task<Result<bool>> SendNotificationForUserEmailAsync(NotificationSendingRequest sendingRequest, CancellationToken ct = default)
     {
-        logger.LogInformation("Notification sent to email: {To}", sendingRequest.Email);
-        return Result.Success(true);
-        //try
-        //{
-        //    var request = mapper.Map<SendNotificationRequest>(sendingRequest);
+        try
+        {
+            var request = mapper.Map<SendNotificationRequest>(sendingRequest);
 
-        //    logger.LogInformation("Sending notification to email: {To}", sendingRequest.Email);
-        //    var response = await emailClient.SendNotificationAsync(request, cancellationToken: ct);
-        //    if (response is null)
-        //    {
-        //        logger.LogError("Failed to send email {To}", sendingRequest.Email);
-        //        return Result.Failure<bool>(ResultMessages.Email.FailToSend);
-        //    }
+            logger.LogInformation("Sending notification to email: {To}", sendingRequest.Email);
+            var response = await emailClient.SendNotificationAsync(request, cancellationToken: ct);
+            if (response is null)
+            {
+                logger.LogError("Failed to send email {To}", sendingRequest.Email);
+                return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+            }
 
-        //    logger.LogInformation("Notification sent to email: {To}", sendingRequest.Email);
+            logger.LogInformation("Notification sent to email: {To}", sendingRequest.Email);
 
-        //    return Result.Success(true);
-        //}
-        //catch (Exception ex)
-        //{
-        //    logger.LogError(ex, "Failed to send reset password email to email: {To}", sendingRequest.Email);
-        //    return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
-        //}
+            return Result.Success(true);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send reset password email to email: {To}", sendingRequest.Email);
+            return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
+        }
     }
 }
