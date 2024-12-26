@@ -88,6 +88,7 @@ public static class ResultMessages
         public const string UserNotFound = "User not found or not authorized.";
         public const string InvalidFilterRequest = "Filter request contains invalid data.";
         public const string InvalidTag = "Invalid or missing tag(s)";
+        public const string FailToGetTask = "Failed to retrieve task(s)";
         public const string NoCompletedTasks = "No completed tasks found in this date range.";
         public const string NoCompletedTasksWithDeadline = "No completed tasks with deadline found in this date range.";
     }

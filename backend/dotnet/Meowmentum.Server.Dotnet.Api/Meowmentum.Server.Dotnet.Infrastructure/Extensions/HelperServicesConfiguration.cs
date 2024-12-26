@@ -1,13 +1,10 @@
-﻿using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
+﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Business.Implementations;
+using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Infrastructure.HelperServices;
 using Meowmentum.Server.Dotnet.Shared.Options.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Meowmentum.Server.Dotnet.Infrastructure.Extensions;
 
@@ -20,6 +17,10 @@ public static class HelperServicesConfiguration
 
         services.Configure<TokenBlacklistDbConfig>(configuration.GetSection(TokenBlacklistDbConfig.SectionName));
         services.AddScoped<ITokenBlackListManager, TokenBlackListManager>();
+
+        services.Configure<UpcomingTaskDbConfig>(configuration.GetSection(OverdueTaskDbConfig.SectionName));
+        services.Configure<OverdueTaskDbConfig>(configuration.GetSection(OverdueTaskDbConfig.SectionName));
+        services.AddScoped<INotificationService, TaskNotificationService>();
 
         return services;
     }
