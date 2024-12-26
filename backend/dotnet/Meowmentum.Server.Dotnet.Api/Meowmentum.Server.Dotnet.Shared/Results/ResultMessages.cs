@@ -88,6 +88,8 @@ public static class ResultMessages
         public const string UserNotFound = "User not found or not authorized.";
         public const string InvalidFilterRequest = "Filter request contains invalid data.";
         public const string InvalidTag = "Invalid or missing tag(s)";
+        public const string NoCompletedTasks = "No completed tasks found in this date range.";
+        public const string NoCompletedTasksWithDeadline = "No completed tasks with deadline found in this date range.";
     }
     public static class Tag
     {
@@ -103,5 +105,6 @@ public static class ResultMessages
         public const string ActiveTimerAlreadyExists = "There is already active timer for this task";
         public const string TimerNotFound = "Timer with this ID not found";
         public const string TimerNotBelongsToUser = "Timer not belongs to this user";
+        public const string ErrorRetrieve = "Error retrieving time intervals for task";
     }
 }
