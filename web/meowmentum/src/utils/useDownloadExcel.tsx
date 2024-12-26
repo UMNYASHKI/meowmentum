@@ -14,8 +14,8 @@ const reportsRoute: string =
 
 const ReportsEndpointsMap: Record<ReportType, string> = {
   completedTasks: 'completed-tasks',
-  deadlineReport: 'tag-report',
-  tagReport: 'deadline-report',
+  deadlineReport: 'deadline-report',
+  tagReport: 'tag-report',
 };
 
 const getReportGenerationRoute = (reportType: ReportType) => {
