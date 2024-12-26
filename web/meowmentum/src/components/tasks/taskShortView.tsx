@@ -1,13 +1,20 @@
-import {
-  TaskPriority,
-  TaskStatus,
-  taskPriorities,
-} from '@/common/tasks';
+import { TaskPriority, TaskStatus, taskPriorities } from '@/common/tasks';
 import More from '../../../public/more.svg';
+import Edit from '../../../public/edit.svg';
+import Delete from '../../../public/delete.svg';
+
 import Today from '@public/today.svg';
 import { twMerge } from 'tailwind-merge';
+import EditComponent from '@components/tasks/edit/edit';
+import { useDisclosure } from '@nextui-org/react';
+import { SyntheticEvent } from 'react';
+import {
+  useDeleteTaskMutation,
+  useLazyGetTaskQuery,
+} from '@services/tasks/tasksApi';
 
 interface TaskShortViewProps {
+  id: number;
   title: string;
   deadline: Date | undefined;
   status: TaskStatus;
@@ -60,6 +67,13 @@ export default function TaskShortView({
 }: {
   props: TaskShortViewProps;
 }) {
+  const [deleteTask] = useDeleteTaskMutation();
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  async function handleDelete() {
+    console.log(props.id);
+    await deleteTask(props.id);
+  }
   const statusClass: TypeClasses<TaskStatus> =
     statusClasses.find((x) => x.type === props.status) ?? statusClasses[0];
   const priorityClass: TypeClasses<TaskPriority> =
@@ -98,8 +112,22 @@ export default function TaskShortView({
         </span>
       </th>
       <th className="border flex justify-end items-center h-[42px]">
-        <More className="w-[24px] h-[24px] mr-[28px]" />
+        <Edit
+          onClick={onOpen}
+          className="w-[24px] h-[24px] mr-[28px] dark:invert"
+        />
+        <Delete
+          onClick={handleDelete}
+          className="w-[24px] h-[24px]  dark:invert"
+        />
       </th>
+      {isOpen && (
+        <EditComponent
+          mode="edit"
+          onClose={() => onOpenChange()}
+          taskId={props.id}
+        />
+      )}
     </tr>
   );
 }

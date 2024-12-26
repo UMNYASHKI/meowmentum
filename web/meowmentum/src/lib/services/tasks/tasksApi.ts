@@ -34,7 +34,9 @@ export const tasksApi = createApi({
             : '';
         queryString +=
           filterRequest.priorities.length > 0
-            ? filterRequest.priorities.map((x) => 'priorities=' + x + '&').join()
+            ? filterRequest.priorities
+                .map((x) => 'priorities=' + x + '&')
+                .join()
             : '';
         queryString +=
           filterRequest.status.length > 0
@@ -51,7 +53,20 @@ export const tasksApi = createApi({
         };
       },
     }),
+    deleteTask: builder.mutation<boolean, number>({
+      query: (credentials) => {
+        console.log(`/${endpointRoute}/${credentials}}`);
+        return {
+          url: `/${endpointRoute}/${credentials}`,
+          method: 'DELETE',
+        };
+      },
+    }),
   }),
 });
 
-export const { useCreateTaskMutation, useLazyGetTaskQuery } = tasksApi;
+export const {
+  useCreateTaskMutation,
+  useLazyGetTaskQuery,
+  useDeleteTaskMutation,
+} = tasksApi;

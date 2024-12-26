@@ -1,0 +1,32 @@
+.popup {
+    position: fixed;
+    top: 10%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: lightgray;
+    color: black;
+    border-radius: 20px;
+    text-align: center;
+    pointer-events: none;
+    animation: fadeInOut 2s forwards;
+}
+
+.popup.visible {
+    pointer-events: auto;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

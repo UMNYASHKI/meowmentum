@@ -22,6 +22,7 @@ import { useLazyGetTaskQuery } from '@services/tasks/tasksApi';
 import { ReactDOM } from 'next/dist/server/future/route-modules/app-page/vendored/rsc/entrypoints';
 import { useLazyGetAllTagsQuery } from '@services/tags/tagApi';
 import { TagResponse } from '@services/tags/tagDtos';
+import Popup from '@common/popup/popup';
 
 interface FiltersModel {}
 
@@ -35,6 +36,8 @@ export default function Tasks() {
   const [filterStatus, setFilterStatus] = useState<string[]>([]);
   const [filterTag, setFilterTag] = useState<number[]>([]);
   const [filterId, setFilterId] = useState<number | undefined>(undefined);
+  const [isPopupVisible, setPopupVisible] = useState<boolean>(false);
+  const [popupMessage, setPopupMessage] = useState<string>('');
 
   useEffect(() => {
     getTags()
@@ -53,16 +56,13 @@ export default function Tasks() {
       .then((data) => {
         console.log(data);
         setTasks(data);
-        // let processed = tasks;
-        // for (let i = 0; i < data.length; i++) {
-        //   processed[i] = {
-        //     ...data[i],
-        //     priority: getPriority(data[i].priority as any),
-        //     status: getStatus(data[i].status as any),
-        //   };
-        // }
-        // setTasks(processed);
       });
+
+    const authPrompted = localStorage.getItem('authPrompt');
+    if (authPrompted == '0') {
+      localStorage.setItem('authPrompt', '1');
+      showPopup('Authenticate successfully');
+    }
   }, [
     getTags,
     getTasks,
@@ -88,8 +88,8 @@ export default function Tasks() {
     }
   }
   function handleChangeFilterTags(e: ChangeEvent<HTMLSelectElement>) {
-    const tag = tags.find(x=>x.name === e.target.value);
-    if(tag?.id === undefined) return;
+    const tag = tags.find((x) => x.name === e.target.value);
+    if (tag?.id === undefined) return;
     if (filterTag.includes(tag?.id)) {
       setFilterTag(filterTag.filter((x) => x !== tag?.id));
     } else {
@@ -119,9 +119,19 @@ export default function Tasks() {
       case 1:
         return 'Pending';
       default:
-        return 'Pending'
+        return 'Pending';
     }
   }
+
+  const showPopup = (message: string) => {
+    setPopupVisible(true);
+    setPopupMessage(message);
+    onOpenChange();
+
+    setTimeout(() => {
+      setPopupVisible(false);
+    }, 1200);
+  };
 
   return (
     <>
@@ -138,6 +148,8 @@ export default function Tasks() {
               </span>
             </p>
             <br />
+            {isPopupVisible ? <Popup message={popupMessage} /> : ''}
+
             <div>
               <FilterSelect
                 className="mr-[20px]"
@@ -168,6 +180,7 @@ export default function Tasks() {
                   <TaskShortView
                     key={x.id}
                     props={{
+                      id: x.id,
                       title: x.title ?? '',
                       deadline: x.deadline ?? new Date('01-01-0000'),
                       status: ReverseTaskStatusMapping[x.status ?? 0],
@@ -191,7 +204,7 @@ export default function Tasks() {
           {isOpen && (
             <EditComponent
               mode="create"
-              onClose={() => onOpenChange()}
+              onClose={() => showPopup('Task created successfully')}
               taskId={null}
             />
           )}
