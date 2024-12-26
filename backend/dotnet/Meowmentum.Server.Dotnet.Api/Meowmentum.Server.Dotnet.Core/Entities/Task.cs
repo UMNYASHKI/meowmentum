@@ -14,8 +14,10 @@ public class Task
     [Required]
     public DateTime CreatedAt { get; set; }
     public DateTime? Deadline { get; set; }
+    public DateTime? CompletedAt { get; set; }
     public TaskStatus? Status { get; set; }
-    public TaskPriority? Priority { get; set; } 
+    public TaskPriority? Priority { get; set; }
+    public bool IsDeleted { get; set; } = false;
     [Required]
     [ForeignKey("User")]
     public long UserId { get; set; }

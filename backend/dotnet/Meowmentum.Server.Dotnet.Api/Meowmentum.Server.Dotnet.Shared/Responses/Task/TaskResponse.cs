@@ -10,6 +10,7 @@ public class TaskResponse
     public string? Description { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? Deadline { get; set; }
+    public DateTime? CompletedAt { get; set; }
     public TaskStatus? Status { get; set; }
     public TaskPriority? Priority { get; set; }
     public List<TagResponse>? Tags { get; set; }
