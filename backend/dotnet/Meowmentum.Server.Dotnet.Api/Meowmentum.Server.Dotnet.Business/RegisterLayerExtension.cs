@@ -12,6 +12,7 @@ public static class RegisterLayerExtension
         services.AddScoped<ITagService, TagService>();
         services.AddScoped<ITaskService, TaskService>();
         services.AddScoped<ITimeService, TimeService>();
+        services.AddScoped<IReportService, ReportService>();
     }
 }
 

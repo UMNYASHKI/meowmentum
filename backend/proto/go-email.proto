@@ -5,7 +5,8 @@ option go_package = "./email";
 service EmailService {
   rpc RegistrationConfirmation (RegistrationConfirmationRequest) returns (RegistrationConfirmationResponse);
   rpc PasswordReset (PasswordResetRequest) returns (PasswordResetResponse);
-  rpc SendNotification (SendNotificationRequest) returns (SendNotificationResponse);
+  rpc DeadlineOneDayAlert (DeadlineOneDayAlertRequest) returns (DeadlineOneDayAlertResponse);
+  rpc OverdueAlert (OverdueAlertRequest) returns (OverdueAlertResponse);
 }
 
 message RegistrationConfirmationRequest {
@@ -24,9 +25,19 @@ message PasswordResetRequest {
 
 message PasswordResetResponse {}
 
-message SendNotificationRequest {
+message DeadlineOneDayAlertRequest {
   string Email = 1;
-  string Message = 2;
+  string Name = 2;
+  string TaskName = 3;
+  string TaskURL = 4;
 }
 
-message SendNotificationResponse {}
+message DeadlineOneDayAlertResponse {}
+
+message OverdueAlertRequest {
+  string Email = 1;
+  string Name = 2;
+  int32 TaskCount = 3;
+}
+
+message OverdueAlertResponse {}
