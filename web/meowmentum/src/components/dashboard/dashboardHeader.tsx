@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import Menu from '@public/menu.svg';
 import Avatar from '@public/avatar.svg';
