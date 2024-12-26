@@ -97,7 +97,7 @@ export default function StatisticsHeader({
           >
             <DropdownItem key="completedTasks">Completed Tasks</DropdownItem>
             <DropdownItem key="tagReport">Task Tags</DropdownItem>
-            <DropdownItem key="deadlineReport">Effectiveness</DropdownItem>
+            <DropdownItem key="deadlineReport">Deadline Report</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </div>
