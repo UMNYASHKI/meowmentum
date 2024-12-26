@@ -67,55 +67,51 @@ public class EmailService(EmailClient emailClient, ILogger<IEmailService> logger
 
     public async Task<Result<bool>> SendUpcomingTaskNotificationByEmailAsync(UpcomingTaskSendingRequest sendingRequest, CancellationToken ct = default)
     {
-        logger.LogInformation("Upcoming task notification sent to email: {To}", sendingRequest.Email);
-        return Result.Success(true);
-        //try
-        //{
-        //    var request = mapper.Map<DeadlineOneDayAlertRequest>(sendingRequest);
+        try
+        {
+            var request = mapper.Map<DeadlineOneDayAlertRequest>(sendingRequest);
 
-        //    logger.LogInformation("Sending upcoming task notification to email: {To}", sendingRequest.Email);
-        //    var response = await emailClient.DeadlineOneDayAlertAsync(request, cancellationToken: ct);
-        //    if (response is null)
-        //    {
-        //        logger.LogError("Failed to send email {To}", sendingRequest.Email);
-        //        return Result.Failure<bool>(ResultMessages.Email.FailToSend);
-        //    }
+            logger.LogInformation("Sending upcoming task notification to email: {To}", sendingRequest.Email);
+            var response = await emailClient.DeadlineOneDayAlertAsync(request, cancellationToken: ct);
+            if (response is null)
+            {
+                logger.LogError("Failed to send email {To}", sendingRequest.Email);
+                return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+            }
 
-        //    logger.LogInformation("Upcoming task notification sent to email: {To}", sendingRequest.Email);
+            logger.LogInformation("Upcoming task notification sent to email: {To}", sendingRequest.Email);
 
-        //    return Result.Success(true);
-        //}
-        //catch (Exception ex)
-        //{
-        //    logger.LogError(ex, "Failed to send upcoming task notification to email: {To}", sendingRequest.Email);
-        //    return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
-        //}
+            return Result.Success(true);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send upcoming task notification to email: {To}", sendingRequest.Email);
+            return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
+        }
     }
 
     public async Task<Result<bool>> SendOverdueTaskNotificationByEmailAsync(OverdueTaskSendingRequest sendingRequest, CancellationToken ct = default)
     {
-        logger.LogInformation("Overdue task notification sent to email: {To}", sendingRequest.Email);
-        return Result.Success(true);
-        //try
-        //{
-        //    var request = mapper.Map<OverdueAlertRequest>(sendingRequest);
+        try
+        {
+            var request = mapper.Map<OverdueAlertRequest>(sendingRequest);
 
-        //    logger.LogInformation("Sending overdue task notification to email: {To}", sendingRequest.Email);
-        //    var response = await emailClient.OverdueAlertAsync(request, cancellationToken: ct);
-        //    if (response is null)
-        //    {
-        //        logger.LogError("Failed to send email {To}", sendingRequest.Email);
-        //        return Result.Failure<bool>(ResultMessages.Email.FailToSend);
-        //    }
+            logger.LogInformation("Sending overdue task notification to email: {To}", sendingRequest.Email);
+            var response = await emailClient.OverdueAlertAsync(request, cancellationToken: ct);
+            if (response is null)
+            {
+                logger.LogError("Failed to send email {To}", sendingRequest.Email);
+                return Result.Failure<bool>(ResultMessages.Email.FailToSend);
+            }
 
-        //    logger.LogInformation("Overdue task notification sent to email: {To}", sendingRequest.Email);
+            logger.LogInformation("Overdue task notification sent to email: {To}", sendingRequest.Email);
 
-        //    return Result.Success(true);
-        //}
-        //catch (Exception ex)
-        //{
-        //    logger.LogError(ex, "Failed to send overdue task notification to email: {To}", sendingRequest.Email);
-        //    return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
-        //}
+            return Result.Success(true);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send overdue task notification to email: {To}", sendingRequest.Email);
+            return Result.Failure<bool>(ResultMessages.Email.UnexpectedError.Append(ex.Message));
+        }
     }
 }
