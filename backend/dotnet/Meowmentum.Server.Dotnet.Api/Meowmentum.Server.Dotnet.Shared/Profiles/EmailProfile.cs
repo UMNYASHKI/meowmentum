@@ -18,9 +18,16 @@ namespace Meowmentum.Server.Dotnet.Shared.Profiles
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.ConfirmationCode, opt => opt.MapFrom(src => src.Otp));
 
-            CreateMap<NotificationSendingRequest, SendNotificationRequest>()
+            CreateMap<UpcomingTaskSendingRequest, DeadlineOneDayAlertRequest>()
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
-                .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UserName))
+                .ForMember(dest => dest.TaskName, opt => opt.MapFrom(src => src.TaskName))
+                .ForMember(dest => dest.TaskURL, opt => opt.MapFrom(src => src.TaskUrl));
+
+            CreateMap<OverdueTaskSendingRequest, OverdueAlertRequest>()
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.UserName))
+                .ForMember(dest => dest.TaskCount, opt => opt.MapFrom(src => src.TaskCount));
         }
     }
 }

@@ -8,5 +8,6 @@ public interface IEmailService
 {
     Task<Result<bool>> SendOtpByEmailAsync(OtpEmailSendingRequest sendingRequest, CancellationToken ct = default);
     Task<Result<bool>> SendResetPasswordEmailAsync(ResetPasswordEmailSendingRequest sendingRequest, CancellationToken ct = default);
-    Task<Result<bool>> SendNotificationForUserEmailAsync(NotificationSendingRequest sendingRequest, CancellationToken ct = default);
+    Task<Result<bool>> SendUpcomingTaskNotificationByEmailAsync(UpcomingTaskSendingRequest sendingRequest, CancellationToken ct = default);
+    Task<Result<bool>> SendOverdueTaskNotificationByEmailAsync(OverdueTaskSendingRequest sendingRequest, CancellationToken ct = default);
 }

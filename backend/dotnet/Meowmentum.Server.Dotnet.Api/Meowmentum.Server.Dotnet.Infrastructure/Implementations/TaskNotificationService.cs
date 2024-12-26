@@ -55,7 +55,7 @@ public class TaskNotificationService(
                 var taskExists = await redisCacheService.ExistsAsync(redisKey, _upcomingTaskConfig.DbNumber, ct);
                 if (taskExists.IsSuccess)
                 {
-                    logger.LogInformation($"Notification already sent for upcoming task {task.Title}, skipping");
+                    logger.LogInformation($"Notification already sent for upcoming task with id: {task.Id}, skipping");
                     continue;
                 }
 
@@ -68,15 +68,21 @@ public class TaskNotificationService(
 
                 if (user.Email is not null)
                 {
-                    var message = $"Task {task.Title} is due tomorrow!";
-                    var newRequest = new NotificationSendingRequest { Email = user.Email, Message = message };
-                    var emailResult = await emailService.SendNotificationForUserEmailAsync(newRequest, ct);
+                    var taskUrl = GenerateTaskUrl(task.Id);
+                    var newRequest = new UpcomingTaskSendingRequest 
+                    { 
+                        Email = user.Email, 
+                        UserName = user.UserName ?? "User",
+                        TaskName = task.Title,
+                        TaskUrl = taskUrl
+                    };
+                    var emailResult = await emailService.SendUpcomingTaskNotificationByEmailAsync(newRequest, ct);
 
                     if (!emailResult.IsSuccess)
                     {
-                        logger.LogError($"Failed to send email for task {task.Title} to user {task.UserId}. " +
+                        logger.LogError($"Failed to send email for task with id: {task.Id} to user {task.UserId}. " +
                             $"Error: {emailResult.ErrorMessage}");
-                        return Result.Failure<bool>($"{ResultMessages.Email.FailToSend} for upcoming task {task.Title}");
+                        return Result.Failure<bool>($"{ResultMessages.Email.FailToSend} for upcoming task {task.Id}");
                     }
 
                     var setResult = await redisCacheService.SetAsync(
@@ -88,11 +94,11 @@ public class TaskNotificationService(
                         ct);
                     if (!setResult.IsSuccess)
                     {
-                        logger.LogError($"Failed to set upcoming task {task.Id} for user {task.UserId} in redis cache");
+                        logger.LogError($"Failed to set upcoming task with id: {task.Id} for user with id: {task.UserId} in redis cache");
                         return Result.Failure<bool>(setResult.ErrorMessage);
                     }
 
-                    logger.LogInformation($"Notification sent for upcoming task {task.Title}.");
+                    logger.LogInformation($"Notification sent for upcoming task with id: {task.Id}");
                 }
             }
 
@@ -100,10 +106,138 @@ public class TaskNotificationService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while notifying about upcoming tasks.");
+            logger.LogError(ex, "Error occurred while notifying about upcoming tasks");
             return Result.Failure<bool>(ResultMessages.Email.FailToSend);
         }
     }
+
+    private string GenerateTaskUrl(long taskId)
+    {
+        return $"http://127.0.0.1:8080/tasks/{taskId}"; // todo: change to real url
+    }
+
+    //public async Task<Result<bool>> NotifyAboutOverdueTasksAsync(CancellationToken ct = default)
+    //{
+    //    try
+    //    {
+    //        var result = await taskRepository.GetAllAsync(
+    //            t => t.Deadline.HasValue &&
+    //                ((DateTimeOffset)t.Deadline.Value) < DateTimeOffset.UtcNow && 
+    //                t.Status != TaskStatus.Completed,
+    //            ct: ct);
+
+    //        if (!result.IsSuccess)
+    //        {
+    //            logger.LogError($"Failed to retrieve tasks. Error: {result.ErrorMessage}");
+    //            return Result.Failure<bool>(ResultMessages.Task.FailToGetTask);
+    //        }
+
+    //        var tasks = result.Data;
+    //        var tasksByUser = tasks
+    //            .GroupBy(t => t.UserId)
+    //            .ToDictionary(g => g.Key, g => g.ToList());
+
+    //        foreach (var userTasks in tasksByUser)
+    //        {
+    //            var userId = userTasks.Key;
+    //            var tasksForUser = userTasks.Value;
+
+    //            var redisKey = _overdueTaskConfig.Prefix.Append($"user:{userId}:overdueCount");
+
+    //            var taskExists = await redisCacheService.ExistsAsync(redisKey, _overdueTaskConfig.DbNumber, ct);
+    //            if (taskExists.IsSuccess && taskExists.Data)
+    //            {
+    //                var currentOverdueCountResult = await redisCacheService.GetAsync<int>(redisKey, _overdueTaskConfig.DbNumber, ct);
+
+    //                if (currentOverdueCountResult.IsSuccess)
+    //                {
+    //                    var currentOverdueCount = currentOverdueCountResult.Data;
+
+    //                    if (currentOverdueCount != tasksForUser.Count)
+    //                    {
+    //                        var setCountResult = await redisCacheService.SetAsync(
+    //                            redisKey,
+    //                            tasksForUser.Count,
+    //                            _overdueTaskExpirationTime,
+    //                            _overdueTaskConfig.DbNumber,
+    //                            true,
+    //                            ct);
+
+    //                        if (!setCountResult.IsSuccess)
+    //                        {
+    //                            logger.LogError($"Failed to update overdue count for user with id: {userId} in Redis");
+    //                            return Result.Failure<bool>(setCountResult.ErrorMessage);
+    //                        }
+
+    //                        logger.LogInformation($"Updated overdue task count for user {userId} in Redis.");
+    //                    }
+    //                    else
+    //                    {
+    //                        logger.LogInformation($"No new overdue tasks for user with id: {userId}, skipping notification");
+    //                        continue;
+    //                    }
+    //                }
+    //                else
+    //                {
+    //                    logger.LogError($"Failed to retrieve overdue count for user with id: {userId} from Redis");
+    //                    return Result.Failure<bool>(currentOverdueCountResult.ErrorMessage);
+    //                }
+    //            }
+    //            else
+    //            {
+    //                var setCountResult = await redisCacheService.SetAsync(
+    //                    redisKey,
+    //                    tasksForUser.Count,
+    //                    _overdueTaskExpirationTime,
+    //                    _overdueTaskConfig.DbNumber,
+    //                    true,
+    //                    ct);
+    //                if (!setCountResult.IsSuccess)
+    //                {
+    //                    logger.LogError($"Failed to set overdue count for user with id: {userId} in Redis");
+    //                    return Result.Failure<bool>(setCountResult.ErrorMessage);
+    //                }
+
+    //                continue;
+    //            }
+
+    //            var user = await userManager.FindByIdAsync(userId.ToString());
+    //            if (user is null)
+    //            {
+    //                logger.LogError($"User not found with id: {userId}");
+    //                return Result.Failure<bool>(ResultMessages.User.UserNotFound);
+    //            }
+
+    //            if (user.Email is not null)
+    //            {
+    //                var newRequest = new OverdueTaskSendingRequest
+    //                {
+    //                    Email = user.Email,
+    //                    UserName = user.UserName ?? "User",
+    //                    TaskCount = tasksForUser.Count
+    //                };
+
+    //                var emailResult = await emailService.SendOverdueTaskNotificationByEmailAsync(newRequest, ct);
+
+    //                if (!emailResult.IsSuccess)
+    //                {
+    //                    logger.LogError($"Failed to send email for overdue tasks to user with id: {userId}. " +
+    //                        $"Error: {emailResult.ErrorMessage}");
+    //                    return Result.Failure<bool>($"{ResultMessages.Email.FailToSend} for overdue tasks");
+    //                }
+
+    //                logger.LogInformation($"Notification sent for overdue tasks to user with id: {userId}");
+    //            }
+    //        }
+
+    //        return Result.Success(true);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        logger.LogError(ex, "Error occurred while notifying about overdue tasks");
+    //        return Result.Failure<bool>("An error occurred while notifying about overdue tasks");
+    //    }
+    //}
 
     public async Task<Result<bool>> NotifyAboutOverdueTasksAsync(CancellationToken ct = default)
     {
@@ -111,7 +245,7 @@ public class TaskNotificationService(
         {
             var result = await taskRepository.GetAllAsync(
                 t => t.Deadline.HasValue &&
-                    ((DateTimeOffset)t.Deadline.Value) < DateTimeOffset.UtcNow && 
+                    ((DateTimeOffset)t.Deadline.Value) < DateTimeOffset.UtcNow &&
                     t.Status != TaskStatus.Completed,
                 ct: ct);
 
@@ -122,51 +256,84 @@ public class TaskNotificationService(
             }
 
             var tasks = result.Data;
+            var tasksByUser = tasks
+                .GroupBy(t => t.UserId)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
-            foreach (var task in tasks)
+            foreach (var userTasks in tasksByUser)
             {
-                var redisKey = _overdueTaskConfig.Prefix.Append(task.Id.ToString());
+                var userId = userTasks.Key;
+                var tasksForUser = userTasks.Value;
+
+                var redisKey = _overdueTaskConfig.Prefix.Append($"user:{userId}:overdueCount");
 
                 var taskExists = await redisCacheService.ExistsAsync(redisKey, _overdueTaskConfig.DbNumber, ct);
-                if (taskExists.IsSuccess)
+                var currentOverdueCount = 0;
+
+                if (taskExists.IsSuccess && taskExists.Data)
                 {
-                    logger.LogInformation($"Notification already sent for overdue task {task.Title}, skipping");
+                    var currentOverdueCountResult = await redisCacheService.GetAsync<int>(redisKey, _overdueTaskConfig.DbNumber, ct);
+                    if (currentOverdueCountResult.IsSuccess)
+                    {
+                        currentOverdueCount = currentOverdueCountResult.Data;
+                    }
+                    else
+                    {
+                        logger.LogError($"Failed to retrieve overdue count for user with id: {userId} from Redis");
+                        return Result.Failure<bool>(currentOverdueCountResult.ErrorMessage);
+                    }
+                }
+
+                if (currentOverdueCount != tasksForUser.Count || !taskExists.Data)
+                {
+                    var setCountResult = await redisCacheService.SetAsync(
+                        redisKey,
+                        tasksForUser.Count,
+                        _overdueTaskExpirationTime,
+                        _overdueTaskConfig.DbNumber,
+                        true,
+                        ct);
+
+                    if (!setCountResult.IsSuccess)
+                    {
+                        logger.LogError($"Failed to update overdue count for user with id: {userId} in Redis");
+                        return Result.Failure<bool>(setCountResult.ErrorMessage);
+                    }
+
+                    logger.LogInformation($"Updated overdue task count for user {userId} in Redis");
+                }
+                else
+                {
+                    logger.LogInformation($"No new overdue tasks for user with id: {userId}, skipping notification");
                     continue;
                 }
 
-                var user = await userManager.FindByIdAsync(task.UserId.ToString());
+                var user = await userManager.FindByIdAsync(userId.ToString());
                 if (user is null)
                 {
-                    logger.LogError($"User not found with id: {task.UserId}");
+                    logger.LogError($"User not found with id: {userId}");
                     return Result.Failure<bool>(ResultMessages.User.UserNotFound);
                 }
 
                 if (user.Email is not null)
                 {
-                    var message = $"Task {task.Title} is overdue! Please complete it as soon as possible";
-                    var newRequest = new NotificationSendingRequest { Email = user.Email, Message = message };
-                    var emailResult = await emailService.SendNotificationForUserEmailAsync(newRequest, ct);
+                    var newRequest = new OverdueTaskSendingRequest
+                    {
+                        Email = user.Email,
+                        UserName = user.UserName ?? "User",
+                        TaskCount = tasksForUser.Count
+                    };
+
+                    var emailResult = await emailService.SendOverdueTaskNotificationByEmailAsync(newRequest, ct);
 
                     if (!emailResult.IsSuccess)
                     {
-                        logger.LogError($"Failed to send email for overdue task {task.Title} to user {task.UserId}. Error: {emailResult.ErrorMessage}");
-                        return Result.Failure<bool>($"{ResultMessages.Email.FailToSend} for overdue task {task.Title}");
+                        logger.LogError($"Failed to send email for overdue tasks to user with id: {userId}. " +
+                            $"Error: {emailResult.ErrorMessage}");
+                        return Result.Failure<bool>($"{ResultMessages.Email.FailToSend} for overdue tasks");
                     }
 
-                    var setResult = await redisCacheService.SetAsync(
-                        redisKey,
-                        "sent",
-                        _overdueTaskExpirationTime,
-                        _overdueTaskConfig.DbNumber, 
-                        true, 
-                        ct);
-                    if (!setResult.IsSuccess)
-                    {
-                        logger.LogError($"Failed to set overdue task {task.Id} for user {task.UserId} in redis cache");
-                        return Result.Failure<bool>(setResult.ErrorMessage);
-                    }
-
-                    logger.LogInformation($"Notification sent for overdue task {task.Title}.");
+                    logger.LogInformation($"Notification sent for overdue tasks to user with id: {userId}");
                 }
             }
 
@@ -174,8 +341,8 @@ public class TaskNotificationService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while notifying about overdue tasks.");
-            return Result.Failure<bool>("An error occurred while notifying about overdue tasks.");
+            logger.LogError(ex, "Error occurred while notifying about overdue tasks");
+            return Result.Failure<bool>("An error occurred while notifying about overdue tasks");
         }
     }
 }
