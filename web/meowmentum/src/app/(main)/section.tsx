@@ -7,6 +7,7 @@ import Settings from '@public/settings.svg';
 import Logout from '@public/logout.svg';
 import Edit from '@public/edit-active.svg';
 import EditActive from '@public/edit.svg';
+import BarChart from '@public/bar-chart.svg';
 import { useAuth } from '@providers/authProvider';
 import { useLogOutMutation } from '@services/auth/authApi';
 import { usePathname, useRouter } from 'next/navigation';
@@ -70,9 +71,9 @@ export default function Section() {
               </div>
             )}
 
-            {path.includes('statistics') || path === '/' ? (
+            {path.includes('statistics') ? (
               <div className="flex flex-row mt-[20px] bg-white rounded h-[47px]">
-                <Edit className="w-[20px] h-[20px] m-[10px] items-center" />
+                <BarChart className="w-[20px] h-[20px] m-[10px] items-center" />
                 <p className="font-[500] text-[20px] text-black pt-[5px]">
                   Statistics
                 </p>
@@ -82,7 +83,7 @@ export default function Section() {
                 onClick={() => router.push('/statistics')}
                 className="flex flex-row mt-[20px] bg-none rounded h-[47px]"
               >
-                <EditActive className="w-[20px] h-[20px] m-[10px] items-center" />
+                <BarChart className="dark:invert w-[20px] h-[20px] m-[10px] items-center" />
                 <p className="font-[500] text-[20px] text-white pt-[5px]">
                   Statistics
                 </p>

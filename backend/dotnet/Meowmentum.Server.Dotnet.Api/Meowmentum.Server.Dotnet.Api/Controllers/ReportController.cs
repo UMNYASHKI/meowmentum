@@ -13,7 +13,7 @@ namespace Meowmentum.Server.Dotnet.Api.Controllers
     public class ReportController(IReportService reportService) : BaseController()
     {
         [HttpGet("completed-tasks")]
-        public async Task<IActionResult> GetCompletedTasksReport(DateTime startDate, DateTime endDate,CancellationToken ct = default)
+        public async Task<IActionResult> GetCompletedTasksReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate, CancellationToken ct = default)
         {
             var result = await reportService.GenerateCompletedTasksReport(startDate, endDate, CurrentUserId, ct);
 
