@@ -43,9 +43,9 @@ export const tasksApi = createApi({
             ? filterRequest.status.map((x) => 'status=' + x + '&').join()
             : '';
         const token = localStorage.getItem('token');
-        console.log(`/${endpointRoute}?` + queryString);
+        console.log(queryString);
         return {
-          url: `/${endpointRoute}?` + queryString,
+          url: `/${endpointRoute}?` + queryString.slice(0, -1),
           method: 'GET',
           headers: {
             Authorization: 'Bearer' + token,

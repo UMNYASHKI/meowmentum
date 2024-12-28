@@ -12,6 +12,7 @@ import {
   useDeleteTaskMutation,
   useLazyGetTaskQuery,
 } from '@services/tasks/tasksApi';
+import { useRouter } from 'next/navigation';
 
 interface TaskShortViewProps {
   id: number;
@@ -68,11 +69,13 @@ export default function TaskShortView({
   props: TaskShortViewProps;
 }) {
   const [deleteTask] = useDeleteTaskMutation();
+  const router = useRouter();
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   async function handleDelete() {
     console.log(props.id);
     await deleteTask(props.id);
+    router.push('');
   }
   const statusClass: TypeClasses<TaskStatus> =
     statusClasses.find((x) => x.type === props.status) ?? statusClasses[0];

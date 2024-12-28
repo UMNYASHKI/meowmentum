@@ -126,7 +126,7 @@ export default function Tasks() {
   const showPopup = (message: string) => {
     setPopupVisible(true);
     setPopupMessage(message);
-    onOpenChange();
+    //onOpenChange();
 
     setTimeout(() => {
       setPopupVisible(false);
