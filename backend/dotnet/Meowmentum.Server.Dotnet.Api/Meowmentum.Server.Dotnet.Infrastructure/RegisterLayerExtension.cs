@@ -1,4 +1,5 @@
 ﻿using Meowmentum.Server.Dotnet.Business.Abstractions;
+using Meowmentum.Server.Dotnet.Business.Implementations;
 using Meowmentum.Server.Dotnet.Infrastructure.Abstractions;
 using Meowmentum.Server.Dotnet.Infrastructure.Extensions;
 using Meowmentum.Server.Dotnet.Infrastructure.Helpers;
@@ -33,9 +34,9 @@ public static class RegisterLayerExtension
             options.Password.RequiredUniqueChars = 1;
         });
 
-
         services.AddHelperServices(configuration);
         services.AddGrpcClients(configuration);
+        services.AddQuartzServices();
     }
 }
 

@@ -27,8 +27,6 @@ import {
 } from '@/common/tasks';
 import TimeLogs from '@components/time-logs/timeLogs';
 import { useSetError } from '@utils/popUpsManager';
-import { ITimeInterval } from '@/common/timeIntervals';
-import { transformTimeIntervals } from '@utils/timeIntervalsHelpers';
 
 type PageMode = 'create' | 'edit';
 
