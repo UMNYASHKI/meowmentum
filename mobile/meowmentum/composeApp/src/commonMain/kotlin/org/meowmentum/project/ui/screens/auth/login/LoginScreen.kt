@@ -14,10 +14,12 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
 import org.meowmentum.project.ui.components.*
 import org.meowmentum.project.ui.screens.auth.forgotpassword.ForgotPasswordScreen
 import org.meowmentum.project.ui.screens.auth.register.RegisterScreen
+import org.meowmentum.project.ui.screens.task.list.TaskListScreen
 
 class LoginScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +47,6 @@ class LoginScreen : Screen {
                     text = "Log in",
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
                 )
 
                 Column(
@@ -66,6 +67,7 @@ class LoginScreen : Screen {
                         isError = state.emailError != null,
                         supportingText = state.emailError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
@@ -86,6 +88,7 @@ class LoginScreen : Screen {
                         isError = state.passwordError != null,
                         supportingText = state.passwordError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
@@ -115,7 +118,8 @@ class LoginScreen : Screen {
                     ) {
                         Text(
                             "Log In",
-                            modifier = Modifier.padding(vertical = 4.dp)
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
 
@@ -142,7 +146,9 @@ class LoginScreen : Screen {
 //                                modifier = Modifier.size(20.dp)
 //                            )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Continue with Google")
+                            Text("Continue with Google",
+                                style = MaterialTheme.typography.labelMedium
+                            )
                         }
                     }
                 }
@@ -157,7 +163,7 @@ class LoginScreen : Screen {
                             contentColor = MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Forgot Password?")
+                        Text("Forgot Password?", style = MaterialTheme.typography.bodySmall)
                     }
 
                     TextButton(
@@ -166,7 +172,7 @@ class LoginScreen : Screen {
                             contentColor = MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Sign Up")
+                        Text("Sign Up", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

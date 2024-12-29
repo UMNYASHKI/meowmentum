@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,6 +69,7 @@ class RegisterScreen : Screen {
                         isError = state.nameError != null,
                         supportingText = state.nameError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
@@ -88,6 +90,7 @@ class RegisterScreen : Screen {
                         isError = state.emailError != null,
                         supportingText = state.emailError?.let { { Text(it) } },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
@@ -109,6 +112,7 @@ class RegisterScreen : Screen {
                         supportingText = state.passwordError?.let { { Text(it) } } ?:
                         { Text("Must be at least 8 characters") },
                         modifier = Modifier.fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
@@ -131,6 +135,7 @@ class RegisterScreen : Screen {
                             supportingText = state.verificationError?.let { { Text(it) } } ?:
                             { Text("Enter verification code from email you received") },
                             modifier = Modifier.fillMaxWidth(),
+                            textStyle = MaterialTheme.typography.bodyMedium,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = MaterialTheme.colorScheme.tertiary,
@@ -167,7 +172,8 @@ class RegisterScreen : Screen {
                     ) {
                         Text(
                             if (state.showVerificationField) "Verify" else "Sign Up",
-                            modifier = Modifier.padding(vertical = 4.dp)
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
 
@@ -194,7 +200,8 @@ class RegisterScreen : Screen {
 //                                modifier = Modifier.size(20.dp)
 //                            )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Continue with Google")
+                            Text("Continue with Google",
+                                    style = MaterialTheme.typography.labelMedium)
                         }
                     }
                 }
@@ -207,7 +214,7 @@ class RegisterScreen : Screen {
                     Text(
                         "Already have an account? ",
                         color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodySmall
                     )
                     TextButton(
                         onClick = { navigator.pop() },
@@ -216,7 +223,9 @@ class RegisterScreen : Screen {
                             contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text("Log in")
+                        Text("Log in",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                 }
             }

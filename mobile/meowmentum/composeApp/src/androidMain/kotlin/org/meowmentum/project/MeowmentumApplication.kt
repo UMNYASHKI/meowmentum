@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.jakewharton.threetenabp.AndroidThreeTen
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.compose.KoinAndroidContext
@@ -15,6 +16,7 @@ import org.meowmentum.project.di.appModule
 class MeowApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        AndroidThreeTen.init(this)
         appContext = applicationContext
         startKoin {
             androidContext(this@MeowApp)
