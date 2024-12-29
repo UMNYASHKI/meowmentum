@@ -31,6 +31,7 @@ export default function LogIn() {
         .unwrap()
         .then((data) => login(data.token));
 
+      localStorage.setItem('authPrompt', '0');
       router.push('/tasks');
     } catch (error) {
       dispatch(
